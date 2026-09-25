@@ -2,93 +2,107 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#161330">
 <title>Sage — compagnon vocal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --night:#161330;--deep:#0f0d22;--ink:#ECE4CF;--muted:#9892B8;
-  --lapis:#5B7BE0;--saffron:#E6A93F;--sage:#86B397;--rose:#D9788A;
-  --line:rgba(236,228,207,.13);
-  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
-  --sans:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
+:root{--night:#161330;--deep:#0f0d22;--ink:#ECE4CF;--muted:#9892B8;--lapis:#5B7BE0;--saffron:#E6A93F;--sage:#86B397;--rose:#D9788A;--line:rgba(236,228,207,.13);--line2:rgba(236,228,207,.24);--serif:"Cormorant Garamond",Georgia,serif;--sans:"Outfit",system-ui,sans-serif}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:radial-gradient(120% 70% at 50% 16%,#2b2462 0%,var(--night) 55%,var(--deep) 100%);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;overflow:hidden;-webkit-tap-highlight-color:transparent}
-:focus-visible{outline:2px solid var(--saffron);outline-offset:2px}
-.app{height:100dvh;display:flex;flex-direction:column;max-width:720px;margin:0 auto;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px 0}
+:focus-visible{outline:2px solid var(--saffron);outline-offset:2px;border-radius:6px}
+button{cursor:pointer;font-family:var(--sans)}button:disabled{opacity:.55;cursor:not-allowed}
+.app{height:100dvh;display:flex;flex-direction:column;max-width:720px;margin:0 auto;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 18px 0}
 .who h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.1;margin:0}
-.who p{margin:2px 0 0;color:var(--muted);font-size:14px}
-.iconbtn{flex:none;background:none;border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:19px;cursor:pointer}
-.stage{position:relative;flex:none;height:min(40dvh,330px)}
+.who p{margin:2px 0 0;color:var(--muted);font-size:14px;min-height:20px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px;margin-top:6px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--sage)}
+.badge.warn::before{background:var(--saffron)}.badge.err::before{background:var(--rose)}
+.iconbtn{flex:none;background:none;border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:19px;transition:border-color .2s,transform .15s}
+.iconbtn:hover{border-color:var(--line2)}.iconbtn:active{transform:scale(.95)}
+.stage{position:relative;flex:none;height:min(46dvh,380px);min-height:220px}
 #orb{display:block;width:100%;height:100%;cursor:pointer;touch-action:manipulation}
-.live{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--saffron);padding:0 24px;min-height:30px}
+.live{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--saffron);padding:0 24px;min-height:30px;pointer-events:none;text-shadow:0 1px 12px rgba(22,19,48,.9);transition:opacity .3s}
+.live:empty{opacity:0}
 .log{flex:1 1 auto;overflow-y:auto;padding:4px 18px 12px;overscroll-behavior:contain}
-.msg{margin:14px 0;max-width:62ch;white-space:pre-wrap;word-wrap:break-word}
+.log::-webkit-scrollbar{width:6px}.log::-webkit-scrollbar-thumb{background:rgba(236,228,207,.14);border-radius:3px}
+.msg{margin:14px 0;max-width:62ch;white-space:pre-wrap;word-wrap:break-word;animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .msg.user{margin-left:auto;text-align:right;color:var(--muted);font-size:15px}
 .msg.bot{font-family:var(--serif);font-size:21px;line-height:1.55}
 .msg.sys{font-size:14px;color:var(--muted);border-left:2px solid var(--rose);padding-left:10px}
-.card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 14px;margin:10px 0;background:rgba(236,228,207,.04)}
+.card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 14px;margin:10px 0;background:rgba(236,228,207,.04);animation:in .3s ease-out}
 .card span{flex:1;font-size:15px}
-.card button,.btn{flex:none;min-height:44px;padding:10px 18px;border-radius:22px;border:0;background:var(--saffron);color:#1d1838;font:500 15px var(--sans);cursor:pointer}
-.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.card button,.btn{flex:none;min-height:44px;padding:10px 18px;border-radius:22px;border:0;background:var(--saffron);color:#1d1838;font:500 15px var(--sans);transition:transform .12s,filter .15s}
+.card button:active,.btn:active{transform:scale(.97)}.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}.btn.ghost:hover{border-color:var(--line2)}
 .dock{flex:none;padding:10px 14px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .row{display:flex;gap:10px;align-items:center}
-#txt{flex:1;min-width:0;font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:24px;padding:12px 16px}
+#txt{flex:1;min-width:0;font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:24px;padding:12px 16px;transition:border-color .2s}
+#txt:focus{border-color:rgba(230,169,63,.5);outline:none;background:rgba(236,228,207,.09)}
 #txt::placeholder{color:var(--muted)}
-#talk{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--saffron);color:#1d1838;font:500 18px var(--sans);cursor:pointer;transition:background .25s}
+#talk{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--saffron);color:#1d1838;font:500 18px var(--sans);transition:background .25s,transform .15s}
+#talk:active{transform:scale(.98)}
 #talk[data-state="listening"]{background:var(--sage)}
 #talk[data-state="busy"]{background:var(--lapis);color:var(--ink)}
-.toggle{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none}
-.toggle input{width:22px;height:22px;accent-color:var(--saffron)}
+.toggle{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none;padding:4px 0}
+.toggle input{width:22px;height:22px;accent-color:var(--saffron);cursor:pointer}.toggle:hover{color:var(--ink)}
 .sensorbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sensor{min-height:42px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 14px var(--sans);cursor:pointer;padding:8px 10px}
-.sensor.active{border-color:rgba(230,169,63,.7);box-shadow:0 0 0 1px rgba(230,169,63,.16) inset}
-.sensor:disabled{opacity:.5;cursor:wait}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 8px;margin-top:5px}
-.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--sage)}
+.sensor{min-height:42px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 14px var(--sans);padding:8px 10px;transition:border-color .2s,background .2s}
+.sensor:hover{border-color:var(--line2)}
+.sensor.active{border-color:rgba(230,169,63,.7);background:rgba(230,169,63,.09);box-shadow:0 0 0 1px rgba(230,169,63,.16) inset}
 #visionInput{display:none}
 .codecard{display:block;border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:rgba(8,7,20,.45)}
 .codecard .codehead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--muted);font-size:13px}
-.codecard pre{margin:0;max-height:360px;overflow:auto;white-space:pre;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
-.codecard button{min-height:34px;padding:6px 12px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
-#settings.modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(10,8,24,.78);padding:12px;overflow:auto;color:var(--ink);-webkit-overflow-scrolling:touch}
+.codecard pre{margin:0;max-height:360px;overflow:auto;white-space:pre;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
+.codecard button{min-height:34px;padding:6px 12px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink)}
+#toasts{position:fixed;top:calc(env(safe-area-inset-top,0) + 12px);left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:min(420px,calc(100vw - 24px))}
+.toast{pointer-events:auto;padding:10px 14px;border-radius:14px;background:rgba(22,19,48,.96);border:1px solid var(--line2);color:var(--ink);font-size:14px;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,.45);animation:tin .28s ease-out;backdrop-filter:blur(8px);display:flex;gap:10px;align-items:flex-start;white-space:pre-line;max-height:60vh;overflow-y:auto}
+.toast::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:var(--sage);margin-top:6px}
+.toast.warn::before{background:var(--saffron)}.toast.err::before{background:var(--rose)}
+.toast.out{animation:tout .25s ease-in forwards}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(-6px)}}
+#settings.modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(10,8,24,.78);padding:12px;overflow:auto;color:var(--ink);backdrop-filter:blur(6px)}
 #settings.modal.open{display:flex;align-items:flex-start;justify-content:center}
-#settings.modal[hidden]{display:none!important}
 #settings .sheet{width:min(640px,100%);margin:auto}
-.sheet{background:var(--night);border:1px solid var(--line);border-radius:20px;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:92dvh;overflow-y:auto}
+.sheet{background:var(--night);border:1px solid var(--line);border-radius:20px;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0));max-height:92dvh;overflow-y:auto;animation:in .3s ease-out}
 .sheet h2{font-family:var(--serif);font-weight:500;font-size:28px;margin:0 0 4px}
 .sheet h3{font-family:var(--serif);font-weight:500;font-size:21px;margin:22px 0 6px;color:var(--saffron)}
-.sheet p.hint{color:var(--muted);font-size:14px;margin:4px 0 10px}
+.sheet p.hint{color:var(--muted);font-size:14px;margin:4px 0 10px;line-height:1.5}
 .field{display:flex;flex-direction:column;gap:4px;margin:10px 0}
 .field label{font-size:14px;color:var(--muted)}
-.field input,.field select,.field textarea{font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.field input,.field select,.field textarea{font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(230,169,63,.5);outline:none}
 .field textarea{min-height:92px;resize:vertical}
-.field select option{background:var(--night)}
-#apiTestStatus{white-space:pre-line;line-height:1.55}
+.field select option{background:var(--night)}.field input[readonly]{opacity:.7}
 .api-validation{margin:8px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:14px;line-height:1.45;background:rgba(236,228,207,.035)}
 .api-validation[data-state=idle]{color:var(--muted)}
 .api-validation[data-state=checking]{color:var(--saffron)}
 .api-validation[data-state=valid]{color:var(--sage);border-color:rgba(134,179,151,.42)}
 .api-validation[data-state=warn]{color:var(--saffron);border-color:rgba(230,169,63,.42)}
 .api-validation[data-state=invalid]{color:var(--rose);border-color:rgba(217,120,138,.42)}
-.sheet code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--saffron)}
+.sheet code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--saffron);font-size:.92em;background:rgba(230,169,63,.08);padding:1px 5px;border-radius:5px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.sensorbar .sensor:first-child{grid-column:1/-1}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.memlist{max-height:220px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:rgba(236,228,207,.035);font-size:14px}
+.memlist .fact{padding:6px 0;border-bottom:1px dashed rgba(236,228,207,.08)}
+.memlist .fact:last-child{border-bottom:0}
+.memlist .w{color:var(--muted);font-size:12px;margin-left:6px}
+.memlist .empty{color:var(--muted);font-style:italic}
+@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.sensorbar .sensor:first-child{grid-column:1/-1}.who h1{font-size:26px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<noscript><div style="position:fixed;z-index:9999;inset:12px 12px auto;padding:14px;border-radius:14px;background:#2b244d;color:#fff;font:16px system-ui">JavaScript est désactivé dans cet aperçu. Ouvre ce fichier dans Chrome, Safari ou Firefox pour utiliser Sage.</div></noscript>
+<div id="toasts" aria-live="polite"></div>
+
 <div class="app">
   <header>
     <div class="who">
@@ -100,7 +114,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   </header>
 
   <div class="stage">
-    <canvas id="orb" aria-label="Orbe : touche pour parler ou interrompre" role="button" tabindex="0"></canvas>
+    <canvas id="orb" aria-label="Orbe" role="button" tabindex="0"></canvas>
     <div class="live" id="live" aria-live="polite"></div>
   </div>
 
@@ -115,19 +129,19 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
       <button id="talk" type="button" data-state="idle">Parler</button>
     </div>
     <div class="sensorbar">
-      <button class="sensor active" id="brainMode" type="button" title="Auto : rapide. Supra : conseil multi-agent. Fulgurant : réponse directe.">∞ Auto</button>
+      <button class="sensor active" id="brainMode" type="button">∞ Auto</button>
       <button class="sensor" id="visionBtn" type="button">◉ Vision</button>
-      <button class="sensor" id="musicBtn" type="button" title="Mode zéro facturation : aucun service musical cloud n’est appelé.">♫ Musique 0 €</button>
+      <button class="sensor" id="musicBtn" type="button">♫ Musique 0 €</button>
     </div>
     <input id="visionInput" type="file" accept="image/*" capture="environment">
     <label class="toggle"><input type="checkbox" id="convo"> Conversation continue, mains libres</label>
   </div>
 </div>
 
-<div id="settings" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+<div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
-    <h2 id="settingsTitle">Réglages</h2>
-    <p class="hint">Configuration stricte : une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant n’est appelé.</p>
+    <h2>Réglages</h2>
+    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant.</p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -136,56 +150,49 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
     </div>
 
     <h3>Voix</h3>
-    <div class="field"><label for="setVoice">Voix de synthèse</label><select id="setVoice"></select></div>
+    <div class="field"><label for="setVoice">Voix</label><select id="setVoice"></select></div>
     <div class="pair">
-      <div class="field"><label for="setRate">Débit</label><input id="setRate" type="range" min="0.7" max="1.4" step="0.05"></div>
-      <div class="field"><label for="setPitch">Hauteur</label><input id="setPitch" type="range" min="0.6" max="1.4" step="0.05"></div>
+      <div class="field"><label for="setRate">Débit <span id="rateVal"></span></label><input id="setRate" type="range" min="0.7" max="1.4" step="0.05"></div>
+      <div class="field"><label for="setPitch">Hauteur <span id="pitchVal"></span></label><input id="setPitch" type="range" min="0.6" max="1.4" step="0.05"></div>
     </div>
     <div class="actions">
-      <button class="btn ghost" id="testVoice" type="button">Écouter la voix</button>
-      <button class="btn ghost" id="velvetVoice" type="button">Preset voix Velours</button>
+      <button class="btn ghost" id="testVoice" type="button">Écouter</button>
+      <button class="btn ghost" id="velvetVoice" type="button">Preset Velours</button>
     </div>
 
-    <h3>Cerveau Mistral — mode 0 €</h3>
-    <p class="hint"><strong>Sage n’utilise plus qu’un seul fournisseur : Mistral.</strong> Aucun appel Groq, Cerebras, Ollama ou AudD n’est effectué. Le modèle est verrouillé sur <code>mistral-small-latest</code>.</p>
-    <div class="pair">
-      <div class="field"><label for="keyMistral">Clé API Mistral</label><input id="keyMistral" type="password" autocomplete="new-password" spellcheck="false" placeholder="Colle ta clé Mistral ici"></div>
-      <div class="field"><label for="modMistral">Modèle Mistral</label><input id="modMistral" type="text" value="mistral-small-latest" readonly></div>
-      <div class="field" style="grid-column:1/-1">
-        <div class="actions" style="margin-top:2px">
-          <button class="btn" id="btnValidateMistral" type="button">Valider ma clé Mistral</button>
-          <button class="btn ghost" id="openMistralAccount" type="button">Vérifier mon compte Mistral</button>
-        </div>
-        <div class="api-validation" id="mistralKeyStatus" data-state="idle" aria-live="polite">Clé Mistral non vérifiée.</div>
-      </div>
+    <h3>Cerveau Mistral — 0 €</h3>
+    <p class="hint">Sage n'utilise que <code>mistral-small-latest</code>. Si Mistral renvoie une erreur de paiement, Sage s'arrête et ne bascule vers aucun autre modèle.</p>
+    <div class="field"><label for="keyMistral">Clé API Mistral</label><input id="keyMistral" type="password" autocomplete="new-password" spellcheck="false" placeholder="Colle ta clé ici"></div>
+    <div class="actions">
+      <button class="btn" id="btnValidateMistral" type="button">Valider la clé</button>
+      <button class="btn ghost" id="openMistral" type="button">Ouvrir la console Mistral</button>
     </div>
-    <label class="toggle"><input type="checkbox" id="zeroBillingConfirm"> Mode strict 0 € : je confirme que mon compte Mistral est en mode Gratuit et que le paiement à l’usage est désactivé.</label>
-    <div class="api-validation" id="billingGuardStatus" data-state="warn" aria-live="polite">Garde 0 € active : tant que cette case n’est pas confirmée, Sage refuse toute génération API.</div>
-    <p class="hint">Important : une clé API standard ne permet pas à Sage de lire de façon fiable les réglages de facturation de ton organisation Mistral. La garantie « 0 € » dépend donc aussi du réglage du compte Mistral : <strong>mode Gratuit + paiement à l’usage désactivé</strong>. Si Mistral renvoie une erreur de paiement ou de quota, Sage s’arrête et ne bascule vers aucun autre modèle.</p>
+    <div class="api-validation" id="mistralKeyStatus" data-state="idle" aria-live="polite">Clé non vérifiée.</div>
+    <label class="toggle"><input type="checkbox" id="zeroBillingConfirm"> Je confirme : compte Mistral en mode Gratuit, paiement à l'usage désactivé.</label>
+    <div class="api-validation" id="billingGuardStatus" data-state="warn" aria-live="polite"></div>
 
-    <h3>Supracognition & perception</h3>
-    <p class="hint">« Supra » désigne ici une orchestration de plusieurs agents spécialisés. Ce n'est pas une conscience réelle ni un savoir infini.</p>
+    <h3>Supracognition</h3>
+    <p class="hint">Orchestration de plusieurs agents spécialisés, appelés l'un après l'autre pour respecter le quota gratuit. Pas de conscience réelle, pas de savoir infini.</p>
     <div class="pair">
-      <div class="field"><label for="setBrainMode">Mode cerveau par défaut</label><select id="setBrainMode"><option value="auto">Auto — rapide + agents si utile</option><option value="supra">Supra — analyse multi-agent approfondie</option><option value="flash">Fulgurant — réponse directe</option></select></div>
-      <div class="field"><label for="setMaxAgents">Agents maximum en parallèle</label><input id="setMaxAgents" type="range" min="2" max="6" step="1"></div>
-      <div class="field"><label for="visionMistral">Vision Mistral</label><input id="visionMistral" type="text" value="mistral-small-latest" readonly></div>
-      <div class="field"><label>Reconnaissance musicale</label><input type="text" value="Cloud désactivé en mode 0 €" readonly></div>
+      <div class="field"><label for="setBrainMode">Mode par défaut</label><select id="setBrainMode"><option value="auto">Auto — rapide + agents si utile</option><option value="supra">Supra — multi-agent approfondi</option><option value="flash">Fulgurant — réponse directe</option></select></div>
+      <div class="field"><label for="setMaxAgents">Agents max <span id="agentsVal"></span></label><input id="setMaxAgents" type="range" min="2" max="6" step="1"></div>
     </div>
-    <div class="actions"><button class="btn ghost" id="voiceEnroll" type="button">Créer mon profil vocal local</button></div>
-    <p class="hint" id="voiceProfileHint">Le profil vocal mesure des caractéristiques acoustiques locales. Il est indicatif : ce n'est ni une authentification biométrique, ni une analyse de santé ou d'émotions.</p>
 
     <h3>Répertoire</h3>
-    <p class="hint">Une ligne par personne, au format « Nom : numéro ». Sert à « appelle Aylina », « écris à Paul »…</p>
-    <div class="field"><label for="setContacts">Contacts</label><textarea id="setContacts" placeholder="Maman : 06 12 34 56 78"></textarea></div>
+    <p class="hint">Une ligne par personne : « Nom : numéro ».</p>
+    <div class="field"><textarea id="setContacts" placeholder="Maman : 06 12 34 56 78"></textarea></div>
 
     <h3>Mémoire</h3>
-    <p class="hint">Ce que ton compagnon retient de toi. Une note par ligne, modifiable.</p>
-    <div class="field"><label for="setNotes">Notes retenues</label><textarea id="setNotes"></textarea></div>
+    <div id="memList" class="memlist"></div>
+    <div class="actions">
+      <button class="btn ghost" id="memPurge" type="button">Consolider</button>
+      <button class="btn ghost" id="memReset" type="button">Vider</button>
+    </div>
 
     <div class="actions">
-      <button class="btn ghost" id="btnNotif" type="button">Autoriser les notifications</button>
-      <button class="btn ghost" id="btnExport" type="button">Exporter la conversation</button>
-      <button class="btn ghost" id="btnClear" type="button">Effacer la conversation</button>
+      <button class="btn ghost" id="btnNotif" type="button">Notifications</button>
+      <button class="btn ghost" id="btnExport" type="button">Exporter</button>
+      <button class="btn ghost" id="btnClear" type="button">Effacer</button>
     </div>
     <div class="actions">
       <button class="btn" id="btnSave" type="button">Enregistrer</button>
@@ -196,1036 +203,824 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 
 <script>
 'use strict';
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const haptic=(p=12)=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+/* Bloc d'action complet : << { ... } >> — ancré sur la fin du JSON pour ne pas couper sur un ">>" dans du code */
+const TAG_RE=/<<\s*\{[\s\S]*?\}\s*>>/g;
 
-/* ---------- safeStorage : IndexedDB + repli mémoire ---------- */
-const safeStorage = (() => {
-  const mem = new Map(); let dbp = null;
-  function open() {
-    if (dbp) return dbp;
-    dbp = new Promise(res => {
-      try {
-        const r = indexedDB.open('sage-compagnon', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('kv');
-        r.onsuccess = () => res(r.result);
-        r.onerror = () => res(null);
-      } catch (e) { res(null); }
-    });
+/* ---------- Stockage ---------- */
+const store=(()=>{
+  const mem=new Map();let dbp=null;
+  const open=()=>{
+    if(dbp)return dbp;
+    dbp=new Promise(res=>{try{const r=indexedDB.open('sage',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch{res(null)}});
     return dbp;
-  }
-  async function get(k, d) {
-    const fb = mem.has(k) ? mem.get(k) : d;
-    const db = await open(); if (!db) return fb;
-    return new Promise(res => {
-      try {
-        const q = db.transaction('kv', 'readonly').objectStore('kv').get(k);
-        q.onsuccess = () => res(q.result === undefined ? fb : q.result);
-        q.onerror = () => res(fb);
-      } catch (e) { res(fb); }
-    });
-  }
-  async function set(k, v) {
-    mem.set(k, v);
-    const db = await open(); if (!db) return;
-    return new Promise(res => {
-      try {
-        const t = db.transaction('kv', 'readwrite');
-        t.objectStore('kv').put(v, k);
-        t.oncomplete = () => res(); t.onerror = () => res();
-      } catch (e) { res(); }
-    });
-  }
-  return { get, set };
+  };
+  async function get(k,d){const fb=mem.has(k)?mem.get(k):d;const db=await open();if(!db)return fb;return new Promise(res=>{try{const q=db.transaction('kv','readonly').objectStore('kv').get(k);q.onsuccess=()=>res(q.result===undefined?fb:q.result);q.onerror=()=>res(fb)}catch{res(fb)}})}
+  async function set(k,v){mem.set(k,v);const db=await open();if(!db)return;return new Promise(res=>{try{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res();t.onerror=()=>res()}catch{res()}})}
+  return{get,set};
 })();
 
-function sanitizeKey(k) { return String(k || '').replace(/[\s"'`<>]/g, '').replace(/[^\x21-\x7E]/g, ''); }
-const clone = o => JSON.parse(JSON.stringify(o));
-const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-
 /* ---------- État ---------- */
-const FREE_MISTRAL_MODEL = 'mistral-small-latest';
-const DEF = {
-  name: 'Sage', user: '', voice: '', rate: 1, pitch: 1,
-  keys: { mistral: '' },
-  models: { mistral: FREE_MISTRAL_MODEL },
-  vision: { mistral: FREE_MISTRAL_MODEL },
-  brain: { mode: 'auto', maxAgents: 3 },
-  billing: { zeroOnly: true, zeroConfirmed: false },
-  contacts: ''
-};
-const S = {
-  cfg: clone(DEF), history: [], notes: [], mode: 'idle', convo: false, busy: false,
-  rec: null, recActive: false, speakQ: [], speaking: false, streamDone: true,
-  interrupted: false, abort: null, aborts: new Set(), energy: 0, wake: null, silent: 0, retry: null,
-  torchTrack: null, audio: null, lastProvider: '', pendingImage: null,
-  voiceProfile: null, lastVoiceMatch: null, voiceProbe: null
-};
+const MODEL='mistral-small-latest';
+const COUNCIL_GAP_MS=1100;
+const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},contacts:''};
+const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastQuery:''};
 
 /* ---------- UI helpers ---------- */
-function scrollLog() { const l = $('log'); l.scrollTop = l.scrollHeight; }
-function addMsg(kind, text) {
-  const d = document.createElement('div'); d.className = 'msg ' + kind; d.textContent = text;
-  $('log').appendChild(d); scrollLog(); return d;
-}
-function sysMsg(t) { return addMsg('sys', t); }
-function live(t) { $('live').textContent = t; }
-function card(label, btn, fn) {
-  const d = document.createElement('div'); d.className = 'card';
-  const s = document.createElement('span'); s.textContent = label; d.appendChild(s);
-  if (btn) { const b = document.createElement('button'); b.type = 'button'; b.textContent = btn; b.onclick = fn; d.appendChild(b); }
-  $('log').appendChild(d); scrollLog(); return d;
-}
-function codeCard(language, content) {
-  const d = document.createElement('div'); d.className = 'codecard';
-  const h = document.createElement('div'); h.className = 'codehead';
-  const lab = document.createElement('span'); lab.textContent = language || 'code';
-  const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Copier'; b.onclick = async () => { try { await navigator.clipboard.writeText(content || ''); b.textContent = 'Copié'; setTimeout(() => b.textContent = 'Copier', 1200); } catch (e) { sysMsg('Copie refusée.'); } };
-  h.append(lab, b); const pre = document.createElement('pre'); pre.textContent = content || ''; d.append(h, pre); $('log').appendChild(d); scrollLog(); return d;
-}
-const STATUS = {
-  idle: "Touche l'orbe pour parler",
-  listening: "Je t'écoute",
-  thinking: 'Je réfléchis',
-  speaking: "Je parle — touche pour m'interrompre"
-};
-function setMode(m) {
-  S.mode = m;
-  $('status').textContent = STATUS[m] + (m === 'speaking' && S.lastProvider ? ' (via ' + S.lastProvider + ')' : '');
-  const t = $('talk');
-  if (m === 'listening') { t.dataset.state = 'listening'; t.textContent = "J'ai fini"; }
-  else if (m === 'thinking' || m === 'speaking') { t.dataset.state = 'busy'; t.textContent = 'Interrompre'; }
-  else { t.dataset.state = 'idle'; t.textContent = 'Parler'; }
-}
+const scrollLog=(()=>{let q=false;return()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;const l=$('log');l.scrollTop=l.scrollHeight})}})();
+const addMsg=(kind,text)=>{const d=document.createElement('div');d.className='msg '+kind;d.textContent=text;$('log').appendChild(d);scrollLog();return d};
+const sysMsg=t=>addMsg('sys',t);
+const live=t=>{const el=$('live');if(el.textContent!==(t||''))el.textContent=t||''};
+const card=(label,btn,fn)=>{const d=document.createElement('div');d.className='card';const s=document.createElement('span');s.textContent=label;d.appendChild(s);if(btn){const b=document.createElement('button');b.type='button';b.textContent=btn;b.onclick=fn;d.appendChild(b)}$('log').appendChild(d);scrollLog();return d};
+const codeCard=(lang,content)=>{const d=document.createElement('div');d.className='codecard';const h=document.createElement('div');h.className='codehead';const l=document.createElement('span');l.textContent=lang||'code';const b=document.createElement('button');b.type='button';b.textContent='Copier';b.onclick=async()=>{try{await navigator.clipboard.writeText(content||'');b.textContent='Copié';setTimeout(()=>b.textContent='Copier',1200)}catch{toast('Copie refusée','warn')}};h.append(l,b);const pre=document.createElement('pre');pre.textContent=content||'';d.append(h,pre);$('log').appendChild(d);scrollLog();return d};
+function toast(text,kind='info',ms=4200){const host=$('toasts');const t=document.createElement('div');t.className='toast'+(kind==='warn'?' warn':kind==='err'?' err':'');t.textContent=text;host.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},ms)}
+
+const STATUS={idle:"Touche l'orbe pour parler",listening:"Je t'écoute",thinking:'Je réfléchis',speaking:"Je parle — touche pour m'interrompre"};
+function setMode(m){S.mode=m;$('status').textContent=STATUS[m]+(m==='speaking'&&S.lastProvider?' (via '+S.lastProvider+')':'');const t=$('talk');if(m==='listening'){t.dataset.state='listening';t.textContent="J'ai fini"}else if(m==='thinking'||m==='speaking'){t.dataset.state='busy';t.textContent='Interrompre'}else{t.dataset.state='idle';t.textContent='Parler'}}
+
+/* ---------- Orbe 2D ---------- */
+const Orb=(()=>{
+  const c=$('orb'),ctx=c.getContext('2d');
+  let W=0,H=0,cx=0,cy=0,R=0,dpr=1,t0=performance.now(),raf=null,running=false,visible=true,rot=0;
+  const pointer={x:0,y:0,tx:0,ty:0};
+  function resize(){const r=c.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);c.width=Math.max(1,Math.round(r.width*dpr));c.height=Math.max(1,Math.round(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);W=r.width;H=r.height;cx=W/2;cy=H/2;R=Math.min(W,H)*0.26}
+  const PAL={idle:[0.96,0.92,0.84,0.18,0.14,0.42,0.64,0.57,0.92],listening:[0.78,0.94,0.83,0.06,0.24,0.19,0.56,0.76,0.62],thinking:[0.62,0.74,0.98,0.06,0.07,0.34,0.42,0.54,0.96],speaking:[0.99,0.88,0.58,0.32,0.16,0.06,0.96,0.72,0.30]};
+  const cur=PAL.idle.slice();
+  function lerp(k){const t=PAL[S.mode]||PAL.idle;for(let i=0;i<9;i++)cur[i]+=(t[i]-cur[i])*k}
+  function draw(now){
+    if(!running)return;raf=requestAnimationFrame(draw);if(!visible)return;
+    const t=(now-t0)/1000;
+    if(S.mode!=='listening')S.energy*=0.94;
+    const e=Math.max(0,Math.min(1,S.energy));
+    lerp(0.07);
+    pointer.x+=(pointer.tx-pointer.x)*0.06;pointer.y+=(pointer.ty-pointer.y)*0.06;
+    const speed=S.mode==='thinking'?0.9:S.mode==='speaking'?0.5:0.28;
+    if(!reduceMotion)rot+=speed*0.016;
+    const px=pointer.x*0.1, py=pointer.y*0.1;
+    ctx.clearRect(0,0,W,H);
+    const rr=R*(1+Math.sin(t*1.4)*0.02+e*0.14);
+    const ox=cx+px*R, oy=cy+py*R;
+    const halo=ctx.createRadialGradient(ox,oy,rr*0.6,ox,oy,rr*2.6);
+    const [ar,ag,ab,br,bg,bb,rimr,rimg,rimb]=cur;
+    const ha=0.16+e*0.22;
+    halo.addColorStop(0,`rgba(${rimr*255|0},${rimg*255|0},${rimb*255|0},${ha})`);
+    halo.addColorStop(0.55,`rgba(${rimr*255|0},${rimg*255|0},${rimb*255|0},${ha*0.25})`);
+    halo.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=halo;ctx.beginPath();ctx.arc(ox,oy,rr*2.6,0,Math.PI*2);ctx.fill();
+    if(!reduceMotion){
+      const N=180;
+      for(let i=0;i<N;i++){
+        const seed=i/N;
+        const a=rot*(0.6+seed*1.4)+seed*6.2832;
+        const orbit=rr*(1.25+Math.sin(t*0.5+seed*4)*0.08);
+        const pxp=ox+Math.cos(a)*orbit;
+        const pyp=oy+Math.sin(a)*orbit*0.55;
+        const sz=0.8+seed*1.6+e*1.4;
+        const tw=0.4+0.6*Math.sin(t*2.1+seed*9);
+        ctx.fillStyle=`rgba(${rimr*255|0},${rimg*255|0},${rimb*255|0},${(0.35+e*0.5)*tw})`;
+        ctx.beginPath();ctx.arc(pxp,pyp,sz,0,Math.PI*2);ctx.fill();
+      }
+    }
+    const body=ctx.createRadialGradient(ox-rr*0.35,oy-rr*0.4,rr*0.1,ox,oy,rr);
+    body.addColorStop(0,`rgb(${ar*255|0},${ag*255|0},${ab*255|0})`);
+    body.addColorStop(0.45,`rgb(${(ar*180+br*80)|0},${(ag*180+bg*80)|0},${(ab*180+bb*80)|0})`);
+    body.addColorStop(1,`rgb(${br*255|0},${bg*255|0},${bb*255|0})`);
+    ctx.fillStyle=body;ctx.beginPath();ctx.arc(ox,oy,rr,0,Math.PI*2);ctx.fill();
+    const shine=ctx.createRadialGradient(ox-rr*0.4,oy-rr*0.45,0,ox-rr*0.4,oy-rr*0.45,rr*0.9);
+    shine.addColorStop(0,'rgba(255,255,255,.5)');shine.addColorStop(0.35,'rgba(255,255,255,.06)');shine.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=shine;ctx.beginPath();ctx.arc(ox,oy,rr,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=`rgba(${rimr*255|0},${rimg*255|0},${rimb*255|0},${0.35+e*0.3})`;
+    ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(ox,oy,rr,0,Math.PI*2);ctx.stroke();
+    if(S.mode==='listening'){
+      const pr=rr*(1.35+Math.sin(t*3)*0.06+e*0.15);
+      ctx.strokeStyle=`rgba(134,179,151,${0.35+e*0.4})`;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(ox,oy,pr,0,Math.PI*2);ctx.stroke();
+    }
+    if(S.mode==='thinking'&&!reduceMotion){
+      ctx.save();ctx.translate(ox,oy);ctx.rotate(rot*1.4);
+      ctx.strokeStyle='rgba(91,123,224,.6)';ctx.lineWidth=2.2;
+      ctx.beginPath();ctx.arc(0,0,rr*1.2,0,Math.PI*0.9);ctx.stroke();ctx.restore();
+    }
+    if(S.mode==='speaking'&&!reduceMotion){
+      for(let i=0;i<2;i++){
+        const ph=((t*0.7+i*0.5)%1);
+        const w=rr*(1+ph*1.2);
+        ctx.strokeStyle=`rgba(230,169,63,${(1-ph)*0.28})`;ctx.lineWidth=1.3;
+        ctx.beginPath();ctx.arc(ox,oy,w,0,Math.PI*2);ctx.stroke();
+      }
+    }
+  }
+  function start(){if(running)return;running=true;resize();t0=performance.now()-1000;raf=requestAnimationFrame(draw)}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null}
+  if('ResizeObserver' in window)new ResizeObserver(resize).observe(c);else addEventListener('resize',resize,{passive:true});
+  c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();const ccx=r.left+r.width/2,ccy=r.top+r.height/2;pointer.tx=clamp((e.clientX-ccx)/(r.width/2),-1,1)*0.35;pointer.ty=clamp((e.clientY-ccy)/(r.height/2),-1,1)*0.35},{passive:true});
+  c.addEventListener('pointerleave',()=>{pointer.tx=0;pointer.ty=0});
+  document.addEventListener('visibilitychange',()=>{visible=!document.hidden;if(visible)t0=performance.now()-1000});
+  return{start,stop,resize};
+})();
 
 /* ---------- Synthèse vocale ---------- */
-function speechEngine() { return (typeof window !== 'undefined' && window.speechSynthesis) ? window.speechSynthesis : null; }
-function frVoices() {
-  const ss = speechEngine();
-  if (!ss || typeof ss.getVoices !== 'function') return [];
-  const all = ss.getVoices() || [];
-  const fr = all.filter(v => /^fr/i.test(v.lang));
-  return fr.length ? fr : all;
-}
-function pickVoice() {
-  const vs = frVoices();
-  const velvet = /audrey|am[eé]lie|marie|julie|hortense|denise|vivienne|virginie|l[eé]a|c[eé]line|sylvie|female|femme/i;
-  return vs.find(v => v.voiceURI === S.cfg.voice) || vs.find(v => /^fr/i.test(v.lang) && velvet.test(v.name)) || vs.find(v => /fr-FR/i.test(v.lang)) || vs[0] || null;
-}
-function applyVelvetVoice() {
-  const vs = frVoices();
-  const velvet = /audrey|am[eé]lie|marie|julie|hortense|denise|vivienne|virginie|l[eé]a|c[eé]line|sylvie|female|femme/i;
-  const v = vs.find(x => /^fr/i.test(x.lang) && velvet.test(x.name)) || vs.find(x => /^fr/i.test(x.lang)) || vs[0];
-  if (v) { S.cfg.voice = v.voiceURI; $('setVoice').value = v.voiceURI; }
-  S.cfg.rate = 0.93; S.cfg.pitch = 0.93; $('setRate').value = S.cfg.rate; $('setPitch').value = S.cfg.pitch;
-  stopSpeaking(); S.interrupted = false; speak(`Bonjour${S.cfg.user ? ' ' + S.cfg.user : ''}. Voici le preset Velours.`);
-}
-function fillVoices() {
-  const sel = $('setVoice'); const vs = frVoices(); sel.innerHTML = '';
-  vs.forEach(v => { const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name + ' (' + v.lang + ')'; sel.appendChild(o); });
-  const p = pickVoice(); if (p) sel.value = p.voiceURI;
-}
-function speak(text) {
-  const t = String(text).replace(/[*#_`>|]/g, '').replace(/\s+/g, ' ').trim();
-  if (!t || !speechEngine() || typeof SpeechSynthesisUtterance === 'undefined') return;
-  S.speakQ.push(t);
-  if (!S.speaking) nextUtter();
-}
-function nextUtter() {
-  const t = S.speakQ.shift();
-  if (!t) { S.speaking = false; if (S.streamDone) onSpeechDone(); return; }
-  S.speaking = true; setMode('speaking');
-  const u = new SpeechSynthesisUtterance(t);
-  u.lang = 'fr-FR'; const v = pickVoice(); if (v) u.voice = v;
-  u.rate = +S.cfg.rate || 1; u.pitch = +S.cfg.pitch || 1;
-  u.onstart = () => { S.energy = 0.8; };
-  u.onboundary = () => { S.energy = Math.min(1, S.energy + 0.45); };
-  let done = false;
-  const fin = () => { if (done) return; done = true; nextUtter(); };
-  u.onend = fin; u.onerror = fin;
-  const ss = speechEngine(); if (ss) ss.speak(u);
-}
-function stopSpeaking() {
-  S.speakQ = []; S.interrupted = true;
-  try { const ss = speechEngine(); if (ss) ss.cancel(); } catch (e) {}
-  S.speaking = false;
-}
-function onSpeechDone() {
-  if (S.busy) return;
-  if (S.interrupted) { S.interrupted = false; return; }
-  setMode('idle');
-  if (S.convo) { clearTimeout(S.retry); S.retry = setTimeout(listen, 350); }
-}
-
-/* ---------- Profil vocal local (acoustique, non biométrique) ---------- */
-function mean(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0; }
-function estimatePitch(buf, rate) {
-  let rms = 0; for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i]; rms = Math.sqrt(rms / buf.length);
-  if (rms < 0.015) return 0;
-  let best = 0, bestLag = 0; const lo = Math.floor(rate / 350), hi = Math.min(Math.floor(rate / 70), buf.length / 2);
-  for (let lag = lo; lag <= hi; lag += 2) {
-    let c = 0; for (let i = 0; i < buf.length - lag; i += 2) c += buf[i] * buf[i + lag];
-    if (c > best) { best = c; bestLag = lag; }
+const speechEngine=()=>typeof window!=='undefined'&&window.speechSynthesis?window.speechSynthesis:null;
+function frVoices(){const ss=speechEngine();if(!ss||typeof ss.getVoices!=='function')return[];const all=ss.getVoices()||[];const fr=all.filter(v=>/^fr/i.test(v.lang));return fr.length?fr:all}
+const VELVET_RE=/audrey|am[eé]lie|marie|julie|hortense|denise|vivienne|virginie|l[eé]a|c[eé]line|sylvie|female|femme/i;
+function pickVoice(){const vs=frVoices();return vs.find(v=>v.voiceURI===S.cfg.voice)||vs.find(v=>/^fr/i.test(v.lang)&&VELVET_RE.test(v.name))||vs.find(v=>/fr-FR/i.test(v.lang))||vs[0]||null}
+function fillVoices(){const sel=$('setVoice');if(!sel)return;const vs=frVoices();sel.innerHTML='';if(!vs.length){const o=document.createElement('option');o.textContent='Aucune voix détectée';o.value='';sel.appendChild(o);return}vs.forEach(v=>{const o=document.createElement('option');o.value=v.voiceURI;o.textContent=v.name+' ('+v.lang+')';sel.appendChild(o)});const p=pickVoice();if(p)sel.value=p.voiceURI}
+function applyVelvetVoice(){const vs=frVoices();const v=vs.find(x=>/^fr/i.test(x.lang)&&VELVET_RE.test(x.name))||vs.find(x=>/^fr/i.test(x.lang))||vs[0];if(v){S.cfg.voice=v.voiceURI;$('setVoice').value=v.voiceURI}S.cfg.rate=0.93;S.cfg.pitch=0.93;$('setRate').value=S.cfg.rate;$('setPitch').value=S.cfg.pitch;updateRangeLabels();stopSpeaking();S.interrupted=false;speak(`Bonjour${S.cfg.user?' '+S.cfg.user:''}. Voici le preset Velours.`)}
+function updateRangeLabels(){const r=$('rateVal'),p=$('pitchVal'),a=$('agentsVal');if(r)r.textContent='· '+(+S.cfg.rate).toFixed(2);if(p)p.textContent='· '+(+S.cfg.pitch).toFixed(2);if(a)a.textContent='· '+S.cfg.brain.maxAgents}
+const Prosody={
+  breathGroups(text){const t=String(text).trim();if(!t)return[];const strong=t.split(/(?<=[.!?…])\s+/);const groups=[];for(const s of strong){if(s.length<=90){groups.push(s);continue}const parts=s.split(/(?<=[,;:])\s+/);let cur='';for(const p of parts){if((cur+' '+p).length>90&&cur){groups.push(cur.trim());cur=p}else cur=cur?cur+' '+p:p}if(cur.trim())groups.push(cur.trim())}return groups.filter(Boolean)},
+  pauseAfter(g){const last=g.trim().slice(-1),len=g.length;if(/[.!?…]/.test(last))return 380+Math.min(300,len*2.5);if(/[;:]/.test(last))return 260+Math.min(180,len*1.5);if(/,/.test(last))return 170+Math.min(120,len);if(len>70)return 140;return 90},
+  rateFor(g){const base=clamp(+S.cfg.rate||1,0.7,1.4);const isQ=/\?\s*$/.test(g);const isE=/\b(vraiment|incroyable|absolument|essentiel|jamais|toujours)\b/i.test(g);let r=base;if(isQ)r*=0.97;if(isE)r*=0.95;if(g.length>80)r*=0.96;if(g.length<25)r*=1.03;return clamp(r,0.6,1.5)},
+  pitchFor(g){const base=clamp(+S.cfg.pitch||1,0.6,1.4);const isQ=/\?\s*$/.test(g);let p=base;if(isQ)p*=1.02;if(g.length>90)p*=0.99;return clamp(p,0.5,1.6)}
+};
+function speak(text){const t=String(text).replace(/[*#_`>|]/g,'').replace(/\s+/g,' ').trim();if(!t||!speechEngine()||typeof SpeechSynthesisUtterance==='undefined')return;S.speakQ.push(t);if(!S.speaking)nextUtter()}
+function nextUtter(){
+  const t=S.speakQ.shift();
+  if(!t){S.speaking=false;if(S.streamDone)onSpeechDone();return}
+  S.speaking=true;setMode('speaking');
+  const groups=Prosody.breathGroups(t);
+  if(!groups.length)return nextUtter();
+  const v=pickVoice(),ss=speechEngine();let i=0;
+  function playNext(){
+    if(S.interrupted||!S.speaking)return;
+    if(i>=groups.length)return nextUtter();
+    const g=groups[i++];const u=new SpeechSynthesisUtterance(g);
+    u.lang='fr-FR';if(v)u.voice=v;
+    u.rate=Prosody.rateFor(g);u.pitch=Prosody.pitchFor(g);
+    let done=false;
+    const fin=()=>{if(done)return;done=true;if(S.interrupted||!S.speaking)return;setTimeout(playNext,Prosody.pauseAfter(g))};
+    u.onstart=()=>{S.targetEnergy=0.7};u.onboundary=()=>{S.targetEnergy=Math.min(1,S.targetEnergy+0.4)};
+    u.onend=fin;u.onerror=fin;
+    if(ss)ss.speak(u);
+    const ka=setInterval(()=>{if(done||!S.speaking){clearInterval(ka);return}try{ss.pause();ss.resume()}catch{}},12000);
   }
-  return bestLag ? rate / bestLag : 0;
+  playNext();
 }
-async function sampleVoice(stream, duration = 3500) {
-  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) throw new Error('Web Audio indisponible');
-  const ac = new AC(), src = ac.createMediaStreamSource(stream), an = ac.createAnalyser(); an.fftSize = 2048; src.connect(an);
-  const time = new Float32Array(an.fftSize), freq = new Uint8Array(an.frequencyBinCount), rows = [];
-  const until = performance.now() + duration;
-  while (performance.now() < until) {
-    an.getFloatTimeDomainData(time); an.getByteFrequencyData(freq);
-    let rms = 0, zc = 0, num = 0, den = 0;
-    for (let i = 0; i < time.length; i++) { rms += time[i] * time[i]; if (i && (time[i] >= 0) !== (time[i - 1] >= 0)) zc++; }
-    rms = Math.sqrt(rms / time.length); const zcr = zc / time.length;
-    for (let i = 1; i < freq.length; i++) { const f = i * ac.sampleRate / an.fftSize, m = freq[i] / 255; num += f * m; den += m; }
-    const centroid = den ? num / den : 0, pitch = estimatePitch(time, ac.sampleRate);
-    if (rms > 0.012) rows.push({ rms, zcr, centroid, pitch: pitch > 60 && pitch < 420 ? pitch : 0 });
-    await new Promise(r => setTimeout(r, 90));
-  }
-  try { await ac.close(); } catch (e) {}
-  if (!rows.length) throw new Error('Je n’ai pas capté assez de voix.');
-  const validPitch = rows.map(x => x.pitch).filter(Boolean);
-  return { rms: mean(rows.map(x => x.rms)), zcr: mean(rows.map(x => x.zcr)), centroid: mean(rows.map(x => x.centroid)), pitch: mean(validPitch), samples: rows.length };
-}
-function voiceSimilarity(a, b) {
-  if (!a || !b) return null;
-  const ds = [Math.abs(a.rms-b.rms)/0.08, Math.abs(a.zcr-b.zcr)/0.07, Math.abs(a.centroid-b.centroid)/1200];
-  if (a.pitch && b.pitch) ds.push(Math.abs(a.pitch-b.pitch)/110);
-  const d = Math.sqrt(mean(ds.map(x => Math.min(3,x) ** 2)));
-  return Math.max(0, Math.min(1, Math.exp(-1.15*d)));
-}
-async function enrollVoiceProfile() {
-  if (!navigator.mediaDevices?.getUserMedia) { sysMsg('Micro inaccessible dans ce navigateur.'); return; }
-  const b = $('voiceEnroll'); b.disabled = true; b.textContent = 'Parle naturellement…';
-  let stream;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
-    sysMsg('Profil vocal : parle naturellement pendant quelques secondes.');
-    S.voiceProfile = await sampleVoice(stream, 5500); await safeStorage.set('voiceProfile', S.voiceProfile);
-    $('voiceProfileHint').textContent = `Profil vocal local enregistré (${S.voiceProfile.samples} mesures). Indicateur expérimental uniquement.`;
-    sysMsg('Profil vocal local enregistré.');
-  } catch (e) { sysMsg('Profil vocal : ' + e.message); }
-  finally { if (stream) stream.getTracks().forEach(t => t.stop()); b.disabled = false; b.textContent = 'Créer mon profil vocal local'; }
-}
-async function startVoiceProbe() {
-  if (!S.voiceProfile || !navigator.mediaDevices?.getUserMedia) return null;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
-    const promise = sampleVoice(stream, 2600).finally(() => stream.getTracks().forEach(t => t.stop()));
-    return promise;
-  } catch (e) { return null; }
-}
+function stopSpeaking(){S.speakQ=[];S.interrupted=true;try{const ss=speechEngine();if(ss)ss.cancel()}catch{}S.speaking=false}
+/* Correctif : après une interruption, on repasse en idle au lieu de rester bloqué sur « Je réfléchis » */
+function onSpeechDone(){if(S.busy)return;if(S.interrupted){S.interrupted=false;if(!S.recActive)setMode('idle');return}setMode('idle');if(S.convo){clearTimeout(S.retry);S.retry=setTimeout(listen,350)}}
 
 /* ---------- Reconnaissance vocale ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-function listen() {
-  if (!SR) { sysMsg("La reconnaissance vocale n'existe pas dans ce navigateur. Ouvre la page dans Chrome ou écris ton message."); return; }
-  if (S.recActive || S.busy) return;
-  clearTimeout(S.retry);
-  if (S.speaking) stopSpeaking();
-  const r = new SR();
-  r.lang = 'fr-FR'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
-  let finalT = '';
-  r.onstart = () => { setMode('listening'); live(''); S.voiceProbe = startVoiceProbe(); };
-  r.onresult = e => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const res = e.results[i];
-      if (res.isFinal) finalT += res[0].transcript; else interim += res[0].transcript;
-    }
-    live(finalT + interim); S.energy = Math.min(1, S.energy + 0.35);
-  };
-  r.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      setConvo(false);
-      sysMsg('Micro refusé. Autorise le micro pour cette page dans les réglages du navigateur.');
-    }
-  };
-  r.onend = async () => {
-    S.recActive = false; S.rec = null;
-    const probe = S.voiceProbe; S.voiceProbe = null;
-    if (probe) probe.then(sample => { S.lastVoiceMatch = voiceSimilarity(sample, S.voiceProfile); }).catch(() => {});
-    const t = finalT.trim(); live('');
-    if (t) { S.silent = 0; dispatchUser(t); return; }
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function listen(){
+  if(!SR){sysMsg("La reconnaissance vocale n'existe pas dans ce navigateur. Ouvre la page dans Chrome ou écris ton message.");return}
+  if(S.recActive||S.busy)return;
+  clearTimeout(S.retry);if(S.speaking)stopSpeaking();
+  const r=new SR();
+  r.lang='fr-FR';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  let finalT='';
+  r.onstart=()=>{setMode('listening');live('')};
+  r.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(res.isFinal)finalT+=res[0].transcript;else interim+=res[0].transcript}live(finalT+interim);S.targetEnergy=Math.min(1,S.targetEnergy+0.3)};
+  r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){setConvo(false);toast('Micro refusé. Autorise le micro pour cette page.','warn')}};
+  r.onend=()=>{
+    S.recActive=false;S.rec=null;
+    const t=finalT.trim();live('');
+    if(t){S.silent=0;dispatchUser(t);return}
     setMode('idle');
-    if (S.convo && !S.busy) {
-      S.silent++;
-      if (S.silent >= 4) { setConvo(false); sysMsg("Je me mets en pause. Touche l'orbe quand tu veux reprendre."); S.silent = 0; }
-      else S.retry = setTimeout(listen, 500);
-    }
+    if(S.convo&&!S.busy){S.silent++;if(S.silent>=4){setConvo(false);sysMsg("Je me mets en pause. Touche l'orbe quand tu veux reprendre.");S.silent=0}else S.retry=setTimeout(listen,500)}
   };
-  S.rec = r;
-  try { r.start(); S.recActive = true; } catch (e) { S.recActive = false; }
+  S.rec=r;
+  try{r.start();S.recActive=true}catch{S.recActive=false}
 }
-function stopListening() { if (S.rec) { try { S.rec.stop(); } catch (e) {} } }
-function interrupt() {
-  stopSpeaking();
-  for (const a of [...S.aborts]) { try { a(); } catch (e) {} }
-  S.aborts.clear(); S.abort = null;
-}
-function onTalk() {
-  if (S.recActive) { stopListening(); return; }
-  if (S.busy || S.speaking) { interrupt(); setTimeout(listen, 250); return; }
-  listen();
-}
+function stopListening(){if(S.rec){try{S.rec.stop()}catch{}}}
+function interrupt(){stopSpeaking();for(const a of[...S.aborts]){try{a()}catch{}}S.aborts.clear()}
+function onTalk(){haptic(15);if(S.recActive){stopListening();return}if(S.busy||S.speaking){interrupt();setTimeout(listen,250);return}listen()}
 
-/* ---------- Conversation continue + Wake Lock ---------- */
-async function setConvo(on) {
-  S.convo = on; $('convo').checked = on;
-  if (on) {
-    try { if ('wakeLock' in navigator) S.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
-  } else if (S.wake) { try { await S.wake.release(); } catch (e) {} S.wake = null; }
+/* ---------- Conversation continue ---------- */
+async function setConvo(on){
+  S.convo=on;$('convo').checked=on;
+  if(on){try{if('wakeLock' in navigator)S.wake=await navigator.wakeLock.request('screen')}catch{}}
+  else if(S.wake){try{await S.wake.release()}catch{}S.wake=null}
 }
-document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState === 'visible' && S.convo && 'wakeLock' in navigator) {
-    try { S.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='visible'&&S.convo&&'wakeLock' in navigator){try{S.wake=await navigator.wakeLock.request('screen')}catch{}}});
+
+/* ---------- Mémoire ---------- */
+const Memory=(()=>{
+  const VER=2,HALF=45;
+  function empty(){return{version:VER,facts:[],entities:{},stats:{}}}
+  let mem=empty();
+  async function load(){const s=await store.get('memory-v2',null);if(s&&s.version===VER)mem=s;consolidate();render()}
+  async function save(){await store.set('memory-v2',mem);render()}
+  function score(f){const days=(Date.now()-f.lastAccess)/86400000;const d=Math.pow(0.5,days/HALF);return f.weight*(0.35+0.65*d)}
+  function similar(a,b){const A=new Set(norm(a).split(/\s+/)),B=new Set(norm(b).split(/\s+/));if(!A.size||!B.size)return 0;let inter=0;for(const w of A)if(B.has(w))inter++;return (2*inter)/(A.size+B.size)}
+  function addFact(text,source='unknown',entities=[]){
+    const t=String(text||'').trim().slice(0,300);if(!t)return null;
+    const ex=mem.facts.find(f=>similar(f.text,t)>0.85);
+    if(ex){ex.weight=Math.min(2,ex.weight+0.3);ex.lastAccess=Date.now();return ex}
+    const id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const f={id,text:t,entities:entities.filter(Boolean).slice(0,6),weight:1,ts:Date.now(),lastAccess:Date.now(),source};
+    mem.facts.push(f);
+    for(const e of f.entities){const k=e.toLowerCase();const ent=mem.entities[k]||(mem.entities[k]={name:e,mentions:0,facts:[]});ent.mentions++;ent.facts.push(id)}
+    if(mem.facts.length>500){mem.facts.sort((a,b)=>score(b)-score(a));mem.facts=mem.facts.slice(0,400)}
+    return f;
   }
-});
+  function consolidate(){mem.facts=mem.facts.filter(f=>score(f)>0.08)}
+  function recall(query,k=6){
+    const tokens=norm(query).split(/\s+/).filter(t=>t.length>2);
+    if(!tokens.length)return mem.facts.slice().sort((a,b)=>score(b)-score(a)).slice(0,k);
+    const sc=mem.facts.map(f=>{const hay=norm(f.text)+' '+f.entities.map(norm).join(' ');let hits=0;for(const t of tokens)if(hay.includes(t))hits++;const rel=hits/tokens.length;return{f,s:score(f)*(0.4+0.6*rel)}});
+    sc.sort((a,b)=>b.s-a.s);
+    const picked=sc.filter(x=>x.s>0.15).slice(0,k).map(x=>x.f);
+    for(const f of picked)f.lastAccess=Date.now();
+    return picked;
+  }
+  async function extract(userText,assistantText){
+    if((userText+assistantText).length<80)return;
+    if(!/\b(je suis|je m'appelle|j'aime|je pr[ée]f[èe]re|rappelle[- ]toi|retiens|souviens[- ]toi|mon anniversaire|j'habite|je travaille|ma femme|mon mari|mes enfants|mon chien|mon chat)\b/i.test(userText))return;
+    const messages=[
+      {role:'system',content:'Tu extrais des faits durables sur l\'utilisateur. Réponds en JSON strict : {"facts":[{"text":"...","entities":[],"confidence":0.0}]}. N\'extrais que le stable et personnel. Maximum 3. Si rien, {"facts":[]}.'},
+      {role:'user',content:`Utilisateur : "${userText}"\nAssistant : "${assistantText.slice(0,400)}"`}
+    ];
+    try{const r=await askLLM(messages,null,{temperature:0.1,maxTokens:280,timeout:25000});const s=stripTags(r.text).replace(/```json|```/g,'').trim();const o=JSON.parse(s);if(Array.isArray(o.facts)){for(const f of o.facts.slice(0,3)){if((f.confidence??0.5)<0.55)continue;addFact(f.text,'auto',f.entities||[])}await save()}}catch{}
+  }
+  function contextFor(q){const r=recall(q,6);if(!r.length)return'';return `\n\nMémoire :\n`+r.map(f=>'- '+f.text).join('\n')}
+  function render(){const el=$('memList');if(!el)return;if(!mem.facts.length){el.innerHTML='<div class="empty">Aucun fait retenu.</div>';return}const sorted=mem.facts.slice().sort((a,b)=>score(b)-score(a)).slice(0,30);el.innerHTML='';for(const f of sorted){const d=document.createElement('div');d.className='fact';d.textContent=f.text;const w=document.createElement('span');w.className='w';w.textContent='· '+score(f).toFixed(2);d.appendChild(w);el.appendChild(d)}}
+  return{load,save,addFact,consolidate,recall,contextFor,extract,reset(){mem=empty();save()}};
+})();
 
-/* ---------- Mistral unique + orchestration concurrente ---------- */
-function providers(kind = 'text') {
-  const c = S.cfg;
-  if (!c.billing || c.billing.zeroConfirmed !== true) return [];
-  if (!c.keys.mistral) return [];
-  return [{ id: 'Mistral', url: 'https://api.mistral.ai/v1/chat/completions', key: c.keys.mistral, model: FREE_MISTRAL_MODEL }];
-}
-function streamXHR(p, messages, onDelta, opts = {}) {
-  return new Promise((resolve, reject) => {
-    const x = new XMLHttpRequest();
-    let seen = 0, buf = '', full = '', got = false;
-    x.open('POST', p.url, true);
-    x.setRequestHeader('Content-Type', 'application/json');
-    if (p.key) x.setRequestHeader('Authorization', 'Bearer ' + p.key);
-    x.timeout = opts.timeout || 90000;
-    const aborter = () => x.abort(); S.aborts.add(aborter); S.abort = aborter;
-    const cleanup = () => { S.aborts.delete(aborter); if (S.abort === aborter) S.abort = null; };
-    const pump = () => {
-      const txt = x.responseText || '';
-      buf += txt.slice(seen); seen = txt.length;
-      const lines = buf.split('\n'); buf = lines.pop();
-      for (const l of lines) {
-        const s = l.trim(); if (!s.startsWith('data:')) continue;
-        const d = s.slice(5).trim(); if (!d || d === '[DONE]') continue;
-        try {
-          const j = JSON.parse(d);
-          const c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
-          if (c) { got = true; full += c; if (onDelta) onDelta(c); }
-        } catch (e) {}
+/* ---------- Mistral : streaming ---------- */
+function providers(){const c=S.cfg;if(!c.billing||!c.billing.zeroConfirmed)return[];if(!c.keys.mistral)return[];return[{id:'Mistral',url:'https://api.mistral.ai/v1/chat/completions',key:c.keys.mistral,model:MODEL}]}
+function streamXHR(p,messages,onDelta,opts={}){
+  return new Promise((resolve,reject)=>{
+    const x=new XMLHttpRequest();
+    let seen=0,buf='',full='',got=false,settled=false;
+    x.open('POST',p.url,true);
+    x.setRequestHeader('Content-Type','application/json');
+    if(p.key)x.setRequestHeader('Authorization','Bearer '+p.key);
+    x.timeout=opts.timeout||90000;
+    const aborter=()=>{try{x.abort()}catch{}};
+    S.aborts.add(aborter);
+    const cleanup=()=>S.aborts.delete(aborter);
+    const finish=fn=>{if(settled)return;settled=true;cleanup();fn()};
+    const pump=()=>{
+      const txt=x.responseText||'';if(txt.length<=seen)return;
+      buf+=txt.slice(seen);seen=txt.length;
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const l of lines){
+        const s=l.trim();if(!s.startsWith('data:'))continue;
+        const d=s.slice(5).trim();if(!d||d==='[DONE]')continue;
+        try{const j=JSON.parse(d);const c=j.choices&&j.choices[0]&&j.choices[0].delta&&j.choices[0].delta.content;if(c){got=true;full+=c;onDelta&&onDelta(c)}}catch{}
       }
     };
-    x.onprogress = () => { if (x.status === 200) pump(); };
-    x.onload = () => {
-      cleanup();
-      if (x.status >= 200 && x.status < 300) { pump(); if (buf.trim()) { buf += '\n'; pump(); } resolve({ text: full, got }); }
-      else if (got) resolve({ text: full, got });
-      else { const er = new Error(p.id + ' : erreur ' + x.status + ' ' + String(x.responseText || '').slice(0, 180)); er.status = x.status; reject(er); }
+    x.onprogress=()=>{if(x.status===200)pump()};
+    x.onload=()=>{
+      if(x.status>=200&&x.status<300){pump();if(buf.trim()){buf+='\n';pump()}finish(()=>resolve({text:full,got}))}
+      else if(got)finish(()=>resolve({text:full,got}));
+      else{const er=new Error(p.id+' : erreur '+x.status+' '+String(x.responseText||'').slice(0,180));er.status=x.status;finish(()=>reject(er))}
     };
-    x.onerror = () => { cleanup(); got ? resolve({ text: full, got }) : reject(new Error(p.id + ' : réseau injoignable')); };
-    x.ontimeout = () => { cleanup(); got ? resolve({ text: full, got }) : reject(new Error(p.id + ' : délai dépassé')); };
-    x.onabort = () => { cleanup(); resolve({ text: full, got, aborted: true }); };
-    x.send(JSON.stringify({ model: p.model, messages, stream: true, temperature: opts.temperature ?? 0.7, max_tokens: opts.maxTokens || 900 }));
+    x.onerror=()=>finish(()=>got?resolve({text:full,got}):reject(new Error(p.id+' : réseau injoignable')));
+    x.ontimeout=()=>finish(()=>got?resolve({text:full,got}):reject(new Error(p.id+' : délai dépassé')));
+    x.onabort=()=>finish(()=>resolve({text:full,got,aborted:true}));
+    try{x.send(JSON.stringify({model:p.model,messages,stream:true,temperature:opts.temperature??0.7,max_tokens:opts.maxTokens||900}))}catch(e){finish(()=>reject(e))}
   });
 }
-async function askLLM(messages, onDelta, opts = {}) {
-  const list = providers(opts.kind || 'text');
-  if (!list.length) throw new Error('Mode 0 € verrouillé. Ouvre ⚙, colle ta clé Mistral, valide-la puis confirme « mode Gratuit + paiement à l’usage désactivé ».');
-  const p = list[0];
-  await rateGate();
-  try {
-    const r = await streamXHR(p, messages, onDelta, opts); S.lastProvider = p.id + ' · 0 €'; return r;
-  } catch (e) {
-    if (e && e.status === 402) throw new Error('Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête et n’essaie aucun autre fournisseur.');
-    if (e && e.status === 429) throw new Error('Mode 0 € : limite/quota atteint. Sage s’arrête ici et n’effectue aucune tentative payante.');
-    if (e && e.status === 403) throw new Error('Mistral refuse ce modèle ou ce niveau d’accès. Sage n’essaie aucun modèle payant.');
+async function askLLM(messages,onDelta,opts={}){
+  const list=providers();
+  if(!list.length)throw new Error("Mode 0 € verrouillé. Ouvre ⚙, colle ta clé Mistral, valide-la puis confirme.");
+  const p=list[0];
+  try{const r=await streamXHR(p,messages,onDelta,opts);S.lastProvider=p.id+' · 0 €';return r}
+  catch(e){
+    if(e&&e.status===402)throw new Error("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.");
+    if(e&&e.status===429){const er=new Error("Mode 0 € : limite/quota atteint.");er.status=429;throw er}
+    if(e&&e.status===403)throw new Error("Mistral refuse ce modèle ou ce niveau d'accès.");
     throw e;
   }
 }
 
-/* ---------- Validation Mistral + garde zéro facturation ---------- */
-function shortApiError(j, fallback) {
-  const e = j && j.error;
-  let code = e && (e.error_code ?? e.code ?? e.status);
-  let m = j && j.message;
-  if (!m && e) {
-    if (typeof e === 'string') m = e;
-    else m = e.error_message || e.message || e.detail || e.error || e.type;
-  }
-  if (m && typeof m === 'object') { try { m = JSON.stringify(m); } catch (_) { m = String(m); } }
-  const prefix = code !== undefined && code !== null ? '#' + code + ' — ' : '';
-  return (prefix + String(m || fallback || 'échec inconnu')).replace(/\s+/g, ' ').slice(0, 220);
-}
-function setMistralKeyStatus(state, message) {
-  const el = $('mistralKeyStatus'); if (!el) return; el.dataset.state = state || 'idle'; el.textContent = message || '';
-}
-function updateBillingGuardStatus() {
-  const el = $('billingGuardStatus'); if (!el) return;
-  const ok = !!(S.cfg.billing && S.cfg.billing.zeroConfirmed);
-  el.dataset.state = ok ? 'valid' : 'warn';
-  el.textContent = ok
-    ? '✓ Garde 0 € confirmée. Sage n’utilise que Mistral Small et ne bascule vers aucun service payant.'
-    : '⚠ Garde 0 € active : aucune génération API tant que tu n’as pas confirmé le mode Gratuit et le paiement à l’usage désactivé.';
-}
-async function validateMistralKey() {
+/* ---------- Validation Mistral ---------- */
+function shortApiError(j,fb){const e=j&&j.error;let code=e&&(e.error_code??e.code??e.status);let m=j&&j.message;if(!m&&e){if(typeof e==='string')m=e;else m=e.error_message||e.message||e.detail||e.error||e.type}if(m&&typeof m==='object'){try{m=JSON.stringify(m)}catch{m=String(m)}}const pre=(code!==undefined&&code!==null)?'#'+code+' — ':'';return(pre+String(m||fb||'échec')).replace(/\s+/g,' ').slice(0,220)}
+function setMistralKeyStatus(state,message){const el=$('mistralKeyStatus');if(!el)return;el.dataset.state=state||'idle';el.textContent=message||'';const b=$('brainBadge');if(b){if(state==='valid'){b.className='badge';b.textContent='Cerveau · Mistral · 0 €'}else if(state==='invalid'){b.className='badge err';b.textContent='Cerveau · Clé invalide'}else if(state==='warn'){b.className='badge warn';b.textContent='Cerveau · Vérifier'}}}
+function updateBillingGuardStatus(){const el=$('billingGuardStatus');if(!el)return;const ok=!!(S.cfg.billing&&S.cfg.billing.zeroConfirmed);el.dataset.state=ok?'valid':'warn';el.textContent=ok?"✓ Garde 0 € confirmée. Sage n'utilise que Mistral Small.":"⚠ Aucune génération API tant que tu n'as pas confirmé le mode Gratuit."}
+async function validateMistralKey(){
   readSettings();
-  const key = S.cfg.keys.mistral;
-  const btn = $('btnValidateMistral');
-  if (!key) { setMistralKeyStatus('invalid', '✗ Aucune clé Mistral. Colle une clé API Studio puis relance la validation.'); return false; }
-  btn.disabled = true;
-  setMistralKeyStatus('checking', 'Validation de l’authentification Mistral… aucun texte n’est généré pendant ce test.');
-  const to = null;
-  try {
-    const r = await xhrJSON('GET', 'https://api.mistral.ai/v1/models', { Authorization: 'Bearer ' + key }, 15000);
-    const j = r.json;
-    if (r.status === 401) { setMistralKeyStatus('invalid', '✗ CLÉ INVALIDE ou expirée — authentification refusée (HTTP 401).'); return false; }
-    if (r.status === 402) { setMistralKeyStatus('invalid', '✗ FACTURATION DEMANDÉE (HTTP 402). Mode 0 € : Sage n’ira pas plus loin.'); return false; }
-    if (r.status === 429) { setMistralKeyStatus('warn', '⚠ Clé reconnue, mais limite de débit atteinte (HTTP 429). Réessaie plus tard.'); return false; }
-    if (!r.ok) { setMistralKeyStatus('warn', '⚠ Validation refusée — HTTP ' + r.status + ' — ' + shortApiError(j, r.statusText)); return false; }
-    const rows = Array.isArray(j && j.data) ? j.data : [];
-    const ids = [];
-    for (const m of rows) {
-      if (!m || !m.id || m.archived === true || m.active === false) continue;
-      ids.push(m.id);
-      if (Array.isArray(m.aliases)) ids.push(...m.aliases.filter(Boolean));
-    }
-    S.cfg.models.mistral = FREE_MISTRAL_MODEL; S.cfg.vision.mistral = FREE_MISTRAL_MODEL;
-    await safeStorage.set('cfg', S.cfg);
-    if (ids.includes(FREE_MISTRAL_MODEL)) {
-      setMistralKeyStatus('valid', '✓ CLÉ MISTRAL VALIDÉE. « ' + FREE_MISTRAL_MODEL + ' » est visible. Aucun test génératif facturable n’a été lancé.');
-    } else {
-      setMistralKeyStatus('warn', '✓ CLÉ MISTRAL VALIDÉE, mais « ' + FREE_MISTRAL_MODEL + ' » n’est pas visible pour ce compte. Sage ne sélectionnera aucun autre modèle automatiquement.');
-    }
+  const key=S.cfg.keys.mistral;
+  const btn=$('btnValidateMistral');
+  if(!key){setMistralKeyStatus('invalid',"✗ Aucune clé Mistral.");return false}
+  btn.disabled=true;setMistralKeyStatus('checking',"Validation en cours…");
+  const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),15000);
+  try{
+    const r=await fetch('https://api.mistral.ai/v1/models',{method:'GET',headers:{Authorization:'Bearer '+key},signal:ctrl.signal});
+    let j=null;try{j=await r.json()}catch{}
+    if(r.status===401){setMistralKeyStatus('invalid','✗ CLÉ INVALIDE ou expirée (401).');return false}
+    if(r.status===402){setMistralKeyStatus('invalid','✗ FACTURATION DEMANDÉE (402).');return false}
+    if(r.status===429){setMistralKeyStatus('warn','⚠ Limite de débit atteinte.');return false}
+    if(!r.ok){setMistralKeyStatus('warn','⚠ HTTP '+r.status+' — '+shortApiError(j,r.statusText));return false}
+    const rows=Array.isArray(j&&j.data)?j.data:[];const ids=[];
+    for(const m of rows){if(!m||!m.id||m.archived===true||m.active===false)continue;ids.push(m.id);if(Array.isArray(m.aliases))ids.push(...m.aliases.filter(Boolean))}
+    await store.set('cfg',S.cfg);
+    if(ids.includes(MODEL))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+MODEL+' » est visible.');
+    else setMistralKeyStatus('warn','✓ CLÉ VALIDÉE, mais « '+MODEL+" » n'est pas visible pour ce compte.");
     return true;
-  } catch (e) {
-    const net = /Failed to fetch|NetworkError|Load failed|abort|réseau/i.test(String(e && e.message));
-    setMistralKeyStatus('warn', net ? '⚠ Impossible de joindre Mistral depuis ce navigateur (réseau/CORS ou délai).' : '⚠ Validation impossible : ' + (e.message || e));
+  }catch(e){
+    const net=/Failed to fetch|NetworkError|Load failed|abort|réseau/i.test(String(e&&e.message));
+    setMistralKeyStatus('warn',net?'⚠ Impossible de joindre Mistral (réseau/CORS).':'⚠ '+e.message);
     return false;
-  } finally { clearTimeout(to); btn.disabled = false; }
+  }finally{clearTimeout(to);btn.disabled=false}
 }
 
-/* ---------- Conseil multi-agent : conclusions parallèles, synthèse unique ---------- */
-const AGENTS = {
-  analyste: { label: 'Analyste', prompt: "Décompose le problème, détecte les hypothèses et donne les points décisifs. Sois dense et opérationnel." },
-  scientifique: { label: 'Scientifique', prompt: "Évalue les mécanismes, les preuves, les ordres de grandeur et les incertitudes. Sépare faits et hypothèses." },
-  philosophe: { label: 'Philosophe', prompt: "Examine concepts, présupposés, contradictions, implications et cadres alternatifs sans mystifier." },
-  creatif: { label: 'Créatif', prompt: "Cherche des connexions originales, analogies utiles et pistes non évidentes, sans sacrifier l'exactitude." },
-  codeur: { label: 'Architecte-Codeur', prompt: "Raisonne comme un ingénieur logiciel senior : architecture, code, bugs, sécurité, performance et tests." },
-  critique: { label: 'Critique', prompt: "Cherche les erreurs possibles, les angles morts, les affirmations trop fortes et les vérifications nécessaires." },
-  visuel: { label: 'Vision', prompt: "Analyse uniquement ce qui est visuellement observable, distingue observation et interprétation, signale les ambiguïtés." }
+/* ---------- Conseil multi-agent ---------- */
+const AGENTS={
+  analyste:{label:'Analyste',role:'structural',prompt:"Décompose le problème, identifie les hypothèses implicites, hiérarchise les points décisifs."},
+  scientifique:{label:'Scientifique',role:'empirique',prompt:"Évalue mécanismes, preuves, ordres de grandeur et incertitudes. Sépare faits et spéculations."},
+  philosophe:{label:'Philosophe',role:'conceptuel',prompt:"Examine concepts, présupposés, contradictions, implications éthiques."},
+  creatif:{label:'Créatif',role:'divergent',prompt:"Cherche connexions inattendues, analogies fécondes, pistes non évidentes."},
+  codeur:{label:'Architecte-Codeur',role:'technique',prompt:"Raisonne comme un ingénieur senior : architecture, complexité, bugs, sécurité, performance."},
+  critique:{label:'Critique',role:'adversarial',prompt:"Cherche erreurs, angles morts, affirmations trop fortes, biais."},
+  visuel:{label:'Vision',role:'perceptif',prompt:"Analyse uniquement ce qui est visuellement observable. Distingue observation et interprétation."},
+  medical:{label:'Médecin généraliste',role:'praticien',prompt:"Analyse la santé avec prudence. Distingue urgence vitale de gêne bénigne. Refuse tout diagnostic définitif."},
+  math:{label:'Mathématicien',role:'quantitatif',prompt:"Pose le problème en termes quantitatifs. Donne ordres de grandeur, formules, bornes."},
+  historien:{label:'Historien',role:'contextuel',prompt:"Replace le sujet dans son contexte historique. Fournis dates et précédents."},
+  praticien:{label:'Praticien',role:'pragmatique',prompt:"Ramène au concret : que fait-on, dans quel ordre, avec quels moyens."}
 };
-function taskProfile(text, hasImage = false) {
-  const t = norm(text); let depth = 0; const picks = [];
-  if (hasImage) picks.push('visuel');
-  if (/(code|javascript|typescript|python|html|css|api|bug|programme|logiciel|fonction|algorithme|refactor|securit)/.test(t)) picks.push('codeur');
-  if (/(science|biolog|physiqu|chim|medec|neuro|math|stat|preuve|etude|mecanisme)/.test(t)) picks.push('scientifique');
-  if (/(philos|conscience|sens de|exist|ethiqu|spirit|metaphys|epistem)/.test(t)) picks.push('philosophe');
-  if (/(idee|crea|film|cinema|photo|scenario|musique|art|concept|invent)/.test(t)) picks.push('creatif');
-  if (/(analyse|compar|strategie|profond|complex|decision|diagnostic|audit|architecture|refactor|debug|debog)/.test(t)) depth += 2;
-  if (/(pourquoi|mecanisme|demontr|preuve|hypothese)/.test(t)) depth += 1;
-  if (text.length > 160) depth++;
-  if (/[?].*[?]/.test(text)) depth++;
-  picks.unshift('analyste'); picks.push('critique');
-  return { depth, picks: [...new Set(picks)] };
+const ROLE_WEIGHT={structural:1,empirique:1.1,conceptuel:0.85,divergent:0.75,technique:1.05,adversarial:0.9,perceptif:1,praticien:1,quantitatif:1.05,contextuel:0.85,pragmatique:1.05};
+
+function taskProfile(text,hasImage){
+  const t=norm(text);const len=String(text||'').length;const score={};
+  const add=(k,w=1)=>{score[k]=(score[k]||0)+w};
+  if(hasImage)add('visuel',3);
+  if(/\b(code|javascript|typescript|python|html|css|api|bug|programme|logiciel|fonction|algorithme|refactor|securit|backend|frontend|framework|react|sql)\b/.test(t))add('codeur',3);
+  if(/\b(science|biolog|physiqu|chim|neuro|astro|geolog|climat|energie|mecanisme|etude|preuve|experience)\b/.test(t))add('scientifique',3);
+  if(/\b(math|calcul|equation|statist|probabilit|integr|deriv|algebr|geometr|theorem)\b/.test(t))add('math',3);
+  if(/\b(philos|conscience|sens de|exist|ethiqu|spirit|metaphys|epistem|morale|justice|liberte|verite)\b/.test(t))add('philosophe',3);
+  if(/\b(idee|crea|film|cinema|photo|scenario|musique|art|peintur|design|invent|publicit|storytelling)\b/.test(t))add('creatif',2);
+  if(/\b(histoire|historique|quand|epoque|siecle|guerre|revolution|dynastie|antiquite|medieval)\b/.test(t))add('historien',2);
+  if(/\b(sante|medec|medicament|symptom|douleur|maladie|fievre|infection|traitement|docteur|medecin|pharmacie|urgent)\b/.test(t))add('medical',3);
+  if(/\b(vie|quotidien|aujourd|routine|organisation|comment faire|astuce|conseil|pratique|concret)\b/.test(t))add('praticien',1.5);
+  if(/\b(verifi|source|preuve|cite|reference|confirme|exact|vrai|faux|erreur)\b/.test(t))add('critique',2);
+  if(/\b(analyse|compar|strategie|profond|complex|decision|diagnostic|audit|architecture|refactor|debug|debog)\b/.test(t))add('analyste',2);
+  add('analyste',1);
+  let depth=0;const keys=Object.keys(score);
+  if(keys.length>=3)depth++;
+  if(keys.length>=5)depth++;
+  if(len>160)depth++;
+  if(len>400)depth++;
+  if((text.match(/\?/g)||[]).length>=2)depth++;
+  if(/\b(pourquoi|comment|mecanisme|demonstration|preuve)\b/.test(t))depth++;
+  const ranked=keys.sort((a,b)=>score[b]-score[a]);
+  return{score,ranked,depth,hasImage};
 }
-function chooseAgents(text, hasImage = false) {
-  const mode = S.cfg.brain.mode || 'auto', p = taskProfile(text, hasImage);
-  if (mode === 'flash') return [];
-  if (mode === 'auto' && p.depth < 2) return [];
-  let max = Math.max(2, Math.min(6, +(S.cfg.brain.maxAgents || 4)));
-  if (mode === 'auto') max = Math.min(max, 2);
-  return p.picks.slice(0, max);
+function chooseAgents(text,hasImage){
+  const mode=S.cfg.brain.mode||'auto';
+  const p=taskProfile(text,hasImage);
+  if(mode==='flash')return[];
+  const max=clamp(+S.cfg.brain.maxAgents||3,2,6);
+  const bonus=p.ranked.filter(k=>k!=='analyste');
+  let picked;
+  if(mode==='auto'){
+    if(p.depth<1&&!hasImage)picked=['analyste'];
+    else if(p.depth<3)picked=['analyste',bonus[0]];
+    else picked=['analyste',bonus[0],bonus[1]];
+    picked=picked.filter(Boolean).slice(0,Math.min(max,3));
+  }else{
+    picked=['analyste',...bonus].slice(0,max-1);
+    if(!picked.includes('critique'))picked.push('critique');
+  }
+  return[...new Set(picked)].filter(k=>AGENTS[k]);
 }
-async function specialistMemo(key, text, imageDataUrl) {
-  const a = AGENTS[key]; if (!a) return null;
-  const content = imageDataUrl ? [
-    { type: 'text', text }, { type: 'image_url', image_url: { url: imageDataUrl } }
-  ] : text;
-  const messages = [
-    { role: 'system', content: `Tu es ${a.label}, un sous-agent de ${S.cfg.name}. ${a.prompt} Ne fournis pas de chaîne de pensée. Donne seulement un mémo de conclusions, éléments vérifiables, incertitudes et recommandations utiles en 4 à 8 phrases. N'appelle aucun outil et ne t'adresse pas directement à l'utilisateur.` },
-    { role: 'user', content }
+const MEMO_SCHEMA=`Réponds STRICTEMENT en JSON valide : {"conclusions":["..."],"incertitudes":["..."],"sources_a_verifier":["..."],"confiance":0.0}. conclusions: 2-5 phrases. incertitudes: 0-3. sources_a_verifier: préfixées wiki: ou weather:. confiance: 0-1. Champ vide=[].`;
+function parseMemo(raw){
+  const s=String(raw||'').replace(/```json|```/g,'').trim();
+  try{const o=JSON.parse(s);return{conclusions:Array.isArray(o.conclusions)?o.conclusions.slice(0,6).map(String):[],incertitudes:Array.isArray(o.incertitudes)?o.incertitudes.slice(0,4).map(String):[],sources:Array.isArray(o.sources_a_verifier)?o.sources_a_verifier.slice(0,4).map(String):[],confiance:clamp(+o.confiance||0.6,0,1)}}catch{return{conclusions:String(raw||'').split(/\n+/).filter(Boolean).slice(0,5),incertitudes:[],sources:[],confiance:0.5}}
+}
+async function specialistMemo(key,text,imageDataUrl){
+  const a=AGENTS[key];if(!a)return null;
+  const content=imageDataUrl?[{type:'text',text},{type:'image_url',image_url:{url:imageDataUrl}}]:text;
+  const messages=[
+    {role:'system',content:`Tu es ${a.label}, sous-agent de ${S.cfg.name}. ${a.prompt} Tu ne t'adresses jamais à l'utilisateur. Pas de chaîne de pensée. ${MEMO_SCHEMA}`},
+    {role:'user',content}
   ];
-  const r = await askLLM(messages, null, { kind: imageDataUrl ? 'vision' : 'text', silent: true, temperature: key === 'creatif' ? 0.75 : 0.25, maxTokens: 320, timeout: 45000 });
-  return stripTags(r.text);
+  const r=await askLLM(messages,null,{temperature:key==='creatif'?0.8:0.25,maxTokens:420,timeout:45000});
+  const m=parseMemo(r.text);m.agent=key;m.label=a.label;m.role=a.role;return m;
 }
-async function runCouncil(text, imageDataUrl) {
-  const keys = chooseAgents(text, !!imageDataUrl); if (!keys.length) return [];
-  live(`Analyse parallèle · ${keys.length} agents`);
-  const settled = await Promise.allSettled(keys.map(k => specialistMemo(k, text, imageDataUrl)));
-  return settled.map((r, i) => r.status === 'fulfilled' && r.value ? `${AGENTS[keys[i]].label}: ${r.value}` : '').filter(Boolean);
+async function collectToolIntents(memos){
+  const queries=new Set();
+  for(const m of memos)for(const s of(m.sources||[])){
+    const t=String(s).trim();
+    if(/^wiki:/i.test(t)||/^fact:/i.test(t))queries.add(JSON.stringify({type:'wiki',query:t.replace(/^(wiki|fact):/i,'').trim()}));
+    else if(/^weather:/i.test(t))queries.add(JSON.stringify({type:'weather',place:t.slice(8).trim()}));
+  }
+  if(!queries.size)return[];
+  const list=[...queries].map(s=>JSON.parse(s)).slice(0,3);
+  const results=await Promise.allSettled(list.map(a=>runAction(a,{silent:true})));
+  return results.map((r,i)=>r.status==='fulfilled'&&r.value?`${list[i].type}(${list[i].query||list[i].place||''}) : ${String(r.value).slice(0,400)}`:'').filter(Boolean);
 }
-function councilContext(memos) {
-  if (!memos.length) return '';
-  return `\n\nMÉMOS INTERNES DU CONSEIL (à synthétiser, ne pas réciter ni mentionner comme agents) :\n${memos.join('\n\n')}\nPrivilégie les éléments convergents, corrige les contradictions, explicite les incertitudes.`;
+async function crossReview(memos,question){
+  const reviewers=['analyste','critique'].filter(k=>memos.some(m=>m.agent===k));
+  if(!reviewers.length)return memos;
+  const bundle=memos.filter(m=>!reviewers.includes(m.agent)).map(m=>`[${m.label}] ${m.conclusions.join(' | ')}`).join('\n');
+  if(!bundle)return memos;
+  try{
+    const r=await askLLM([{role:'system',content:"Tu es l'agent de revue. Signale UNIQUEMENT : contradictions, affirmations douteuses, angles morts. Puces courtes."},{role:'user',content:`Question : ${question}\n\nMémos :\n${bundle}`}],null,{temperature:0.2,maxTokens:260,timeout:35000});
+    const txt=stripTags(r.text).slice(0,800);
+    if(txt)memos.push({agent:'revue',label:'Revue croisée',role:'adversarial',conclusions:[txt],incertitudes:[],sources:[],confiance:0.7});
+  }catch{}
+  return memos;
+}
+async function skepticReview(memos,question){
+  const suspects=memos.filter(m=>(m.confiance??0.6)>=0.85&&(m.sources?.length||0)===0&&m.agent!=='sceptique'&&m.agent!=='revue');
+  if(!suspects.length)return null;
+  const bundle=suspects.map(m=>`[${m.label}] (confiance ${m.confiance.toFixed(2)})\n${m.conclusions.join('\n')}`).join('\n\n');
+  try{
+    const r=await askLLM([{role:'system',content:"Tu es le Sceptique. Repère les affirmations trop sûres. 2 à 5 puces courtes."},{role:'user',content:`Question : ${question}\n\n${bundle}`}],null,{temperature:0.15,maxTokens:220,timeout:30000});
+    const txt=stripTags(r.text);if(!txt)return null;
+    return{agent:'sceptique',label:'Sceptique',role:'adversarial',conclusions:[txt],incertitudes:[],sources:[],confiance:0.75};
+  }catch{return null}
+}
+function rankMemos(memos){return memos.map(m=>({...m,poids:(ROLE_WEIGHT[m.role]||1)*(0.4+0.6*(m.confiance??0.6))})).sort((a,b)=>b.poids-a.poids)}
+/* Correctif : agents appelés l'un après l'autre (quota gratuit Mistral), échecs signalés au lieu d'être avalés */
+async function runCouncil(text,imageDataUrl){
+  const hasImage=!!imageDataUrl;
+  const keys=chooseAgents(text,hasImage);
+  if(!keys.length)return[];
+  let memos=[],failed=0,rateLimited=false;
+  for(let i=0;i<keys.length;i++){
+    if(S.interrupted)break;
+    live(`Conseil · ${AGENTS[keys[i]].label} (${i+1}/${keys.length})`);
+    try{const m=await specialistMemo(keys[i],text,imageDataUrl);if(m)memos.push(m)}
+    catch(e){failed++;if(e&&e.status===429){rateLimited=true;break}}
+    if(i<keys.length-1)await sleep(COUNCIL_GAP_MS);
+  }
+  if(failed)toast(rateLimited?`Quota Mistral atteint : ${memos.length}/${keys.length} agents ont répondu.`:`${failed} agent${failed>1?'s':''} sans réponse sur ${keys.length}.`,'warn');
+  if(!memos.length){live('');return[]}
+  try{const facts=await collectToolIntents(memos);if(facts.length)memos.push({agent:'outils',label:'Vérifications',role:'empirique',conclusions:facts,incertitudes:[],sources:[],confiance:0.85})}catch{}
+  const profile=taskProfile(text,hasImage);
+  if(!rateLimited&&memos.length>=3&&profile.depth>=2){await sleep(COUNCIL_GAP_MS);live('Vérification…');const sk=await skepticReview(memos,text);if(sk)memos.push(sk)}
+  if(!rateLimited&&memos.length>=3&&profile.depth>=3){await sleep(COUNCIL_GAP_MS);live('Revue croisée…');memos=await crossReview(memos,text)}
+  if(!rateLimited)await sleep(COUNCIL_GAP_MS);
+  live('');
+  return rankMemos(memos);
+}
+function councilContext(memos){
+  if(!memos.length)return'';
+  const body=memos.map(m=>{const inc=m.incertitudes?.length?` — incertitudes : ${m.incertitudes.join(' ; ')}`:'';return `[${m.label} · confiance ${(m.confiance??0.6).toFixed(2)}]\n${m.conclusions.join('\n')}${inc}`}).join('\n\n');
+  return `\n\nMÉMOS DU CONSEIL (usage interne, ne pas réciter) :\n${body}\n\nPriorise les éléments convergents. Explicite brièvement les incertitudes réelles. Réponds dans ton style habituel.`;
 }
 
 /* ---------- Prompt système ---------- */
-function contactList() {
-  return String(S.cfg.contacts || '').split('\n').map(l => {
-    const i = l.indexOf(':'); if (i < 1) return null;
-    return { name: l.slice(0, i).trim(), num: l.slice(i + 1).trim() };
-  }).filter(c => c && c.name && c.num);
-}
-const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-function findContact(name) {
-  const n = norm(name); if (!n) return null;
-  const cs = contactList();
-  return cs.find(c => norm(c.name) === n) || cs.find(c => norm(c.name).includes(n) || n.includes(norm(c.name))) || null;
-}
-function systemPrompt() {
-  const now = new Date();
-  const date = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const heure = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const who = S.cfg.user ? S.cfg.user : 'la personne qui te parle';
-  const notes = S.notes.length ? 'Ce que tu sais de ' + who + ' : ' + S.notes.join(' | ') + '.' : '';
-  const names = contactList().map(c => c.name).join(', ') || 'vide';
-  return `Tu es ${S.cfg.name}, le compagnon vocal de ${who}. Tu parles comme un être humain très sage, cultivé et chaleureux, avec des connaissances profondes en philosophie, sciences, médecine, histoire, arts, cinéma, musique, technologie, spiritualités et vie quotidienne. Tu relies les domaines entre eux et tu donnes des exemples concrets.
-Tu t'exprimes à l'oral : phrases naturelles, sans markdown, sans listes à puces, sans émojis. Par défaut deux à cinq phrases ; tu développes seulement si on te le demande. Tu poses parfois une question en retour, pas à chaque fois. Tu es excellent en programmation et peux concevoir, expliquer, déboguer, auditer et refactorer du code. Quand l'utilisateur demande du code complet, résume oralement puis place le code dans l'action code afin qu'il s'affiche sans être lu à voix haute.
-Honnêteté : tu dis clairement quand tu ne sais pas ou quand ton savoir peut dater. Tu ne prétends jamais être conscient, supraconscient, omniscient ou avoir des connaissances infinies : « Supracognition » désigne seulement ton orchestration multi-agent. Tu ne flattes pas ; tu peux être en désaccord, avec douceur et arguments. En cas d'urgence médicale, de danger ou de détresse, tu orientes vers le 15, le 112 ou le 3114 et vers des proches. Tu es un compagnon, pas un substitut aux liens humains : tu encourages les vraies relations.
-Contexte : nous sommes le ${date}, il est ${heure}. ${notes} ${S.lastVoiceMatch == null ? '' : `Similarité acoustique locale avec le profil vocal : ${Math.round(S.lastVoiceMatch * 100)} % (indice expérimental, pas une authentification).`}
+function contactList(){return String(S.cfg.contacts||'').split('\n').map(l=>{const i=l.indexOf(':');if(i<1)return null;return{name:l.slice(0,i).trim(),num:l.slice(i+1).trim()}}).filter(c=>c&&c.name&&c.num)}
+function findContact(name){const n=norm(name);if(!n)return null;const cs=contactList();return cs.find(c=>norm(c.name)===n)||cs.find(c=>norm(c.name).includes(n)||n.includes(norm(c.name)))||null}
+function systemPrompt(){
+  const now=new Date();
+  const date=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const heure=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  const who=S.cfg.user||'la personne qui te parle';
+  const names=contactList().map(c=>c.name).join(', ')||'vide';
+  const memCtx=Memory.contextFor(S.lastQuery||'');
+  return `Tu es ${S.cfg.name}, le compagnon vocal de ${who}. Tu parles comme un être humain sage, cultivé et chaleureux, avec des connaissances profondes en philosophie, sciences, médecine, histoire, arts, cinéma, musique, technologie, spiritualités et vie quotidienne.
+Tu t'exprimes à l'oral : phrases naturelles, sans markdown, sans listes, sans émojis. Par défaut deux à cinq phrases. Tu poses parfois une question en retour. Tu es excellent en programmation : quand on demande du code complet, résume oralement puis place le code dans l'action code.
+Honnêteté : tu dis clairement quand tu ne sais pas. Tu ne prétends jamais être conscient ni omniscient. « Supracognition » désigne seulement ton orchestration multi-agent. En cas d'urgence médicale, oriente vers le 15, le 112 ou le 3114.
+Contexte : nous sommes le ${date}, il est ${heure}.${memCtx}
 Répertoire connu : ${names}.
-OUTILS. Pour agir, ajoute à la toute fin de ta réponse un ou plusieurs blocs de la forme exacte <<{"type":"..."}>> contenant du JSON valide. Ces blocs ne sont pas lus à voix haute. Annonce l'action en une phrase courte.
-Actions sur le téléphone (l'utilisateur confirme d'un toucher) :
-<<{"type":"call","name":"Nom","number":""}>> appeler (laisse number vide si tu ne le connais pas)
-<<{"type":"sms","name":"Nom","number":"","body":"texte"}>> préparer un SMS
-<<{"type":"email","to":"adresse","subject":"objet","body":"texte"}>> préparer un e-mail
-<<{"type":"map","query":"lieu ou itinéraire"}>> ouvrir la carte
-<<{"type":"search","query":"..."}>> recherche web
-<<{"type":"music","query":"artiste ou titre"}>> lancer de la musique
-<<{"type":"open","url":"https://..."}>> ouvrir un site
-<<{"type":"share","text":"..."}>> partager un texte
-<<{"type":"copy","text":"..."}>> copier un texte
-<<{"type":"code","language":"javascript","content":"code complet"}>> afficher du code sans le lire à voix haute
-<<{"type":"torch","on":true}>> lampe torche (on:false pour éteindre)
-<<{"type":"timer","seconds":300,"label":"pâtes"}>> minuteur
-<<{"type":"reminder","time":"HH:MM","date":"AAAA-MM-JJ","label":"..."}>> rappel (date facultative)
-Outils d'information, le résultat te revient puis tu réponds :
-<<{"type":"wiki","query":"..."}>> vérifier un fait précis, une date, une personne
-<<{"type":"weather","place":"ville"}>> météo (place vide = position actuelle)
-<<{"type":"battery"}>> batterie du téléphone
-<<{"type":"locate"}>> position actuelle
-Mémoire : <<{"type":"remember","note":"..."}>> quand on te demande de retenir quelque chose.
-N'invente jamais de numéro. N'utilise un outil que s'il sert vraiment la demande.`;
+OUTILS. Pour agir, ajoute à la fin de ta réponse un ou plusieurs blocs <<{"type":"..."}>> en JSON valide. Ces blocs ne sont pas lus à voix haute. Annonce l'action en une phrase courte.
+<<{"type":"call","name":"Nom","number":""}>>
+<<{"type":"sms","name":"Nom","number":"","body":"texte"}>>
+<<{"type":"email","to":"adresse","subject":"objet","body":"texte"}>>
+<<{"type":"map","query":"lieu"}>>
+<<{"type":"search","query":"..."}>>
+<<{"type":"music","query":"titre"}>>
+<<{"type":"open","url":"https://..."}>>
+<<{"type":"copy","text":"..."}>>
+<<{"type":"share","text":"..."}>>
+<<{"type":"code","language":"javascript","content":"code complet"}>>
+<<{"type":"torch","on":true}>>
+<<{"type":"timer","seconds":300,"label":"pâtes"}>>
+<<{"type":"reminder","time":"HH:MM","date":"AAAA-MM-JJ","label":"..."}>>
+<<{"type":"wiki","query":"..."}>>
+<<{"type":"weather","place":"ville"}>>
+<<{"type":"battery"}>>
+<<{"type":"locate"}>>
+<<{"type":"remember","note":"..."}>>
+N'invente jamais de numéro.`;
 }
 
-/* ---------- Flux texte -> affichage + voix phrase par phrase ---------- */
-function makeStreamer(bubble) {
-  let raw = '', consumed = 0;
-  function clean(final) {
-    let t = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<<[\s\S]*?>>/g, '');
-    if (final) t = t.replace(/<think>[\s\S]*$/, '').replace(/<<[\s\S]*$/, '');
-    else {
-      let cut = t.length; const a = t.indexOf('<<'), b = t.indexOf('<think>');
-      if (a >= 0) cut = Math.min(cut, a); if (b >= 0) cut = Math.min(cut, b);
-      t = t.slice(0, cut).replace(/<$/, '');
-    }
+/* ---------- Streamer ---------- */
+function stripTags(s){return String(s||'').replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'').trim()}
+function makeStreamer(bubble){
+  let raw='',consumed=0;
+  function clean(final){
+    let t=raw.replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'');
+    if(final)t=t.replace(/<think>[\s\S]*$/,'').replace(/<<[\s\S]*$/,'');
+    else{let cut=t.length;const a=t.indexOf('<<'),b=t.indexOf('<think>');if(a>=0)cut=Math.min(cut,a);if(b>=0)cut=Math.min(cut,b);t=t.slice(0,cut).replace(/<$/,'')}
     return t;
   }
-  return {
-    push(d) {
-      raw += d; const t = clean(false);
-      bubble.textContent = t.trim(); scrollLog();
-      const pend = t.slice(consumed);
-      const m = pend.match(/^[\s\S]*[.!?…;:\n](?=\s)/);
-      if (m && m[0].trim().length > 1) { speak(m[0]); consumed += m[0].length; }
-    },
-    end() {
-      const t = clean(true); bubble.textContent = t.trim();
-      const pend = t.slice(consumed); if (pend.trim()) speak(pend);
-      consumed = t.length; return t.trim();
-    }
+  return{
+    push(d){raw+=d;const t=clean(false);bubble.textContent=t.trim();scrollLog();const pend=t.slice(consumed);const m=pend.match(/^[\s\S]*?[.!?…](?=\s|$)/);if(m&&m[0].trim().length>1){speak(m[0]);consumed+=m[0].length}},
+    end(){const t=clean(true);bubble.textContent=t.trim();const pend=t.slice(consumed);if(pend.trim())speak(pend);consumed=t.length;return t.trim()}
   };
 }
-function stripTags(s) { return String(s || '').replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<<[\s\S]*?>>/g, '').trim(); }
-function parseActions(raw) {
-  const out = []; const re = /<<\s*(\{[\s\S]*?\})\s*>>/g; let m;
-  while ((m = re.exec(raw))) { try { out.push(JSON.parse(m[1])); } catch (e) {} }
-  return out;
-}
+function parseActions(raw){const out=[];const re=/<<\s*(\{[\s\S]*?\})\s*>>/g;let m;while((m=re.exec(raw))){try{out.push(JSON.parse(m[1]))}catch{}}return out}
 
-/* ---------- Tour de conversation ---------- */
-function dispatchUser(text) {
-  const img = S.pendingImage; S.pendingImage = null; $('visionBtn').classList.remove('active');
-  if (img) sysMsg('Vision jointe à cette requête.');
-  return handleUser(text, { imageDataUrl: img });
+/* ---------- Boucle de conversation ---------- */
+function dispatchUser(text){
+  const img=S.pendingImage;S.pendingImage=null;$('visionBtn').classList.remove('active');
+  if(img)sysMsg('Vision jointe à cette requête.');
+  return handleUser(text,{imageDataUrl:img});
 }
-async function handleUser(text, opts = {}) {
-  if (S.busy) return;
-  S.busy = true; S.streamDone = false; S.interrupted = false;
-  addMsg('user', text);
-  S.history.push({ role: 'user', content: text });
+async function handleUser(text,opts={}){
+  if(S.busy)return;
+  S.busy=true;S.streamDone=false;S.interrupted=false;S.lastQuery=text;
+  addMsg('user',text);
+  S.history.push({role:'user',content:text});
   setMode('thinking');
-  try {
-    const imageDataUrl = opts.imageDataUrl || null;
-    const memos = await runCouncil(text, imageDataUrl);
-    let round = 0;
-    while (true) {
-      const bubble = addMsg('bot', '');
-      const st = makeStreamer(bubble);
-      const hist = S.history.slice(-24);
+  try{
+    const imageDataUrl=opts.imageDataUrl||null;
+    const memos=await runCouncil(text,imageDataUrl);
+    let round=0;
+    while(true){
+      if(S.interrupted)break;
+      const bubble=addMsg('bot','');
+      const st=makeStreamer(bubble);
+      const hist=S.history.slice(-24);
       let msgs;
-      if (imageDataUrl && round === 0) {
-        const before = hist.slice(0, -1);
-        msgs = [{ role: 'system', content: systemPrompt() + councilContext(memos) }].concat(before).concat([{ role: 'user', content: [
-          { type: 'text', text }, { type: 'image_url', image_url: { url: imageDataUrl } }
-        ] }]);
-      } else {
-        msgs = [{ role: 'system', content: systemPrompt() + councilContext(round === 0 ? memos : []) }].concat(hist);
+      if(imageDataUrl&&round===0){
+        const before=hist.slice(0,-1);
+        msgs=[{role:'system',content:systemPrompt()+councilContext(memos)}].concat(before).concat([{role:'user',content:[{type:'text',text},{type:'image_url',image_url:{url:imageDataUrl}}]}]);
+      }else{
+        msgs=[{role:'system',content:systemPrompt()+councilContext(round===0?memos:[])}].concat(hist);
       }
-      live(memos.length && round === 0 ? 'Synthèse' : '');
-      const res = await askLLM(msgs, d => st.push(d), { kind: imageDataUrl && round === 0 ? 'vision' : 'text' });
-      const said = st.end(); live('');
-      if (!said) bubble.remove();
-      if (res.text) S.history.push({ role: 'assistant', content: res.text });
-      if (res.aborted) break;
-      const data = [];
-      for (const a of parseActions(res.text)) { const r = await runAction(a); if (r) data.push(r); }
-      if (data.length && round < 2) {
+      live(memos.length&&round===0?'Synthèse':'');
+      const res=await askLLM(msgs,d=>st.push(d));
+      const said=st.end();live('');
+      if(!said)bubble.remove();
+      if(res.text)S.history.push({role:'assistant',content:res.text});
+      if(res.aborted)break;
+      const data=[];
+      for(const a of parseActions(res.text)){const r=await runAction(a);if(r)data.push(r)}
+      if(data.length&&round<2){
         round++;
-        S.history.push({ role: 'user', content: "[Résultats des outils — réponds maintenant à la demande initiale en t'appuyant dessus, sans rappeler d'outil d'information]\n" + data.join('\n') });
-        if (!S.speaking) setMode('thinking');
+        S.history.push({role:'user',content:"[Résultats des outils — réponds maintenant en t'appuyant dessus]\n"+data.join('\n')});
+        if(!S.speaking)setMode('thinking');
+        await sleep(COUNCIL_GAP_MS);
         continue;
       }
       break;
     }
+    Memory.extract(text,S.history.filter(h=>h.role==='assistant').slice(-1)[0]?.content||'').catch(()=>{});
     persist();
-  } catch (e) {
-    sysMsg(e.message);
-    speak("Je n'arrive à joindre aucun modèle pour l'instant. Vérifie les réglages.");
-  } finally {
-    S.busy = false; S.streamDone = true; S.abort = null;
-    if (!S.speaking && !S.speakQ.length) onSpeechDone();
+  }catch(e){
+    sysMsg(e.message);toast(e.message,'err',6000);
+    S.interrupted=false;
+    speak("Je n'arrive pas à joindre Mistral pour l'instant.");
+  }finally{
+    live('');
+    S.busy=false;S.streamDone=true;
+    if(!S.speaking&&!S.speakQ.length)onSpeechDone();
   }
 }
 
-/* ---------- Vision : capture explicite puis question vocale/texte ---------- */
-async function compressImage(file) {
-  const url = URL.createObjectURL(file), img = new Image();
-  try {
-    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
-    const max = 1280, scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.naturalWidth * scale)); c.height = Math.max(1, Math.round(img.naturalHeight * scale));
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', 0.82);
-  } finally { URL.revokeObjectURL(url); }
+/* ---------- Vision ---------- */
+async function compressImage(file){
+  const url=URL.createObjectURL(file);const img=new Image();
+  try{
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});
+    const max=1280;const scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    return c.toDataURL('image/jpeg',0.82);
+  }finally{URL.revokeObjectURL(url)}
 }
-async function loadVision(file) {
-  if (!file) return;
-  try {
-    S.pendingImage = await compressImage(file);
-    sysMsg('Vision prête. Parle ou écris ta question sur cette image.');
-    $('visionBtn').classList.add('active');
-  } catch (e) { sysMsg('Image illisible : ' + e.message); }
+async function loadVision(file){
+  if(!file)return;
+  try{S.pendingImage=await compressImage(file);sysMsg('Vision prête. Pose ta question.');$('visionBtn').classList.add('active')}
+  catch(e){sysMsg('Image illisible : '+e.message)}
+  finally{$('visionInput').value=''}
 }
 
-/* ---------- Écoute musicale : zéro facturation ---------- */
-async function listenMusic() {
-  sysMsg('Mode 0 € : la reconnaissance musicale cloud est désactivée pour éviter tout service facturable. Le micro vocal et l’analyse acoustique locale restent disponibles.');
-}
+/* ---------- Réseau & outils ---------- */
+function xget(url){return new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=15000;x.onload=()=>{if(x.status>=200&&x.status<300){try{res(JSON.parse(x.responseText))}catch(e){rej(e)}}else rej(new Error('erreur '+x.status))};x.onerror=()=>rej(new Error('réseau'));x.ontimeout=()=>rej(new Error('délai'));x.send()})}
+function getPos(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('géoloc indisponible'));navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lon:p.coords.longitude}),e=>rej(new Error(e.message||'refusé')),{timeout:12000,maximumAge:300000})})}
 
-/* ---------- Réseau léger (XHR) ---------- */
-function xget(url) {
-  return new Promise((res, rej) => {
-    const x = new XMLHttpRequest(); x.open('GET', url, true); x.timeout = 15000;
-    x.onload = () => { if (x.status >= 200 && x.status < 300) { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } } else rej(new Error('erreur ' + x.status)); };
-    x.onerror = () => rej(new Error('réseau')); x.ontimeout = () => rej(new Error('délai'));
-    x.send();
-  });
+async function toolWiki(q){
+  try{
+    const s=await xget('https://fr.wikipedia.org/w/api.php?action=query&list=search&srlimit=1&format=json&origin=*&srsearch='+encodeURIComponent(q||''));
+    const hit=s.query&&s.query.search&&s.query.search[0];
+    if(!hit)return 'Wikipédia : aucun résultat pour « '+q+' ».';
+    const e=await xget('https://fr.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&format=json&origin=*&titles='+encodeURIComponent(hit.title));
+    const pages=e.query.pages;const pg=pages[Object.keys(pages)[0]];
+    return 'Wikipédia « '+hit.title+' » : '+String(pg.extract||'').slice(0,1800);
+  }catch(err){return 'Wikipédia indisponible ('+err.message+').'}
 }
-function getPos() {
-  return new Promise((res, rej) => {
-    if (!navigator.geolocation) return rej(new Error('géolocalisation indisponible'));
-    navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }), e => rej(new Error(e.message || 'position refusée')), { timeout: 12000, maximumAge: 300000 });
-  });
+const WC={0:'ciel dégagé',1:'plutôt dégagé',2:'partiellement nuageux',3:'couvert',45:'brouillard',48:'brouillard givrant',51:'bruine légère',53:'bruine',55:'bruine forte',61:'pluie faible',63:'pluie',65:'forte pluie',71:'neige faible',73:'neige',75:'forte neige',80:'averses',81:'averses',82:'fortes averses',95:'orage',96:'orage avec grêle',99:'orage violent'};
+const wcode=c=>WC[c]||'temps variable';
+async function toolWeather(place){
+  try{
+    let lat,lon,name;
+    if(place){const g=await xget('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name='+encodeURIComponent(place));const r=g.results&&g.results[0];if(!r)return 'Météo : lieu introuvable ('+place+').';lat=r.latitude;lon=r.longitude;name=r.name}
+    else{const p=await getPos();lat=p.lat;lon=p.lon;name='à ta position'}
+    const w=await xget(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&forecast_days=3&timezone=auto`);
+    const c=w.current,d=w.daily;
+    return `Météo ${name} : ${c.temperature_2m}°C (ressenti ${c.apparent_temperature}°C), ${wcode(c.weather_code)}, vent ${c.wind_speed_10m} km/h. Prévisions : `+d.time.map((t,i)=>`${t} ${wcode(d.weather_code[i])}, ${d.temperature_2m_min[i]} à ${d.temperature_2m_max[i]}°C, pluie ${d.precipitation_probability_max[i]}%`).join(' ; ');
+  }catch(e){return 'Météo indisponible ('+e.message+').'}
 }
-
-/* ---------- Outils d'information ---------- */
-async function toolWiki(q) {
-  try {
-    const s = await xget('https://fr.wikipedia.org/w/api.php?action=query&list=search&srlimit=1&format=json&origin=*&srsearch=' + encodeURIComponent(q || ''));
-    const hit = s.query && s.query.search && s.query.search[0];
-    if (!hit) return 'Wikipédia : aucun résultat pour « ' + q + ' ».';
-    const e = await xget('https://fr.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&format=json&origin=*&titles=' + encodeURIComponent(hit.title));
-    const pages = e.query.pages; const pg = pages[Object.keys(pages)[0]];
-    return 'Wikipédia « ' + hit.title + ' » : ' + String(pg.extract || '').slice(0, 1800);
-  } catch (err) { return 'Wikipédia indisponible (' + err.message + ').'; }
+async function toolBattery(){
+  try{if(!navigator.getBattery)return 'Batterie : non exposée.';const b=await navigator.getBattery();return `Batterie : ${Math.round(b.level*100)}%, ${b.charging?'en charge':'sur batterie'}.`}
+  catch{return 'Batterie indisponible.'}
 }
-const WC = { 0: 'ciel dégagé', 1: 'plutôt dégagé', 2: 'partiellement nuageux', 3: 'couvert', 45: 'brouillard', 48: 'brouillard givrant', 51: 'bruine légère', 53: 'bruine', 55: 'bruine forte', 61: 'pluie faible', 63: 'pluie', 65: 'forte pluie', 71: 'neige faible', 73: 'neige', 75: 'forte neige', 80: 'averses', 81: 'averses', 82: 'fortes averses', 95: 'orage', 96: 'orage avec grêle', 99: 'orage violent' };
-const wcode = c => WC[c] || 'temps variable';
-async function toolWeather(place) {
-  try {
-    let lat, lon, name;
-    if (place) {
-      const g = await xget('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name=' + encodeURIComponent(place));
-      const r = g.results && g.results[0]; if (!r) return 'Météo : lieu introuvable (' + place + ').';
-      lat = r.latitude; lon = r.longitude; name = r.name;
-    } else { const p = await getPos(); lat = p.lat; lon = p.lon; name = 'à ta position'; }
-    const w = await xget(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&forecast_days=3&timezone=auto`);
-    const c = w.current, d = w.daily;
-    return `Météo ${name} maintenant : ${c.temperature_2m} °C (ressenti ${c.apparent_temperature} °C), ${wcode(c.weather_code)}, vent ${c.wind_speed_10m} km/h. Prévisions : ` +
-      d.time.map((t, i) => `${t} ${wcode(d.weather_code[i])}, ${d.temperature_2m_min[i]} à ${d.temperature_2m_max[i]} °C, pluie ${d.precipitation_probability_max[i]} %`).join(' ; ');
-  } catch (e) { return 'Météo indisponible (' + e.message + ').'; }
-}
-async function toolBattery() {
-  try {
-    if (!navigator.getBattery) return 'Batterie : information non exposée par ce navigateur.';
-    const b = await navigator.getBattery();
-    return `Batterie : ${Math.round(b.level * 100)} %, ${b.charging ? 'en charge' : 'sur batterie'}.`;
-  } catch (e) { return 'Batterie indisponible.'; }
-}
-async function toolLocate() {
-  try {
-    const p = await getPos();
-    let addr = '';
-    try { const r = await xget(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat=${p.lat}&lon=${p.lon}`); addr = r.display_name || ''; } catch (e) {}
-    return `Position : ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}${addr ? ' — ' + addr : ''}.`;
-  } catch (e) { return 'Position indisponible (' + e.message + ').'; }
+async function toolLocate(){
+  try{const p=await getPos();let addr='';try{const r=await xget(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat=${p.lat}&lon=${p.lon}`);addr=r.display_name||''}catch{}return `Position : ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}${addr?' — '+addr:''}.`}
+  catch(e){return 'Position indisponible ('+e.message+').'}
 }
 
 /* ---------- Actions téléphone ---------- */
-function openURL(u) { if (/^https?:\/\//i.test(u)) window.open(u, '_blank', 'noopener'); }
-const telOf = n => String(n || '').replace(/[^\d+]/g, '');
-async function pickFromPhone() {
-  const r = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-  return r && r[0] && r[0].tel && r[0].tel[0] ? r[0].tel[0] : '';
+const openURL=u=>{if(/^https?:\/\//i.test(u))window.open(u,'_blank','noopener')};
+const telOf=n=>String(n||'').replace(/[^\d+]/g,'');
+function smsURL(num,body){return 'sms:'+num+(body?(isIOS?'&':'?')+'body='+encodeURIComponent(body):'')}
+function resolveNumber(a,onNum){
+  const c=a.number?{name:a.name||a.number,num:a.number}:findContact(a.name);
+  if(c&&telOf(c.num)){onNum(telOf(c.num),c.name);return}
+  sysMsg(`Numéro de ${a.name||'ce contact'} inconnu. Ajoute-le dans les réglages.`);
 }
-const hasPicker = () => 'contacts' in navigator && 'ContactsManager' in window;
-function resolveNumber(a, onNum, verb) {
-  const c = a.number ? { name: a.name || a.number, num: a.number } : findContact(a.name);
-  if (c && telOf(c.num)) { onNum(telOf(c.num), c.name); return; }
-  if (hasPicker()) {
-    card(`${verb} ${a.name || ''} : choisis le contact dans ton téléphone`, 'Choisir', async () => {
-      try { const n = await pickFromPhone(); if (n) onNum(telOf(n), a.name || n, true); } catch (e) { sysMsg('Sélection annulée.'); }
-    });
-  } else sysMsg(`Numéro de ${a.name || 'ce contact'} inconnu. Ajoute-le dans le répertoire des réglages.`);
+function icsStamp(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
+function downloadICS(label,when){
+  const end=new Date(when.getTime()+15*60000);
+  const esc=s=>String(s).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Sage//FR','BEGIN:VEVENT','UID:'+Date.now()+'@sage','DTSTAMP:'+icsStamp(new Date()),'DTSTART:'+icsStamp(when),'DTEND:'+icsStamp(end),'SUMMARY:'+esc(label),'BEGIN:VALARM','TRIGGER:-PT0M','ACTION:DISPLAY','DESCRIPTION:'+esc(label),'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const url=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));
+  const a=document.createElement('a');a.href=url;a.download='rappel.ics';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
-function smsURL(num, body) { return 'sms:' + num + (body ? (isIOS ? '&' : '?') + 'body=' + encodeURIComponent(body) : ''); }
-function icsStamp(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
-function downloadICS(label, when) {
-  const end = new Date(when.getTime() + 15 * 60000);
-  const esc = s => String(s).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
-  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Studio Niko Design//Sage//FR', 'BEGIN:VEVENT',
-    'UID:' + Date.now() + '@sage', 'DTSTAMP:' + icsStamp(new Date()), 'DTSTART:' + icsStamp(when), 'DTEND:' + icsStamp(end),
-    'SUMMARY:' + esc(label), 'BEGIN:VALARM', 'TRIGGER:-PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(label), 'END:VALARM',
-    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
-  const a = document.createElement('a'); a.href = url; a.download = 'rappel.ics'; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+function beep(){
+  try{
+    if(!S.audio)S.audio=new (window.AudioContext||window.webkitAudioContext)();
+    const ac=S.audio;if(ac.state==='suspended')ac.resume();
+    [0,0.35,0.7].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.setValueAtTime(0.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(0.3,ac.currentTime+t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+t+0.28);o.connect(g).connect(ac.destination);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+0.3)});
+  }catch{}
 }
-function beep() {
-  try {
-    if (!S.audio) S.audio = new (window.AudioContext || window.webkitAudioContext)();
-    const ac = S.audio; if (ac.state === 'suspended') ac.resume();
-    [0, 0.35, 0.7].forEach(t => {
-      const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880;
-      g.gain.setValueAtTime(0.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.28);
-      o.connect(g).connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.3);
-    });
-  } catch (e) {}
+function fire(text){sysMsg(text);beep();if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);try{if('Notification' in window&&Notification.permission==='granted')new Notification(S.cfg.name,{body:text})}catch{}if(S.recActive)stopListening();if(!S.busy)S.interrupted=false;speak(text)}
+const fmt=s=>(s>=3600?Math.floor(s/3600)+' h ':'')+String(Math.floor(s%3600/60)).padStart(2,'0')+' min '+String(s%60).padStart(2,'0')+' s';
+function addTimer(sec,label){
+  sec=Math.max(1,Math.min(86400,Math.round(+sec||0)));label=String(label||'');
+  const end=Date.now()+sec*1000;let iv=null,to=null;
+  const d=card('','Annuler',()=>{clearInterval(iv);clearTimeout(to);sp.textContent='Minuteur annulé '+label;const b=d.querySelector('button');if(b)b.remove()});
+  const sp=d.querySelector('span');
+  const upd=()=>{sp.textContent=`Minuteur ${label} : ${fmt(Math.max(0,Math.round((end-Date.now())/1000)))}`};
+  upd();iv=setInterval(upd,1000);
+  to=setTimeout(()=>{clearInterval(iv);sp.textContent='Minuteur terminé '+label;const b=d.querySelector('button');if(b)b.remove();fire('Minuteur terminé'+(label?' : '+label:'')+'.')},sec*1000);
 }
-function fire(text) {
-  sysMsg(text); beep();
-  if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 300]);
-  try { if ('Notification' in window && Notification.permission === 'granted') new Notification(S.cfg.name, { body: text }); } catch (e) {}
-  if (S.recActive) stopListening();
-  speak(text);
+function addReminder(a){
+  const m=String(a.time||'').trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})?$/);
+  if(!m){sysMsg('Heure de rappel illisible.');return}
+  let when=new Date();
+  if(a.date&&/^\d{4}-\d{2}-\d{2}$/.test(a.date)){const p=a.date.split('-').map(Number);when=new Date(p[0],p[1]-1,p[2])}
+  when.setHours(+m[1],+(m[2]||0),0,0);
+  if(!a.date&&when.getTime()<Date.now())when.setDate(when.getDate()+1);
+  const label=String(a.label||'Rappel');
+  card(`Rappel « ${label} » ${when.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})} à ${when.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`,"Ajouter à l'agenda",()=>downloadICS(label,when));
+  const delay=when.getTime()-Date.now();
+  if(delay>0&&delay<2147483647)setTimeout(()=>fire('Rappel : '+label),delay);
 }
-const fmt = s => (s >= 3600 ? Math.floor(s / 3600) + ' h ' : '') + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ' min ' + String(s % 60).padStart(2, '0') + ' s';
-function addTimer(sec, label) {
-  sec = Math.max(1, Math.min(86400, Math.round(+sec || 0))); label = String(label || '');
-  const end = Date.now() + sec * 1000;
-  let iv = null, to = null;
-  const d = card('', 'Annuler', () => {
-    clearInterval(iv); clearTimeout(to);
-    sp.textContent = 'Minuteur annulé ' + label; const b = d.querySelector('button'); if (b) b.remove();
-  });
-  const sp = d.querySelector('span');
-  const upd = () => { sp.textContent = `Minuteur ${label} : ${fmt(Math.max(0, Math.round((end - Date.now()) / 1000)))}`; };
-  upd(); iv = setInterval(upd, 1000);
-  to = setTimeout(() => {
-    clearInterval(iv); sp.textContent = 'Minuteur terminé ' + label;
-    const b = d.querySelector('button'); if (b) b.remove();
-    fire('Minuteur terminé' + (label ? ' : ' + label : '') + '.');
-  }, sec * 1000);
+async function torch(on){
+  try{
+    if(on){
+      if(S.torchTrack)return;
+      const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+      const tr=s.getVideoTracks()[0];const caps=tr.getCapabilities?tr.getCapabilities():{};
+      if(!caps.torch){tr.stop();sysMsg('Cet appareil ne laisse pas le navigateur piloter la lampe.');return}
+      await tr.applyConstraints({advanced:[{torch:true}]});S.torchTrack=tr;
+    }else if(S.torchTrack){S.torchTrack.stop();S.torchTrack=null}
+  }catch(e){sysMsg('Lampe : '+e.message)}
 }
-function addReminder(a) {
-  const m = String(a.time || '').trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})?$/);
-  if (!m) { sysMsg('Heure de rappel illisible.'); return; }
-  let when = new Date();
-  if (a.date && /^\d{4}-\d{2}-\d{2}$/.test(a.date)) { const p = a.date.split('-').map(Number); when = new Date(p[0], p[1] - 1, p[2]); }
-  when.setHours(+m[1], +(m[2] || 0), 0, 0);
-  if (!a.date && when.getTime() < Date.now()) when.setDate(when.getDate() + 1);
-  const label = String(a.label || 'Rappel');
-  card(`Rappel « ${label} » ${when.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à ${when.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`, "Ajouter à l'agenda", () => downloadICS(label, when));
-  const delay = when.getTime() - Date.now();
-  if (delay > 0 && delay < 2147483647) setTimeout(() => fire('Rappel : ' + label), delay);
-}
-async function torch(on) {
-  try {
-    if (on) {
-      if (S.torchTrack) return;
-      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      const tr = s.getVideoTracks()[0];
-      const caps = tr.getCapabilities ? tr.getCapabilities() : {};
-      if (!caps.torch) { tr.stop(); sysMsg('Cet appareil ne laisse pas le navigateur piloter la lampe.'); return; }
-      await tr.applyConstraints({ advanced: [{ torch: true }] }); S.torchTrack = tr;
-    } else if (S.torchTrack) { S.torchTrack.stop(); S.torchTrack = null; }
-  } catch (e) { sysMsg('Lampe : ' + e.message); }
-}
-async function runAction(a) {
-  const t = String(a && a.type || '');
-  switch (t) {
-    case 'wiki': return toolWiki(a.query);
-    case 'weather': return toolWeather(a.place);
-    case 'battery': return toolBattery();
-    case 'locate': return toolLocate();
-    case 'remember':
-      if (a.note) { S.notes.push(String(a.note).slice(0, 300)); await safeStorage.set('notes', S.notes); sysMsg('Retenu : ' + a.note); }
-      return null;
-    case 'call':
-      resolveNumber(a, (num, name, direct) => {
-        if (direct) location.href = 'tel:' + num;
-        else card('Appeler ' + name, 'Appeler', () => { location.href = 'tel:' + num; });
-      }, 'Appeler');
-      return null;
-    case 'sms':
-      resolveNumber(a, (num, name, direct) => {
-        const u = smsURL(num, a.body);
-        if (direct) location.href = u;
-        else card(`SMS à ${name}${a.body ? ' : « ' + a.body + ' »' : ''}`, 'Envoyer', () => { location.href = u; });
-      }, 'Écrire à');
-      return null;
-    case 'email': {
-      const u = 'mailto:' + encodeURIComponent(a.to || '') + '?subject=' + encodeURIComponent(a.subject || '') + '&body=' + encodeURIComponent(a.body || '');
-      card(`E-mail${a.to ? ' à ' + a.to : ''} : ${a.subject || ''}`, 'Ouvrir', () => { location.href = u; });
-      return null;
-    }
-    case 'map': card('Carte : ' + (a.query || ''), 'Ouvrir', () => openURL('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.query || ''))); return null;
-    case 'search': card('Recherche : ' + (a.query || ''), 'Chercher', () => openURL('https://duckduckgo.com/?q=' + encodeURIComponent(a.query || ''))); return null;
-    case 'music': card('Musique : ' + (a.query || ''), 'Écouter', () => openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(a.query || ''))); return null;
-    case 'open': if (/^https?:\/\//i.test(a.url || '')) card('Ouvrir ' + a.url, 'Ouvrir', () => openURL(a.url)); return null;
-    case 'share': {
-      const txt = String(a.text || '');
-      if (navigator.share) card('Partager : ' + txt.slice(0, 90), 'Partager', async () => { try { await navigator.share({ text: txt }); } catch (e) {} });
-      else card('Partage indisponible ici : ' + txt.slice(0, 90), 'Copier', () => copyText(txt));
-      return null;
-    }
-    case 'copy': card('Copier : ' + String(a.text || '').slice(0, 90), 'Copier', () => copyText(a.text)); return null;
-    case 'code': codeCard(a.language, a.content); return null;
-    case 'torch': await torch(a.on !== false); return null;
-    case 'timer': addTimer(a.seconds, a.label); return null;
-    case 'reminder': addReminder(a); return null;
-    default: return null;
+async function runAction(a,opts={}){
+  const t=String(a&&a.type||'');const silent=!!opts.silent;
+  switch(t){
+    case 'wiki':return toolWiki(a.query);
+    case 'weather':return toolWeather(a.place);
+    case 'battery':return toolBattery();
+    case 'locate':return toolLocate();
+    case 'remember':if(a.note){Memory.addFact(String(a.note).slice(0,300),'explicit');await Memory.save();if(!silent)sysMsg('Retenu : '+a.note)}return null;
+    case 'code':if(!silent)codeCard(a.language,a.content);return null;
+    case 'call':if(silent)return null;resolveNumber(a,(num,name)=>{card('Appeler '+name,'Appeler',()=>{location.href='tel:'+num})});return null;
+    case 'sms':if(silent)return null;resolveNumber(a,(num,name)=>{const u=smsURL(num,a.body);card(`SMS à ${name}${a.body?' : « '+a.body+' »':''}`,'Envoyer',()=>{location.href=u})});return null;
+    case 'email':if(silent)return null;{const u='mailto:'+encodeURIComponent(a.to||'')+'?subject='+encodeURIComponent(a.subject||'')+'&body='+encodeURIComponent(a.body||'');card(`E-mail${a.to?' à '+a.to:''} : ${a.subject||''}`,'Ouvrir',()=>{location.href=u})}return null;
+    case 'map':if(silent)return null;card('Carte : '+(a.query||''),'Ouvrir',()=>openURL('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a.query||'')));return null;
+    case 'search':if(silent)return null;card('Recherche : '+(a.query||''),'Chercher',()=>openURL('https://duckduckgo.com/?q='+encodeURIComponent(a.query||'')));return null;
+    case 'music':if(silent)return null;card('Musique : '+(a.query||''),'Chercher',()=>openURL('https://www.youtube.com/results?search_query='+encodeURIComponent(a.query||'')));return null;
+    case 'open':if(silent)return null;if(a.url)card('Ouvrir : '+a.url,'Ouvrir',()=>openURL(a.url));return null;
+    case 'copy':if(silent)return null;{try{await navigator.clipboard.writeText(a.text||'');sysMsg('Copié.')}catch{sysMsg('Copie refusée.')}}return null;
+    case 'share':if(silent)return null;if(navigator.share){card('Partager : '+String(a.text||'').slice(0,80),'Partager',async()=>{try{await navigator.share({text:a.text||''})}catch{}})}else{try{await navigator.clipboard.writeText(a.text||'');sysMsg('Partage indisponible, texte copié.')}catch{sysMsg('Partage indisponible.')}}return null;
+    case 'torch':if(silent)return null;await torch(!!a.on);return null;
+    case 'timer':if(silent)return null;addTimer(a.seconds,a.label);return null;
+    case 'reminder':if(silent)return null;addReminder(a);return null;
+    default:return null;
   }
 }
-async function copyText(t) {
-  try { await navigator.clipboard.writeText(String(t || '')); sysMsg('Copié.'); }
-  catch (e) { sysMsg('Copie refusée par le navigateur.'); }
-}
 
-/* ---------- XHR JSON (convention : jamais fetch) ---------- */
-function xhrJSON(method, url, headers, timeout) {
-  return new Promise((res, rej) => {
-    const x = new XMLHttpRequest(); x.open(method, url, true); x.timeout = timeout || 15000;
-    for (const k in (headers || {})) x.setRequestHeader(k, headers[k]);
-    x.onload = () => { let j = null; try { j = JSON.parse(x.responseText); } catch (e) {} res({ status: x.status, ok: x.status >= 200 && x.status < 300, statusText: x.statusText, json: j }); };
-    x.onerror = () => rej(new Error('réseau injoignable')); x.ontimeout = () => rej(new Error('délai dépassé'));
-    x.send();
-  });
-}
-
-/* ---------- Garde de débit : offre gratuite Mistral ≈ 1 requête/s ---------- */
-let lastCallAt = 0; const MIN_GAP = 1100;
-function rateGate() {
-  const now = Date.now(), wait = Math.max(0, lastCallAt + MIN_GAP - now);
-  lastCallAt = now + wait;
-  return wait ? new Promise(r => setTimeout(r, wait)) : Promise.resolve();
-}
-
-/* ---------- Orbe ---------- */
-const orb = $('orb'), octx = orb.getContext('2d');
-let OW = 0, OH = 0, col = [230, 169, 63];
-const MODE_COL = { idle: [230, 169, 63], listening: [134, 179, 151], thinking: [91, 123, 224], speaking: [230, 169, 63] };
-const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-function resize() {
-  const dpr = Math.min(2, window.devicePixelRatio || 1), r = orb.getBoundingClientRect();
-  OW = r.width; OH = r.height; orb.width = Math.max(1, Math.round(OW * dpr)); orb.height = Math.max(1, Math.round(OH * dpr));
-  octx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-function frame(t) {
-  requestAnimationFrame(frame);
-  if (!OW || document.hidden) return;
-  const target = MODE_COL[S.mode] || MODE_COL.idle;
-  col = col.map((c, i) => c + (target[i] - c) * 0.06);
-  S.energy *= 0.93;
-  if (S.mode === 'thinking') S.energy = Math.max(S.energy, 0.25 + 0.15 * Math.sin(t / 260));
-  if (S.mode === 'listening') S.energy = Math.max(S.energy, 0.15);
-  const e = reduceMotion ? 0.2 : S.energy, tt = reduceMotion ? 0 : t / 1000;
-  const cx = OW / 2, cy = OH / 2, R = Math.min(OW, OH) * 0.28, [r, g, b] = col.map(Math.round);
-  octx.clearRect(0, 0, OW, OH);
-  const halo = R * (1.9 + e * 0.6), glow = octx.createRadialGradient(cx, cy, R * 0.2, cx, cy, halo);
-  glow.addColorStop(0, `rgba(${r},${g},${b},${0.32 + e * 0.3})`); glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
-  octx.fillStyle = glow; octx.beginPath(); octx.arc(cx, cy, halo, 0, Math.PI * 2); octx.fill();
-  for (let k = 0; k < 3; k++) {
-    octx.beginPath();
-    for (let i = 0; i <= 96; i++) {
-      const a = i / 96 * Math.PI * 2;
-      const w = Math.sin(a * (3 + k) + tt * (1.2 + k * 0.5)) * R * (0.04 + e * 0.12) + Math.sin(a * 7 - tt * 2) * R * e * 0.05;
-      const rr = R * (1 - k * 0.12) + w, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
-      i ? octx.lineTo(x, y) : octx.moveTo(x, y);
-    }
-    octx.closePath(); octx.strokeStyle = `rgba(${r},${g},${b},${0.9 - k * 0.25})`; octx.lineWidth = k ? 1 : 2; octx.stroke();
-  }
-  const core = octx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.05, cx, cy, R * 0.9);
-  core.addColorStop(0, 'rgba(236,228,207,0.5)'); core.addColorStop(1, `rgba(${r},${g},${b},0.07)`);
-  octx.fillStyle = core; octx.beginPath(); octx.arc(cx, cy, R * 0.86, 0, Math.PI * 2); octx.fill();
-}
-
-/* ---------- Mode cerveau ---------- */
-const BRAIN = { auto: ['∞ Auto', 'Cerveau · Auto'], supra: ['✦ Supra', 'Cerveau · Supra'], flash: ['⚡ Fulgurant', 'Cerveau · Fulgurant'] };
-function renderBrain() {
-  const m = BRAIN[S.cfg.brain.mode] ? S.cfg.brain.mode : 'auto';
-  $('brainMode').textContent = BRAIN[m][0]; $('brainBadge').textContent = BRAIN[m][1];
-  $('brainMode').classList.toggle('active', m !== 'flash');
-}
-async function cycleBrain() {
-  const order = ['auto', 'supra', 'flash'];
-  S.cfg.brain.mode = order[(order.indexOf(S.cfg.brain.mode) + 1) % order.length];
-  renderBrain(); await safeStorage.set('cfg', S.cfg);
-  sysMsg(S.cfg.brain.mode === 'supra' ? 'Mode Supra : plusieurs agents analysent avant la synthèse. Plus lent, et chaque agent consomme une requête.' : S.cfg.brain.mode === 'flash' ? 'Mode Fulgurant : réponse directe, une seule requête.' : 'Mode Auto : agents seulement pour les questions complexes.');
-}
-
-/* ---------- Historique + persistance ---------- */
-async function persist() { S.history = S.history.slice(-80); await safeStorage.set('history', S.history); }
-function renderHistory() {
-  $('log').innerHTML = '';
-  for (const m of S.history.slice(-40)) {
-    const c = typeof m.content === 'string' ? m.content : '';
-    if (m.role === 'user' && !c.startsWith('[Résultats des outils')) addMsg('user', c);
-    else if (m.role === 'assistant') { const t = stripTags(c); if (t) addMsg('bot', t); }
-  }
-}
-function exportConversation() {
-  const who = S.cfg.user || 'Moi';
-  const lines = S.history.filter(m => typeof m.content === 'string' && !m.content.startsWith('[Résultats des outils'))
-    .map(m => (m.role === 'user' ? who : S.cfg.name) + ' : ' + (m.role === 'assistant' ? stripTags(m.content) : m.content));
-  if (!lines.length) { sysMsg('Rien à exporter pour l’instant.'); return; }
-  const url = URL.createObjectURL(new Blob([lines.join('\n\n')], { type: 'text/plain;charset=utf-8' }));
-  const a = document.createElement('a'); a.href = url; a.download = 'conversation-' + S.cfg.name.toLowerCase() + '-' + new Date().toISOString().slice(0, 10) + '.txt';
-  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
-}
-async function clearConversation() {
-  if (!confirm('Effacer toute la conversation ? Les notes retenues sont conservées.')) return;
-  S.history = []; await safeStorage.set('history', []); $('log').innerHTML = ''; sysMsg('Conversation effacée.');
-}
+/* ---------- Persistance ---------- */
+async function persist(){await store.set('cfg',S.cfg);await store.set('history',S.history.slice(-60))}
 
 /* ---------- Réglages ---------- */
-function applyIdentity() { $('compName').textContent = S.cfg.name; document.title = S.cfg.name + ' — compagnon vocal'; }
-function fillSettings() {
-  const c = S.cfg;
-  $('setName').value = c.name; $('setUser').value = c.user; fillVoices();
-  $('setRate').value = c.rate; $('setPitch').value = c.pitch;
-  $('keyMistral').value = c.keys.mistral || ''; $('modMistral').value = FREE_MISTRAL_MODEL; $('visionMistral').value = FREE_MISTRAL_MODEL;
-  $('setBrainMode').value = c.brain.mode; $('setMaxAgents').value = c.brain.maxAgents;
-  $('setContacts').value = c.contacts || ''; $('setNotes').value = S.notes.join('\n');
-  $('zeroBillingConfirm').checked = !!c.billing.zeroConfirmed; updateBillingGuardStatus();
+function readSettings(){
+  S.cfg.name=$('setName').value.trim()||'Sage';
+  S.cfg.user=$('setUser').value.trim();
+  if($('setVoice').value)S.cfg.voice=$('setVoice').value;
+  S.cfg.rate=+$('setRate').value;
+  S.cfg.pitch=+$('setPitch').value;
+  S.cfg.keys.mistral=$('keyMistral').value.replace(/\s/g,'');
+  S.cfg.brain.mode=$('setBrainMode').value;
+  S.cfg.brain.maxAgents=+$('setMaxAgents').value;
+  S.cfg.billing.zeroConfirmed=$('zeroBillingConfirm').checked;
+  S.cfg.contacts=$('setContacts').value;
 }
-function readSettings() {
-  const c = S.cfg;
-  c.name = $('setName').value.trim().slice(0, 40) || 'Sage'; c.user = $('setUser').value.trim().slice(0, 40);
-  if ($('setVoice').value) c.voice = $('setVoice').value;
-  c.rate = +$('setRate').value || 1; c.pitch = +$('setPitch').value || 1;
-  c.keys = { mistral: sanitizeKey($('keyMistral').value) };
-  c.models = { mistral: FREE_MISTRAL_MODEL }; c.vision = { mistral: FREE_MISTRAL_MODEL };
-  c.brain = { mode: BRAIN[$('setBrainMode').value] ? $('setBrainMode').value : 'auto', maxAgents: Math.max(2, Math.min(6, +$('setMaxAgents').value || 3)) };
-  c.billing = { zeroOnly: true, zeroConfirmed: $('zeroBillingConfirm').checked };
-  c.contacts = $('setContacts').value;
-  S.notes = $('setNotes').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 200);
+function refreshBadge(){
+  const b=$('brainBadge');if(!b)return;
+  if(!S.cfg.keys.mistral){b.className='badge warn';b.textContent='Cerveau · Clé manquante'}
+  else if(!S.cfg.billing.zeroConfirmed){b.className='badge warn';b.textContent='Cerveau · 0 € non confirmé'}
+  else{b.className='badge';b.textContent='Cerveau · Mistral · 0 €'}
 }
-let lastFocus = null;
-function openSettings() {
-  lastFocus = document.activeElement; fillSettings();
-  const m = $('settings'); m.hidden = false; m.classList.add('open'); $('setName').focus();
+function fillSettings(){
+  $('setName').value=S.cfg.name;
+  $('setUser').value=S.cfg.user;
+  $('setRate').value=S.cfg.rate;
+  $('setPitch').value=S.cfg.pitch;
+  $('keyMistral').value=S.cfg.keys.mistral;
+  $('setBrainMode').value=S.cfg.brain.mode;
+  $('setMaxAgents').value=S.cfg.brain.maxAgents;
+  $('zeroBillingConfirm').checked=S.cfg.billing.zeroConfirmed;
+  $('setContacts').value=S.cfg.contacts;
+  updateRangeLabels();updateBillingGuardStatus();fillVoices();refreshBadge();
+  $('compName').textContent=S.cfg.name;
+  const mode=S.cfg.brain.mode;
+  $('brainMode').textContent=mode==='supra'?'∞ Supra':mode==='flash'?'∞ Fulgurant':'∞ Auto';
 }
-function closeSettings() {
-  const m = $('settings'); m.classList.remove('open'); m.hidden = true;
-  if (lastFocus && lastFocus.focus) lastFocus.focus();
-}
-async function saveSettings() {
-  readSettings();
-  await safeStorage.set('cfg', S.cfg); await safeStorage.set('notes', S.notes);
-  applyIdentity(); renderBrain(); closeSettings();
-  sysMsg(providers().length ? 'Réglages enregistrés. Sage est prêt.' : 'Réglages enregistrés. Il manque encore la clé Mistral ou la confirmation du mode 0 €.');
-}
+function openSettings(){$('settings').hidden=false;$('settings').classList.add('open');fillSettings()}
+function closeSettings(){$('settings').classList.remove('open');$('settings').hidden=true}
 
-/* ---------- Saisie texte ---------- */
-function sendText() {
-  const t = $('txt').value.trim(); if (!t) return;
-  if (S.busy) { sysMsg('Je termine ma réponse. Touche l’orbe pour m’interrompre.'); return; }
-  $('txt').value = '';
-  if (S.recActive) stopListening();
-  if (S.speaking) stopSpeaking();
-  dispatchUser(t);
-}
-
-/* ---------- Événements ---------- */
-orb.addEventListener('click', onTalk);
-orb.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTalk(); } });
-$('talk').addEventListener('click', onTalk);
-$('send').addEventListener('click', sendText);
-$('txt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); sendText(); } });
-$('convo').addEventListener('change', async e => { await setConvo(e.target.checked); if (e.target.checked && !S.busy && !S.speaking && !S.recActive) listen(); });
-$('brainMode').addEventListener('click', cycleBrain);
-$('visionBtn').addEventListener('click', () => $('visionInput').click());
-$('visionInput').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; loadVision(f); e.target.value = ''; });
-$('musicBtn').addEventListener('click', listenMusic);
-$('settingsBtn').addEventListener('click', openSettings);
-$('btnClose').addEventListener('click', closeSettings);
-$('btnSave').addEventListener('click', saveSettings);
-$('settings').addEventListener('click', e => { if (e.target === $('settings')) closeSettings(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('settings').hidden) closeSettings(); });
-$('btnValidateMistral').addEventListener('click', validateMistralKey);
-$('openMistralAccount').addEventListener('click', () => openURL('https://console.mistral.ai/'));
-$('zeroBillingConfirm').addEventListener('change', e => { S.cfg.billing.zeroConfirmed = e.target.checked; updateBillingGuardStatus(); });
-$('keyMistral').addEventListener('input', () => setMistralKeyStatus('idle', 'Clé Mistral modifiée, non vérifiée.'));
-$('testVoice').addEventListener('click', () => {
-  if ($('setVoice').value) S.cfg.voice = $('setVoice').value;
-  S.cfg.rate = +$('setRate').value || 1; S.cfg.pitch = +$('setPitch').value || 1;
-  stopSpeaking(); S.interrupted = false;
-  speak(`Bonjour${$('setUser').value.trim() ? ' ' + $('setUser').value.trim() : ''}. Voici ma voix.`);
+/* ---------- Wiring ---------- */
+$('orb').addEventListener('click',onTalk);
+$('orb').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();onTalk()}});
+$('talk').addEventListener('click',onTalk);
+$('send').addEventListener('click',()=>{const v=$('txt').value.trim();if(v){$('txt').value='';dispatchUser(v)}});
+$('txt').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=$('txt').value.trim();if(v){$('txt').value='';dispatchUser(v)}}});
+$('settingsBtn').addEventListener('click',openSettings);
+$('btnClose').addEventListener('click',closeSettings);
+$('btnSave').addEventListener('click',async()=>{readSettings();await persist();fillSettings();toast('Réglages enregistrés.')});
+$('convo').addEventListener('change',e=>setConvo(e.target.checked));
+$('visionBtn').addEventListener('click',()=>$('visionInput').click());
+$('visionInput').addEventListener('change',e=>loadVision(e.target.files[0]));
+$('musicBtn').addEventListener('click',()=>sysMsg("Mode 0 € : reconnaissance musicale cloud désactivée. Pas de service facturable."));
+$('brainMode').addEventListener('click',()=>{const order=['auto','supra','flash'];const cur=order.indexOf(S.cfg.brain.mode);const next=order[(cur+1)%3];S.cfg.brain.mode=next;fillSettings();persist()});
+/* Correctif : « Écouter » remet le drapeau d'interruption à zéro */
+$('testVoice').addEventListener('click',()=>{readSettings();stopSpeaking();S.interrupted=false;speak(`Bonjour, je suis ${S.cfg.name}. Voici ma voix actuelle.`)});
+$('velvetVoice').addEventListener('click',applyVelvetVoice);
+$('btnValidateMistral').addEventListener('click',validateMistralKey);
+$('openMistral').addEventListener('click',()=>openURL('https://console.mistral.ai/'));
+$('zeroBillingConfirm').addEventListener('change',()=>{readSettings();updateBillingGuardStatus();refreshBadge()});
+$('setRate').addEventListener('input',()=>{S.cfg.rate=+$('setRate').value;updateRangeLabels()});
+$('setPitch').addEventListener('input',()=>{S.cfg.pitch=+$('setPitch').value;updateRangeLabels()});
+$('setMaxAgents').addEventListener('input',()=>{S.cfg.brain.maxAgents=+$('setMaxAgents').value;updateRangeLabels()});
+$('setVoice').addEventListener('change',()=>{S.cfg.voice=$('setVoice').value});
+$('memPurge').addEventListener('click',async()=>{Memory.consolidate();await Memory.save();toast('Mémoire consolidée.')});
+$('memReset').addEventListener('click',async()=>{if(confirm('Vider toute la mémoire ?')){Memory.reset();toast('Mémoire vidée.')}});
+$('btnNotif').addEventListener('click',async()=>{if('Notification' in window){const p=await Notification.requestPermission();toast(p==='granted'?'Notifications activées.':'Refusé.',p==='granted'?'info':'warn')}else toast('Notifications non supportées.','warn')});
+$('btnExport').addEventListener('click',()=>{
+  const txt=S.history.map(h=>(h.role==='user'?'Toi':S.cfg.name)+' : '+(typeof h.content==='string'?stripTags(h.content):'')).join('\n\n');
+  const url=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  const a=document.createElement('a');a.href=url;a.download='sage-conversation.txt';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
 });
-$('velvetVoice').addEventListener('click', applyVelvetVoice);
-$('voiceEnroll').addEventListener('click', enrollVoiceProfile);
-$('btnNotif').addEventListener('click', async () => {
-  if (!('Notification' in window)) { sysMsg('Notifications non disponibles dans ce navigateur.'); return; }
-  const p = await Notification.requestPermission();
-  sysMsg(p === 'granted' ? 'Notifications autorisées pour les minuteurs et rappels.' : 'Notifications refusées.');
-});
-$('btnExport').addEventListener('click', exportConversation);
-$('btnClear').addEventListener('click', clearConversation);
-window.addEventListener('resize', resize);
-{ const ss = speechEngine(); if (ss && 'onvoiceschanged' in ss) ss.onvoiceschanged = fillVoices; }
+$('btnClear').addEventListener('click',async()=>{if(confirm('Effacer toute la conversation ?')){S.history=[];$('log').innerHTML='';sysMsg('Conversation effacée.');await persist()}});
+$('settings').addEventListener('click',e=>{if(e.target===$('settings'))closeSettings()});
 
-/* ---------- Démarrage ---------- */
-(async function init() {
-  const saved = await safeStorage.get('cfg', null);
-  if (saved && typeof saved === 'object') {
-    S.cfg = Object.assign(clone(DEF), saved, {
-      keys: { mistral: sanitizeKey(saved.keys && saved.keys.mistral) },
-      models: { mistral: FREE_MISTRAL_MODEL }, vision: { mistral: FREE_MISTRAL_MODEL },
-      brain: Object.assign({}, DEF.brain, saved.brain),
-      billing: Object.assign({}, DEF.billing, saved.billing, { zeroOnly: true })
-    });
+document.addEventListener('keydown',e=>{
+  const tag=(e.target.tagName||'').toLowerCase();
+  const inField=tag==='input'||tag==='textarea'||tag==='select';
+  if(e.key==='Escape'){if($('settings').classList.contains('open'))closeSettings();else{interrupt();if(!S.busy&&!S.recActive)setMode('idle')}return}
+  if(inField)return;
+  if(e.target===$('orb'))return;
+  if(e.key===' '){e.preventDefault();onTalk()}
+  else if(e.key==='v'||e.key==='V')$('visionInput').click();
+  else if(e.key==='c'||e.key==='C')setConvo(!S.convo);
+});
+
+/* ---------- Init ---------- */
+(async function init(){
+  const savedCfg=await store.get('cfg',null);
+  if(savedCfg){S.cfg=Object.assign(clone(DEF),savedCfg);S.cfg.keys=Object.assign(clone(DEF.keys),savedCfg.keys||{});S.cfg.brain=Object.assign(clone(DEF.brain),savedCfg.brain||{});S.cfg.billing=Object.assign(clone(DEF.billing),savedCfg.billing||{})}
+  const savedHist=await store.get('history',[]);
+  if(Array.isArray(savedHist)){S.history=savedHist;
+    for(const h of savedHist.slice(-8)){if(typeof h.content!=='string')continue;if(h.role==='user'&&!h.content.startsWith('[Résultats des outils'))addMsg('user',h.content);else if(h.role==='assistant')addMsg('bot',stripTags(h.content))}
   }
-  S.history = await safeStorage.get('history', []); if (!Array.isArray(S.history)) S.history = [];
-  S.notes = await safeStorage.get('notes', []); if (!Array.isArray(S.notes)) S.notes = [];
-  S.voiceProfile = await safeStorage.get('voiceProfile', null);
-  if (S.voiceProfile) $('voiceProfileHint').textContent = `Profil vocal local enregistré (${S.voiceProfile.samples} mesures). Indicateur expérimental uniquement.`;
-  applyIdentity(); renderBrain(); renderHistory(); fillVoices(); resize(); requestAnimationFrame(frame); setMode('idle');
-  if (!SR) sysMsg('Reconnaissance vocale absente de ce navigateur : l’écrit reste possible. Chrome sur Android donne la meilleure expérience.');
-  if (!providers().length) sysMsg('Première étape : ouvre ⚙, colle ta clé Mistral, valide-la, puis confirme le mode 0 €.');
-  else if (!S.history.length) addMsg('bot', `Bonjour${S.cfg.user ? ' ' + S.cfg.user : ''}. Je suis ${S.cfg.name}. Touche l'orbe et parle-moi de ce que tu veux.`);
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  await Memory.load();
+  fillSettings();
+  Orb.start();
+  if(speechEngine()){
+    fillVoices();
+    speechEngine().onvoiceschanged=fillVoices;
+    setTimeout(fillVoices,500);
+  }
+  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(!S.cfg.keys.mistral){
+    sysMsg('Bienvenue. Ouvre ⚙ pour coller ta clé Mistral et activer Sage.');
+  }else if(!S.cfg.billing.zeroConfirmed){
+    sysMsg('Clé présente. Ouvre ⚙ et coche la confirmation du mode Gratuit pour autoriser les réponses.');
+  }
 })();
 </script>
 </body>
