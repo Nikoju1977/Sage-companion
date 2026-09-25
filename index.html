@@ -141,7 +141,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 <div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
     <h2>Réglages</h2>
-    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant.</p>
+    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v4</span></p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -438,7 +438,8 @@ const Memory=(()=>{
       {role:'system',content:'Tu extrais des faits durables sur l\'utilisateur. Réponds en JSON strict : {"facts":[{"text":"...","entities":[],"confidence":0.0}]}. N\'extrais que le stable et personnel. Maximum 3. Si rien, {"facts":[]}.'},
       {role:'user',content:`Utilisateur : "${userText}"\nAssistant : "${assistantText.slice(0,400)}"`}
     ];
-    try{const r=await askLLM(messages,null,{temperature:0.1,maxTokens:280,timeout:25000});const s=stripTags(r.text).replace(/```json|```/g,'').trim();const o=JSON.parse(s);if(Array.isArray(o.facts)){for(const f of o.facts.slice(0,3)){if((f.confidence??0.5)<0.55)continue;addFact(f.text,'auto',f.entities||[])}await save()}}catch{}
+    await sleep(1500);
+    try{const r=await askLLM(messages,null,{temperature:0.1,maxTokens:280,timeout:25000,noRetry:true});const s=stripTags(r.text).replace(/```json|```/g,'').trim();const o=JSON.parse(s);if(Array.isArray(o.facts)){for(const f of o.facts.slice(0,3)){if((f.confidence??0.5)<0.55)continue;addFact(f.text,'auto',f.entities||[])}await save()}}catch{}
   }
   function contextFor(q){const r=recall(q,6);if(!r.length)return'';return `\n\nMémoire :\n`+r.map(f=>'- '+f.text).join('\n')}
   function render(){const el=$('memList');if(!el)return;if(!mem.facts.length){el.innerHTML='<div class="empty">Aucun fait retenu.</div>';return}const sorted=mem.facts.slice().sort((a,b)=>score(b)-score(a)).slice(0,30);el.innerHTML='';for(const f of sorted){const d=document.createElement('div');d.className='fact';d.textContent=f.text;const w=document.createElement('span');w.className='w';w.textContent='· '+score(f).toFixed(2);d.appendChild(w);el.appendChild(d)}}
@@ -473,7 +474,7 @@ function streamXHR(p,messages,onDelta,opts={}){
     x.onload=()=>{
       if(x.status>=200&&x.status<300){pump();if(buf.trim()){buf+='\n';pump()}finish(()=>resolve({text:full,got}))}
       else if(got)finish(()=>resolve({text:full,got}));
-      else{const er=new Error(p.id+' : erreur '+x.status+' '+String(x.responseText||'').slice(0,180));er.status=x.status;finish(()=>reject(er))}
+      else{let detail='';try{const j=JSON.parse(x.responseText||'{}');detail=j.message||(j.error&&(j.error.message||j.error))||j.detail||''}catch{detail=String(x.responseText||'')}if(typeof detail!=='string'){try{detail=JSON.stringify(detail)}catch{detail=''}}const er=new Error(p.id+' : erreur '+x.status+(detail?' — '+detail.slice(0,160):''));er.status=x.status;er.detail=detail.slice(0,160);let ra=0;try{ra=+x.getResponseHeader('Retry-After')||0}catch{}er.retryAfter=ra;finish(()=>reject(er))}
     };
     x.onerror=()=>finish(()=>got?resolve({text:full,got}):reject(new Error(p.id+' : réseau injoignable')));
     x.ontimeout=()=>finish(()=>got?resolve({text:full,got}):reject(new Error(p.id+' : délai dépassé')));
@@ -486,15 +487,23 @@ async function askLLM(messages,onDelta,opts={}){
   if(!list.length){const er=new Error(!S.cfg.keys.mistral?"Aucune clé Mistral enregistrée. Ouvre ⚙, colle ta clé, valide-la puis coche la confirmation 0 €.":"Confirmation 0 € non cochée. Ouvre ⚙ et coche la case du mode Gratuit.");er.kind='config';throw er}
   const p=list[0];
   let e;
-  for(let attempt=0;attempt<2;attempt++){
+  const waits=[3000,8000];
+  for(let attempt=0;attempt<=waits.length;attempt++){
     try{const r=await streamXHR(p,messages,onDelta,opts);S.lastProvider=p.id+' · 0 €';return r}
-    catch(err){e=err;const retry=err&&(err.status===429||err.status===503||!err.status)&&attempt===0&&!S.interrupted;if(!retry)break;await sleep(2500)}
+    catch(err){
+      e=err;if(S.interrupted||opts.noRetry)break;
+      const limited=err&&(err.status===429||err.status===503);
+      if(!(limited||(err&&!err.status&&attempt===0))||attempt>=waits.length)break;
+      const w=err.retryAfter>0?Math.min(20000,err.retryAfter*1000):waits[attempt];
+      live(`Mistral saturé, nouvel essai dans ${Math.round(w/1000)} s…`);
+      await sleep(w);live('');
+    }
   }
   {
     const mk=(m,k)=>{const er=new Error(m);er.status=e&&e.status;er.kind=k;return er};
     if(e&&e.status===401)throw mk("Clé Mistral refusée (401) : invalide ou révoquée. Recolle-la dans ⚙.",'auth');
     if(e&&e.status===402)throw mk("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.",'billing');
-    if(e&&e.status===429)throw mk("Quota gratuit Mistral atteint (429). Attends une minute ou passe en mode Fulgurant.",'quota');
+    if(e&&e.status===429)throw mk("Mistral refuse pour limite (429)"+(e.detail?' : « '+e.detail+' »':'')+". Attends une minute ; si ça dure, vérifie ton quota sur console.mistral.ai.",'quota');
     if(e&&e.status===403)throw mk("Mistral refuse ce modèle ou ce niveau d'accès (403).",'auth');
     if(e&&!e.status)throw mk("Mistral injoignable (réseau). Vérifie la connexion.",'network');
     throw e;
@@ -581,8 +590,8 @@ function chooseAgents(text,hasImage){
   const bonus=p.ranked.filter(k=>k!=='analyste');
   let picked;
   if(mode==='auto'){
-    if(p.depth<1&&!hasImage)picked=['analyste'];
-    else if(p.depth<3)picked=['analyste',bonus[0]];
+    if(p.depth<2&&!hasImage)return[];
+    else if(p.depth<3)picked=[bonus[0]||'analyste'];
     else picked=['analyste',bonus[0],bonus[1]];
     picked=picked.filter(Boolean).slice(0,Math.min(max,3));
   }else{
@@ -603,7 +612,7 @@ async function specialistMemo(key,text,imageDataUrl){
     {role:'system',content:`Tu es ${a.label}, sous-agent de ${S.cfg.name}. ${a.prompt} Tu ne t'adresses jamais à l'utilisateur. Pas de chaîne de pensée. ${MEMO_SCHEMA}`},
     {role:'user',content}
   ];
-  const r=await askLLM(messages,null,{temperature:key==='creatif'?0.8:0.25,maxTokens:420,timeout:45000});
+  const r=await askLLM(messages,null,{temperature:key==='creatif'?0.8:0.25,maxTokens:420,timeout:45000,noRetry:true});
   const m=parseMemo(r.text);m.agent=key;m.label=a.label;m.role=a.role;return m;
 }
 async function collectToolIntents(memos){
@@ -654,7 +663,8 @@ async function runCouncil(text,imageDataUrl){
     catch(e){failed++;if(e&&e.status===429){rateLimited=true;break}}
     if(i<keys.length-1)await sleep(COUNCIL_GAP_MS);
   }
-  if(failed)toast(rateLimited?`Quota Mistral atteint : ${memos.length}/${keys.length} agents ont répondu.`:`${failed} agent${failed>1?'s':''} sans réponse sur ${keys.length}.`,'warn');
+  if(failed)toast(rateLimited?`Mistral limite le débit : conseil réduit à ${memos.length}/${keys.length}, je réponds directement.`:`${failed} agent${failed>1?'s':''} sans réponse sur ${keys.length}.`,'warn');
+  if(rateLimited)await sleep(4000);
   if(!memos.length){live('');return[]}
   try{const facts=await collectToolIntents(memos);if(facts.length)memos.push({agent:'outils',label:'Vérifications',role:'empirique',conclusions:facts,incertitudes:[],sources:[],confiance:0.85})}catch{}
   const profile=taskProfile(text,hasImage);
