@@ -53,11 +53,17 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 #talk[data-state="busy"]{background:var(--lapis);color:var(--ink)}
 .toggle{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none;padding:4px 0}
 .toggle input{width:22px;height:22px;accent-color:var(--saffron);cursor:pointer}.toggle:hover{color:var(--ink)}
-.sensorbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sensorbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .sensor{min-height:42px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 14px var(--sans);padding:8px 10px;transition:border-color .2s,background .2s}
 .sensor:hover{border-color:var(--line2)}
 .sensor.active{border-color:rgba(230,169,63,.7);background:rgba(230,169,63,.09);box-shadow:0 0 0 1px rgba(230,169,63,.16) inset}
 #visionInput{display:none}
+.imgcard{border:1px solid var(--line);border-radius:16px;padding:10px;margin:10px 0;background:rgba(236,228,207,.04);animation:in .3s ease-out}
+.imgcard img{display:block;width:100%;border-radius:12px;margin-bottom:8px}
+.imgcard .imgcap{font-size:14px;color:var(--muted)}
+.imgcard.err .imgcap{color:var(--rose)}
+.imgcard .imgrow{display:flex;gap:8px;margin-top:8px}
+.imgcard .imgrow a,.imgcard .imgrow button{min-height:36px;padding:6px 14px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink);font:500 14px var(--sans);text-decoration:none;display:inline-flex;align-items:center}
 .codecard{display:block;border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:rgba(8,7,20,.45)}
 .codecard .codehead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--muted);font-size:13px}
 .codecard pre{margin:0;max-height:360px;overflow:auto;white-space:pre;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
@@ -96,7 +102,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 .memlist .fact:last-child{border-bottom:0}
 .memlist .w{color:var(--muted);font-size:12px;margin-left:6px}
 .memlist .empty{color:var(--muted);font-style:italic}
-@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.sensorbar .sensor:first-child{grid-column:1/-1}.who h1{font-size:26px}}
+@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.who h1{font-size:26px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -131,9 +137,10 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
     <div class="sensorbar">
       <button class="sensor active" id="brainMode" type="button">∞ Auto</button>
       <button class="sensor" id="visionBtn" type="button">◉ Vision</button>
-      <button class="sensor" id="musicBtn" type="button">♫ Musique 0 €</button>
+      <button class="sensor" id="healthBtn" type="button">✚ Santé</button>
+      <button class="sensor" id="imageBtn" type="button">✦ Image</button>
     </div>
-    <input id="visionInput" type="file" accept="image/*" capture="environment">
+    <input id="visionInput" type="file" accept="image/*">
     <label class="toggle"><input type="checkbox" id="convo"> Conversation continue, mains libres</label>
   </div>
 </div>
@@ -141,7 +148,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 <div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
     <h2>Réglages</h2>
-    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v6</span></p>
+    <p class="hint">Une seule clé Mistral pour tout : conversation, vision, analyse santé et images. <span style="opacity:.6">· version v7</span></p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -206,7 +213,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 'use strict';
 const $=id=>document.getElementById(id);
 const clone=o=>JSON.parse(JSON.stringify(o));
-const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const norm=s=>String(s||'').replace(/œ/g,'oe').replace(/Œ/g,'Oe').replace(/æ/g,'ae').replace(/Æ/g,'Ae').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -233,10 +240,12 @@ const MODEL='mistral-small-latest';
 const COUNCIL_GAP_MS=1100;
 /* Modèles Mistral de secours, gratuits eux aussi (même clé, même garde 0 €) */
 const FALLBACKS=['ministral-8b-latest','open-mistral-nemo'];
-const MODEL_LABEL={'mistral-small-latest':'Small','ministral-8b-latest':'Ministral 8B','open-mistral-nemo':'Nemo'};
+const VISION_FALLBACKS=['pixtral-12b-latest'];
+const IMAGE_MODEL='mistral-medium-latest';
+const MODEL_LABEL={'mistral-small-latest':'Small','ministral-8b-latest':'Ministral 8B','open-mistral-nemo':'Nemo','pixtral-12b-latest':'Pixtral 12B'};
 const COOLDOWN_MS=60000;
 const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},fallback:true,contacts:''};
-const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastQuery:'',cooldownUntil:0};
+const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastImage:null,visionIntent:'general',lastQuery:'',cooldownUntil:0};
 
 /* ---------- UI helpers ---------- */
 const scrollLog=(()=>{let q=false;return()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;const l=$('log');l.scrollTop=l.scrollHeight})}})();
@@ -493,7 +502,8 @@ async function askLLM(messages,onDelta,opts={}){
   const mk=(m,k,st)=>{const er=new Error(m);er.status=st;er.kind=k;return er};
   if(Date.now()<S.cooldownUntil){const s=Math.ceil((S.cooldownUntil-Date.now())/1000);throw mk(`Mistral m'a limité : pause de sécurité encore ${s} s pour ne pas aggraver la limite.`,'quota',429)}
   const base=list[0];
-  const models=[base.model].concat(S.cfg.fallback&&!opts.noRetry?FALLBACKS:[]);
+  const hasImg=messages.some(m=>Array.isArray(m.content)&&m.content.some(c=>c&&c.type==='image_url'));
+  const models=[base.model].concat(S.cfg.fallback&&!opts.noRetry?(hasImg?VISION_FALLBACKS:FALLBACKS):[]);
   let e,lastModel=base.model;
   outer:for(let mi=0;mi<models.length;mi++){
     const p=Object.assign({},base,{model:models[mi]});lastModel=p.model;
@@ -545,7 +555,7 @@ async function validateMistralKey(){
     const rows=Array.isArray(j&&j.data)?j.data:[];const ids=[];
     for(const m of rows){if(!m||!m.id||m.archived===true||m.active===false)continue;ids.push(m.id);if(Array.isArray(m.aliases))ids.push(...m.aliases.filter(Boolean))}
     await store.set('cfg',S.cfg);
-    const fb=FALLBACKS.filter(m=>ids.includes(m)).map(m=>MODEL_LABEL[m]).join(', ');
+    const fb=FALLBACKS.concat(VISION_FALLBACKS).filter(m=>ids.includes(m)).map(m=>MODEL_LABEL[m]).join(', ');
     if(ids.includes(MODEL))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+MODEL+' » est visible'+(fb?' · secours : '+fb:'')+'.');
     else setMistralKeyStatus('warn','✓ CLÉ VALIDÉE, mais « '+MODEL+" » n'est pas visible pour ce compte.");
     return true;
@@ -605,7 +615,7 @@ function chooseAgents(text,hasImage){
   const bonus=p.ranked.filter(k=>k!=='analyste');
   let picked;
   if(mode==='auto'){
-    if(p.depth<2&&!hasImage)return[];
+    if(hasImage||p.depth<2)return[];
     else if(p.depth<3)picked=[bonus[0]||'analyste'];
     else picked=['analyste',bonus[0],bonus[1]];
     picked=picked.filter(Boolean).slice(0,Math.min(max,3));
@@ -721,6 +731,7 @@ OUTILS. Pour agir, ajoute à la fin de ta réponse un ou plusieurs blocs <<{"typ
 <<{"type":"copy","text":"..."}>>
 <<{"type":"share","text":"..."}>>
 <<{"type":"code","language":"javascript","content":"code complet"}>>
+<<{"type":"image","prompt":"description visuelle détaillée"}>> (pour créer une image : décris sujet, style, lumière, cadrage)
 <<{"type":"torch","on":true}>>
 <<{"type":"timer","seconds":300,"label":"pâtes"}>>
 <<{"type":"reminder","time":"HH:MM","date":"AAAA-MM-JJ","label":"..."}>>
@@ -731,6 +742,18 @@ OUTILS. Pour agir, ajoute à la fin de ta réponse un ou plusieurs blocs <<{"typ
 <<{"type":"remember","note":"..."}>>
 N'invente jamais de numéro.`;
 }
+
+const HEALTH_PROMPT=`
+
+ANALYSE SANTÉ D'UNE PHOTO (mode actif). Tu n'es pas un dispositif médical et une photo ne remplace jamais un examen : dis-le en une phrase, sans en faire trop.
+1. Décris objectivement ce qui est visible : zone du corps, taille relative, couleur, contours, relief, symétrie, aspect de la peau autour. Si la photo est floue, trop sombre ou trop loin, dis-le et explique comment la reprendre.
+2. Peau / grain de beauté / tache : passe en revue les critères ABCDE (Asymétrie, Bords irréguliers, Couleur non homogène, Diamètre > 6 mm, Évolution) et les signes d'infection (rougeur qui s'étend, chaleur, pus, traînée rouge, fièvre).
+3. Œil : rougeur (localisée ou diffuse), écoulement, paupière gonflée, pupilles de taille différente, blanc de l'œil jaune, corps étranger visible, lésion de la cornée.
+4. Donne au plus trois pistes générales, formulées comme des possibilités, jamais un diagnostic certain. Aucun médicament sur ordonnance, aucune posologie.
+5. Termine TOUJOURS par un niveau d'orientation clair : appeler le 15 ou le 112 maintenant / consulter aux urgences aujourd'hui / voir un médecin, un dermatologue ou un ophtalmologiste sous 48 h / en parler au médecin lors d'un rendez-vous normal / surveiller et reprendre une photo dans 2 semaines.
+Urgence immédiate pour l'œil : baisse brutale de la vue, douleur intense, produit chimique, choc ou objet planté, halos avec vomissements. Pour la peau : zone qui s'étend vite avec fièvre, peau noire ou violette avec douleur intense, gonflement du visage ou gêne respiratoire.
+Réponse orale, sans liste ni markdown, jusqu'à huit phrases.`;
+const HEALTH_RE=/\b(peau|bouton|grain de beaute|tache|lesion|plaie|rougeur|eczema|psoriasis|melanome|verrue|brulure|piqure|oeil|yeux|paupiere|pupille|conjonctiv|medical|sante|maladie|symptome|infection|douleur|gonfle)/;
 
 /* ---------- Streamer ---------- */
 function stripTags(s){return String(s||'').replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'').trim()}
@@ -750,11 +773,16 @@ function makeStreamer(bubble){
 function parseActions(raw){const out=[];const re=/<<\s*(\{[\s\S]*?\})\s*>>/g;let m;while((m=re.exec(raw))){try{out.push(JSON.parse(m[1]))}catch{}}return out}
 
 /* ---------- Boucle de conversation ---------- */
-function dispatchUser(text){
-  const img=S.pendingImage;S.pendingImage=null;$('visionBtn').classList.remove('active');
-  if(img)sysMsg('Vision jointe à cette requête.');
-  return handleUser(text,{imageDataUrl:img});
+const FOLLOW_RE=/\b(image|photo|vois|voit|tache|bouton|grain|oeil|yeux|peau|lesion|plaie|rougeur|couleur|dessus|zone|ca|cela|grave|inquiet|urgent)\b/;
+function dispatchUser(text,extra={}){
+  let img=S.pendingImage,health=!!extra.health;
+  S.pendingImage=null;$('visionBtn').classList.remove('active');$('healthBtn').classList.remove('active');
+  if(img){S.lastImage={url:img,ts:Date.now(),health}}
+  else if(S.lastImage&&Date.now()-S.lastImage.ts<5*60000&&FOLLOW_RE.test(norm(text))){img=S.lastImage.url;health=health||S.lastImage.health;S.lastImage.ts=Date.now()}
+  if(img&&!health&&HEALTH_RE.test(norm(text)))health=true;
+  return handleUser(text,{imageDataUrl:img,health});
 }
+const IMG_CMD_RE=/^(genere|generer|cree|creer|dessine|fais|fait|imagine|produis|realise)[- ]?(moi|nous)?\s*(une?|des|l')?\s*(image|illustration|dessin|photo|visuel|portrait|affiche|logo|tableau|paysage|poster)\b/;
 async function handleUser(text,opts={}){
   if(S.busy)return;
   S.busy=true;S.streamDone=false;S.interrupted=false;S.lastQuery=text;
@@ -763,6 +791,15 @@ async function handleUser(text,opts={}){
   setMode('thinking');
   try{
     const imageDataUrl=opts.imageDataUrl||null;
+    const extraSys=opts.health&&imageDataUrl?HEALTH_PROMPT:'';
+    if(!imageDataUrl&&IMG_CMD_RE.test(norm(text))){
+      live("Création de l'image…");
+      const ok=await generateImage(text);
+      live('');
+      const said=ok?"Voici l'image.":"Je n'ai pas pu créer l'image, le motif est affiché.";
+      S.history.push({role:'assistant',content:said});speak(said);persist();
+      return;
+    }
     const memos=await runCouncil(text,imageDataUrl);
     let round=0;
     while(true){
@@ -773,12 +810,12 @@ async function handleUser(text,opts={}){
       let msgs;
       if(imageDataUrl&&round===0){
         const before=hist.slice(0,-1);
-        msgs=[{role:'system',content:systemPrompt()+councilContext(memos)}].concat(before).concat([{role:'user',content:[{type:'text',text},{type:'image_url',image_url:{url:imageDataUrl}}]}]);
+        msgs=[{role:'system',content:systemPrompt()+extraSys+councilContext(memos)}].concat(before).concat([{role:'user',content:[{type:'text',text},{type:'image_url',image_url:{url:imageDataUrl}}]}]);
       }else{
         msgs=[{role:'system',content:systemPrompt()+councilContext(round===0?memos:[])}].concat(hist);
       }
       live(memos.length&&round===0?'Synthèse':'');
-      const res=await askLLM(msgs,d=>st.push(d));
+      const res=await askLLM(msgs,d=>st.push(d),{maxTokens:extraSys?1200:900,temperature:extraSys?0.3:0.7});
       const said=st.end();live('');
       if(!said)bubble.remove();
       if(res.text)S.history.push({role:'assistant',content:res.text});
@@ -821,9 +858,63 @@ async function compressImage(file){
 }
 async function loadVision(file){
   if(!file)return;
-  try{S.pendingImage=await compressImage(file);sysMsg('Vision prête. Pose ta question.');$('visionBtn').classList.add('active')}
-  catch(e){sysMsg('Image illisible : '+e.message)}
+  const health=S.visionIntent==='health';
+  try{
+    S.pendingImage=await compressImage(file);
+    const prev=document.createElement('div');prev.className='imgcard';const im=document.createElement('img');im.src=S.pendingImage;im.alt='Photo envoyée';im.onload=scrollLog;prev.appendChild(im);$('log').appendChild(prev);scrollLog();
+    if(S.busy){$(health?'healthBtn':'visionBtn').classList.add('active');sysMsg('Photo prête. Pose ta question quand je termine.');return}
+    const q=$('txt').value.trim();$('txt').value='';
+    const text=q||(health?"Analyse santé de cette photo : que vois-tu, y a-t-il des signes qui méritent un avis médical, et avec quelle urgence ?":"Décris et analyse cette image.");
+    dispatchUser(text,{health});
+  }catch(e){sysMsg('Image illisible : '+e.message)}
   finally{$('visionInput').value=''}
+}
+
+/* ---------- Génération d'images (outil Mistral image_generation) ---------- */
+function findFiles(o,out=[]){if(!o||typeof o!=='object')return out;if(Array.isArray(o)){for(const x of o)findFiles(x,out);return out}if(typeof o.file_id==='string')out.push(o);for(const k in o){const v=o[k];if(v&&typeof v==='object')findFiles(v,out)}return out}
+async function mistralFetch(url,init){
+  let r;
+  try{r=await fetch(url,init)}catch(e){const er=new Error("Mistral injoignable depuis le navigateur (réseau ou CORS).");er.kind='network';throw er}
+  if(!r.ok){let j=null;try{j=await r.json()}catch{}const er=new Error('HTTP '+r.status+' — '+shortApiError(j,r.statusText));er.status=r.status;throw er}
+  return r;
+}
+async function generateImage(prompt){
+  prompt=String(prompt||'').trim().slice(0,1500);if(!prompt)return false;
+  if(!providers().length){sysMsg(!S.cfg.keys.mistral?'Image : clé Mistral manquante (⚙).':'Image : coche la confirmation 0 € dans ⚙.');return false}
+  if(Date.now()<S.cooldownUntil){sysMsg('Image : Mistral en pause de sécurité, réessaie dans une minute.');return false}
+  const key=S.cfg.keys.mistral;
+  const box=document.createElement('div');box.className='imgcard';
+  const cap=document.createElement('div');cap.className='imgcap';cap.textContent="Création de l'image… « "+prompt.slice(0,120)+" »";
+  box.appendChild(cap);$('log').appendChild(box);scrollLog();
+  try{
+    const body={model:IMAGE_MODEL,inputs:prompt,instructions:"Tu génères des images. Appelle toujours l'outil image_generation une seule fois pour produire exactement ce qui est demandé, avec un prompt visuel détaillé. Ne pose aucune question.",tools:[{type:'image_generation'}],store:false};
+    let r;
+    for(let i=0;i<2;i++){
+      try{r=await mistralFetch('https://api.mistral.ai/v1/conversations',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(body)});break}
+      catch(e){if(e.status===429&&i===0&&!S.interrupted){cap.textContent='Mistral saturé, nouvel essai dans 4 s…';await sleep(4000);continue}throw e}
+    }
+    const j=await r.json();
+    const files=findFiles(j.outputs||j);
+    if(!files.length){let said='';try{said=JSON.stringify(j.outputs||'').match(/"text"\s*:\s*"([^"]{0,180})/)[1]}catch{}throw new Error("Mistral n'a renvoyé aucune image"+(said?' : « '+said+' »':'')+'.')}
+    const f=files[0];
+    const fr=await mistralFetch('https://api.mistral.ai/v1/files/'+encodeURIComponent(f.file_id)+'/content',{headers:{'Authorization':'Bearer '+key}});
+    const blob=await fr.blob();const url=URL.createObjectURL(blob);
+    const img=document.createElement('img');img.src=url;img.alt=prompt;img.onload=scrollLog;
+    box.insertBefore(img,cap);cap.textContent=prompt.slice(0,200);
+    const row=document.createElement('div');row.className='imgrow';
+    const dl=document.createElement('a');dl.href=url;dl.download='sage-image.'+(String(f.file_type||'png').replace(/[^a-z0-9]/gi,'')||'png');dl.textContent='Télécharger';row.appendChild(dl);
+    if(navigator.canShare){const sh=document.createElement('button');sh.type='button';sh.textContent='Partager';sh.onclick=async()=>{try{const file=new File([blob],dl.download,{type:blob.type||'image/png'});if(navigator.canShare({files:[file]}))await navigator.share({files:[file],text:prompt.slice(0,120)})}catch{}};row.appendChild(sh)}
+    box.appendChild(row);scrollLog();
+    return true;
+  }catch(e){
+    box.classList.add('err');
+    if(e.status===402)cap.textContent='Image bloquée : Mistral demande la facturation (garde 0 €).';
+    else if(e.status===429){S.cooldownUntil=Date.now()+COOLDOWN_MS;cap.textContent='Image : limite Mistral atteinte (429). Pause de 60 s.'}
+    else if(e.status===401)cap.textContent='Image : clé Mistral refusée (401).';
+    else if(e.status===403)cap.textContent="Image : ton compte Mistral n'a pas accès à la génération d'images (403). "+e.message;
+    else cap.textContent='Image : '+e.message;
+    return false;
+  }
 }
 
 /* ---------- Réseau & outils ---------- */
@@ -929,6 +1020,7 @@ async function runAction(a,opts={}){
     case 'locate':return toolLocate();
     case 'remember':if(a.note){Memory.addFact(String(a.note).slice(0,300),'explicit');await Memory.save();if(!silent)sysMsg('Retenu : '+a.note)}return null;
     case 'code':if(!silent)codeCard(a.language,a.content);return null;
+    case 'image':if(silent||!a.prompt)return null;await generateImage(a.prompt);return null;
     case 'call':if(silent)return null;resolveNumber(a,(num,name)=>{card('Appeler '+name,'Appeler',()=>{location.href='tel:'+num})});return null;
     case 'sms':if(silent)return null;resolveNumber(a,(num,name)=>{const u=smsURL(num,a.body);card(`SMS à ${name}${a.body?' : « '+a.body+' »':''}`,'Envoyer',()=>{location.href=u})});return null;
     case 'email':if(silent)return null;{const u='mailto:'+encodeURIComponent(a.to||'')+'?subject='+encodeURIComponent(a.subject||'')+'&body='+encodeURIComponent(a.body||'');card(`E-mail${a.to?' à '+a.to:''} : ${a.subject||''}`,'Ouvrir',()=>{location.href=u})}return null;
@@ -997,9 +1089,10 @@ $('settingsBtn').addEventListener('click',openSettings);
 $('btnClose').addEventListener('click',closeSettings);
 $('btnSave').addEventListener('click',async()=>{readSettings();await persist();fillSettings();toast('Réglages enregistrés.')});
 $('convo').addEventListener('change',e=>setConvo(e.target.checked));
-$('visionBtn').addEventListener('click',()=>$('visionInput').click());
+$('visionBtn').addEventListener('click',()=>{S.visionIntent='general';$('visionInput').click()});
+$('healthBtn').addEventListener('click',()=>{S.visionIntent='health';$('visionInput').click()});
+$('imageBtn').addEventListener('click',()=>{const t=$('txt');if(!t.value.trim())t.value='Génère une image de ';t.focus();try{t.setSelectionRange(t.value.length,t.value.length)}catch{}});
 $('visionInput').addEventListener('change',e=>loadVision(e.target.files[0]));
-$('musicBtn').addEventListener('click',()=>sysMsg("Mode 0 € : reconnaissance musicale cloud désactivée. Pas de service facturable."));
 $('brainMode').addEventListener('click',()=>{const order=['auto','supra','flash'];const cur=order.indexOf(S.cfg.brain.mode);const next=order[(cur+1)%3];S.cfg.brain.mode=next;fillSettings();persist()});
 /* Correctif : « Écouter » remet le drapeau d'interruption à zéro */
 $('testVoice').addEventListener('click',()=>{readSettings();stopSpeaking();S.interrupted=false;speak(`Bonjour, je suis ${S.cfg.name}. Voici ma voix actuelle.`)});
@@ -1031,7 +1124,7 @@ document.addEventListener('keydown',e=>{
   if(inField)return;
   if(e.target===$('orb'))return;
   if(e.key===' '){e.preventDefault();onTalk()}
-  else if(e.key==='v'||e.key==='V')$('visionInput').click();
+  else if(e.key==='v'||e.key==='V'){S.visionIntent='general';$('visionInput').click()}
   else if(e.key==='c'||e.key==='C')setConvo(!S.convo);
 });
 
