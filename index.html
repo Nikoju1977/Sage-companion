@@ -26,7 +26,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 .badge.warn::before{background:var(--saffron)}.badge.err::before{background:var(--rose)}
 .iconbtn{flex:none;background:none;border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:19px;transition:border-color .2s,transform .15s}
 .iconbtn:hover{border-color:var(--line2)}.iconbtn:active{transform:scale(.95)}
-.stage{position:relative;flex:none;height:min(46dvh,380px);min-height:220px}
+.stage{position:relative;flex:none;height:min(36dvh,330px);min-height:170px}
 #orb{display:block;width:100%;height:100%;cursor:pointer;touch-action:manipulation}
 .live{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--saffron);padding:0 24px;min-height:30px;pointer-events:none;text-shadow:0 1px 12px rgba(22,19,48,.9);transition:opacity .3s}
 .live:empty{opacity:0}
@@ -53,11 +53,36 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 #talk[data-state="busy"]{background:var(--lapis);color:var(--ink)}
 .toggle{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none;padding:4px 0}
 .toggle input{width:22px;height:22px;accent-color:var(--saffron);cursor:pointer}.toggle:hover{color:var(--ink)}
-.sensorbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.sensor{min-height:42px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 14px var(--sans);padding:8px 10px;transition:border-color .2s,background .2s}
+.sensorbar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.sensor{min-height:40px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 13.5px var(--sans);padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .2s,background .2s}
 .sensor:hover{border-color:var(--line2)}
 .sensor.active{border-color:rgba(230,169,63,.7);background:rgba(230,169,63,.09);box-shadow:0 0 0 1px rgba(230,169,63,.16) inset}
 #visionInput{display:none}
+.overlay{position:fixed;inset:0;z-index:1500;background:#000;display:flex;flex-direction:column}
+.overlay[hidden],.overlay [hidden]{display:none!important}
+#cam video,#cam img{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+#camVideo.mirror{transform:scaleX(-1)}
+.camctl{flex:none;display:flex;align-items:center;justify-content:space-around;gap:10px;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0));background:rgba(0,0,0,.88)}
+.camctl.after{flex-wrap:wrap;justify-content:center}
+.camb{width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:none;color:#fff;font-size:22px;flex:none}
+.snap{width:76px;height:76px;border-radius:50%;border:4px solid #fff;background:var(--saffron);flex:none}
+.snap:active{transform:scale(.94)}
+#preview{background:var(--night)}
+.pvhead{display:flex;justify-content:space-between;align-items:center;padding:calc(8px + env(safe-area-inset-top,0)) 14px 8px;color:var(--ink);font-size:15px}
+#pvFrame{flex:1;border:0;background:#fff;width:100%}
+.trbar{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.trbar[hidden]{display:none}
+.trbar select{font:15px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:14px;padding:9px 10px;min-width:0;width:100%}
+.trbar select option{background:var(--night)}
+.trbar .swap{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--ink);font-size:18px}
+.trbar .mini{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.trbar .mini input{width:20px;height:20px;accent-color:var(--saffron)}
+.trturn{grid-column:1/-1;font-size:14px;color:var(--saffron)}
+.trcard{border-left:2px solid var(--lapis);padding:4px 0 4px 12px;margin:14px 0;animation:in .3s ease-out}
+.trcard .o{color:var(--muted);font-size:15px}
+.trcard .t{font-family:var(--serif);font-size:22px;line-height:1.45;margin-top:2px}
+.trcard .l{font-size:12px;color:var(--muted)}
+.codecard .cbtns{display:flex;gap:6px;flex-wrap:wrap}
 .imgcard{border:1px solid var(--line);border-radius:16px;padding:10px;margin:10px 0;background:rgba(236,228,207,.04);animation:in .3s ease-out}
 .imgcard img{display:block;width:100%;border-radius:12px;margin-bottom:8px}
 .imgcard .imgcap{font-size:14px;color:var(--muted)}
@@ -102,7 +127,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 .memlist .fact:last-child{border-bottom:0}
 .memlist .w{color:var(--muted);font-size:12px;margin-left:6px}
 .memlist .empty{color:var(--muted);font-style:italic}
-@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.who h1{font-size:26px}}
+@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:repeat(3,1fr)}.who h1{font-size:26px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -127,6 +152,13 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
   <div class="log" id="log" aria-live="polite"></div>
 
   <div class="dock">
+    <div class="trbar" id="trBar" hidden>
+      <select id="trFrom" aria-label="Langue parlée"></select>
+      <button class="swap" id="trSwap" type="button" aria-label="Inverser les langues">⇄</button>
+      <select id="trTo" aria-label="Langue de traduction"></select>
+      <label class="mini"><input type="checkbox" id="trDuo"> Conversation à deux : alterner les langues à chaque phrase</label>
+      <div class="trturn" id="trTurn"></div>
+    </div>
     <div class="row">
       <input id="txt" type="text" placeholder="Ou écris ici…" autocomplete="off" enterkeyhint="send">
       <button class="btn ghost" id="send" type="button">Envoyer</button>
@@ -136,19 +168,46 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
     </div>
     <div class="sensorbar">
       <button class="sensor active" id="brainMode" type="button">∞ Auto</button>
-      <button class="sensor" id="visionBtn" type="button">◉ Vision</button>
+      <button class="sensor" id="photoBtn" type="button">📷 Photo</button>
+      <button class="sensor" id="visionBtn" type="button">◉ Galerie</button>
       <button class="sensor" id="healthBtn" type="button">✚ Santé</button>
       <button class="sensor" id="imageBtn" type="button">✦ Image</button>
+      <button class="sensor" id="codeBtn" type="button">&lt;/&gt; Code</button>
+      <button class="sensor" id="ambientBtn" type="button">👂 Écoute</button>
+      <button class="sensor" id="recBtn" type="button">● Dicta</button>
+      <button class="sensor" id="trBtn" type="button">🌐 Traduire</button>
     </div>
     <input id="visionInput" type="file" accept="image/*">
     <label class="toggle"><input type="checkbox" id="convo"> Conversation continue, mains libres</label>
   </div>
 </div>
 
+<div id="cam" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Appareil photo">
+  <video id="camVideo" playsinline autoplay muted></video>
+  <img id="camPreview" alt="Photo prise" hidden>
+  <div class="camctl" id="camLive">
+    <button class="camb" id="camClose" type="button" aria-label="Fermer">✕</button>
+    <button class="snap" id="camSnap" type="button" aria-label="Prendre la photo"></button>
+    <button class="camb" id="camFlip" type="button" aria-label="Changer de caméra">⟲</button>
+  </div>
+  <div class="camctl after" id="camAfter" hidden>
+    <button class="btn ghost" id="camRetake" type="button">Reprendre</button>
+    <button class="btn ghost" id="camSave" type="button">Enregistrer</button>
+    <button class="btn" id="camAnalyse" type="button">Analyser</button>
+    <button class="btn ghost" id="camHealth" type="button">Santé</button>
+    <button class="btn ghost" id="camCancel" type="button">Fermer</button>
+  </div>
+</div>
+
+<div id="preview" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Aperçu du code">
+  <div class="pvhead"><span id="pvTitle">Aperçu</span><button class="camb" id="pvClose" type="button" aria-label="Fermer l'aperçu">✕</button></div>
+  <iframe id="pvFrame" title="Aperçu du code" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
+</div>
+
 <div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
     <h2>Réglages</h2>
-    <p class="hint">Une seule clé Mistral pour tout : conversation, vision, analyse santé et images. <span style="opacity:.6">· version v7</span></p>
+    <p class="hint">Une seule clé Mistral pour tout : conversation, vision, analyse santé et images. <span style="opacity:.6">· version v8</span></p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -168,14 +227,20 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
     </div>
 
     <h3>Cerveau Mistral — 0 €</h3>
-    <p class="hint">Modèle principal <code>mistral-small-latest</code>, secours optionnel sur des modèles Mistral gratuits. Si Mistral renvoie une erreur de paiement, Sage s'arrête.</p>
+    <p class="hint">Mistral Small n'est plus utilisé. Le code part vers Codestral, la traduction vers Ministral 8B (rapide), la vision vers Medium ou Pixtral. Si Mistral renvoie une erreur de paiement, Sage s'arrête.</p>
+    <div class="field"><label for="setModel">Modèle principal (conversation)</label><select id="setModel">
+      <option value="mistral-medium-latest">Mistral Medium — texte + vision (recommandé)</option>
+      <option value="ministral-8b-latest">Ministral 8B — rapide, texte</option>
+      <option value="open-mistral-nemo">Mistral Nemo — texte</option>
+      <option value="pixtral-12b-latest">Pixtral 12B — texte + vision</option>
+    </select></div>
     <div class="field"><label for="keyMistral">Clé API Mistral</label><input id="keyMistral" type="password" autocomplete="new-password" spellcheck="false" placeholder="Colle ta clé ici"></div>
     <div class="actions">
       <button class="btn" id="btnValidateMistral" type="button">Valider la clé</button>
       <button class="btn ghost" id="openMistral" type="button">Ouvrir la console Mistral</button>
     </div>
     <div class="api-validation" id="mistralKeyStatus" data-state="idle" aria-live="polite">Clé non vérifiée.</div>
-    <label class="toggle"><input type="checkbox" id="setFallback"> Si Mistral Small est saturé, basculer sur Ministral 8B puis Nemo (gratuits, 0 €)</label>
+    <label class="toggle"><input type="checkbox" id="setFallback"> Si le modèle principal est saturé, basculer sur un autre modèle Mistral gratuit (0 €)</label>
     <label class="toggle"><input type="checkbox" id="zeroBillingConfirm"> Je confirme : compte Mistral en mode Gratuit, paiement à l'usage désactivé.</label>
     <div class="api-validation" id="billingGuardStatus" data-state="warn" aria-live="polite"></div>
 
@@ -236,16 +301,27 @@ const store=(()=>{
 })();
 
 /* ---------- État ---------- */
-const MODEL='mistral-small-latest';
+const DEFAULT_MODEL='mistral-medium-latest';
 const COUNCIL_GAP_MS=1100;
 /* Modèles Mistral de secours, gratuits eux aussi (même clé, même garde 0 €) */
 const FALLBACKS=['ministral-8b-latest','open-mistral-nemo'];
 const VISION_FALLBACKS=['pixtral-12b-latest'];
+const VISION_OK=new Set(['mistral-medium-latest','pixtral-12b-latest']);
+function modelChain(kind){
+  const prim=S.cfg.model||DEFAULT_MODEL;let c;
+  if(kind==='vision')c=[VISION_OK.has(prim)?prim:null,'mistral-medium-latest','pixtral-12b-latest'];
+  else if(kind==='code')c=['codestral-latest',prim,'mistral-medium-latest'];
+  else if(kind==='translate')c=['ministral-8b-latest',prim,'open-mistral-nemo'];
+  else c=[prim].concat(FALLBACKS);
+  c=[...new Set(c.filter(Boolean))];
+  if(!S.cfg.fallback)c=c.slice(0,kind==='chat'?1:2);
+  return c;
+}
 const IMAGE_MODEL='mistral-medium-latest';
-const MODEL_LABEL={'mistral-small-latest':'Small','ministral-8b-latest':'Ministral 8B','open-mistral-nemo':'Nemo','pixtral-12b-latest':'Pixtral 12B'};
+const MODEL_LABEL={'mistral-medium-latest':'Medium','ministral-8b-latest':'Ministral 8B','open-mistral-nemo':'Nemo','pixtral-12b-latest':'Pixtral 12B','codestral-latest':'Codestral','voxtral-mini-latest':'Voxtral'};
 const COOLDOWN_MS=60000;
-const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},fallback:true,contacts:''};
-const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastImage:null,visionIntent:'general',lastQuery:'',cooldownUntil:0};
+const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},model:DEFAULT_MODEL,brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},fallback:true,tr:{from:'fr-FR',to:'en-GB',duo:true},contacts:''};
+const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastImage:null,visionIntent:'general',codeMode:false,trOn:false,trTurn:0,lastQuery:'',cooldownUntil:0};
 
 /* ---------- UI helpers ---------- */
 const scrollLog=(()=>{let q=false;return()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;const l=$('log');l.scrollTop=l.scrollHeight})}})();
@@ -253,7 +329,33 @@ const addMsg=(kind,text)=>{const d=document.createElement('div');d.className='ms
 const sysMsg=t=>addMsg('sys',t);
 const live=t=>{const el=$('live');if(el.textContent!==(t||''))el.textContent=t||''};
 const card=(label,btn,fn)=>{const d=document.createElement('div');d.className='card';const s=document.createElement('span');s.textContent=label;d.appendChild(s);if(btn){const b=document.createElement('button');b.type='button';b.textContent=btn;b.onclick=fn;d.appendChild(b)}$('log').appendChild(d);scrollLog();return d};
-const codeCard=(lang,content)=>{const d=document.createElement('div');d.className='codecard';const h=document.createElement('div');h.className='codehead';const l=document.createElement('span');l.textContent=lang||'code';const b=document.createElement('button');b.type='button';b.textContent='Copier';b.onclick=async()=>{try{await navigator.clipboard.writeText(content||'');b.textContent='Copié';setTimeout(()=>b.textContent='Copier',1200)}catch{toast('Copie refusée','warn')}};h.append(l,b);const pre=document.createElement('pre');pre.textContent=content||'';d.append(h,pre);$('log').appendChild(d);scrollLog();return d};
+const codeCardOld=(lang,content)=>{const d=document.createElement('div');d.className='codecard';const h=document.createElement('div');h.className='codehead';const l=document.createElement('span');l.textContent=lang||'code';const b=document.createElement('button');b.type='button';b.textContent='Copier';b.onclick=async()=>{try{await navigator.clipboard.writeText(content||'');b.textContent='Copié';setTimeout(()=>b.textContent='Copier',1200)}catch{toast('Copie refusée','warn')}};h.append(l,b);const pre=document.createElement('pre');pre.textContent=content||'';d.append(h,pre);$('log').appendChild(d);scrollLog();return d};
+const EXT={javascript:'js',js:'js',jsx:'jsx',typescript:'ts',ts:'ts',tsx:'tsx',python:'py',py:'py',html:'html',htm:'html',css:'css',json:'json',bash:'sh',sh:'sh',shell:'sh',zsh:'sh',powershell:'ps1',sql:'sql',java:'java',c:'c',cpp:'cpp','c++':'cpp',csharp:'cs',cs:'cs',go:'go',rust:'rs',rs:'rs',php:'php',ruby:'rb',kotlin:'kt',swift:'swift',svg:'svg',xml:'xml',yaml:'yml',yml:'yml',markdown:'md',md:'md',r:'r',lua:'lua',dart:'dart',toml:'toml',ini:'ini',dockerfile:'Dockerfile'};
+const stamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())};
+function saveBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000)}
+const mkBtn=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;return b};
+const isRunnable=(lang,c)=>/^(html?|svg|javascript|js)$/i.test(String(lang||'').trim())||/^\s*<(!doctype|html|svg)/i.test(c||'');
+function runCode(lang,content){
+  let doc=content;
+  if(/^(javascript|js)$/i.test(String(lang||'').trim())&&!/^\s*</.test(content)){
+    doc=`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:14px/1.5 ui-monospace,Menlo,monospace;padding:12px;margin:0;background:#fff;color:#111}pre{white-space:pre-wrap;margin:0}</style><pre id="o"></pre><script>(function(){var o=document.getElementById('o');function w(k){return function(){var a=[].slice.call(arguments).map(function(x){try{return typeof x==='string'?x:JSON.stringify(x)}catch(e){return String(x)}});o.textContent+=(k?k+' ':'')+a.join(' ')+'\\n'}}console.log=w('');console.info=w('');console.warn=w('⚠');console.error=w('✗');addEventListener('error',function(e){w('✗')(e.message)})})();<\/script><script>${content.replace(/<\/script/gi,'<\\/script')}<\/script>`;
+  }
+  $('pvTitle').textContent='Aperçu · '+(lang||'code');$('pvFrame').srcdoc=doc;$('preview').hidden=false;
+}
+const codeCard=(lang,content)=>{
+  const d=document.createElement('div');d.className='codecard';
+  const h=document.createElement('div');h.className='codehead';
+  const l=document.createElement('span');l.textContent=lang||'code';
+  const bx=document.createElement('div');bx.className='cbtns';
+  const cp=mkBtn('Copier',async()=>{try{await navigator.clipboard.writeText(content||'');cp.textContent='Copié';setTimeout(()=>cp.textContent='Copier',1200)}catch{toast('Copie refusée','warn')}});
+  const ext=EXT[String(lang||'').toLowerCase()]||(/^\s*<(!doctype|html)/i.test(content)?'html':'txt');
+  const sv=mkBtn('Enregistrer',()=>{saveBlob(new Blob([content||''],{type:'text/plain;charset=utf-8'}),ext==='Dockerfile'?'Dockerfile':'sage-code-'+stamp()+'.'+ext);toast('Fichier enregistré dans Téléchargements.')});
+  bx.append(cp,sv);
+  if(isRunnable(lang,content))bx.appendChild(mkBtn('Exécuter',()=>runCode(lang,content)));
+  h.append(l,bx);
+  const pre=document.createElement('pre');pre.textContent=content||'';
+  d.append(h,pre);$('log').appendChild(d);scrollLog();return d;
+};
 function toast(text,kind='info',ms=4200){const host=$('toasts');const t=document.createElement('div');t.className='toast'+(kind==='warn'?' warn':kind==='err'?' err':'');t.textContent=text;host.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},ms)}
 
 const STATUS={idle:"Touche l'orbe pour parler",listening:"Je t'écoute",thinking:'Je réfléchis',speaking:"Je parle — touche pour m'interrompre"};
@@ -354,20 +456,27 @@ const Prosody={
   rateFor(g){const base=clamp(+S.cfg.rate||1,0.7,1.4);const isQ=/\?\s*$/.test(g);const isE=/\b(vraiment|incroyable|absolument|essentiel|jamais|toujours)\b/i.test(g);let r=base;if(isQ)r*=0.97;if(isE)r*=0.95;if(g.length>80)r*=0.96;if(g.length<25)r*=1.03;return clamp(r,0.6,1.5)},
   pitchFor(g){const base=clamp(+S.cfg.pitch||1,0.6,1.4);const isQ=/\?\s*$/.test(g);let p=base;if(isQ)p*=1.02;if(g.length>90)p*=0.99;return clamp(p,0.5,1.6)}
 };
-function speak(text){const t=String(text).replace(/[*#_`>|]/g,'').replace(/\s+/g,' ').trim();if(!t||!speechEngine()||typeof SpeechSynthesisUtterance==='undefined')return;S.speakQ.push(t);if(!S.speaking)nextUtter()}
+function speak(text){const t=String(text).replace(/[*#_`>|]/g,'').replace(/\s+/g,' ').trim();if(!t||!speechEngine()||typeof SpeechSynthesisUtterance==='undefined')return;S.speakQ.push({t,lang:arguments[1]||'fr-FR'});if(!S.speaking)nextUtter()}
+function voiceFor(lang){
+  const ss=speechEngine();if(!ss)return null;const all=ss.getVoices()||[];
+  const L=String(lang).toLowerCase(),pre=L.slice(0,2),alt=pre==='nb'?'no':pre;
+  const lv=v=>String(v.lang||'').replace('_','-').toLowerCase();
+  return all.find(v=>lv(v)===L)||all.find(v=>lv(v).startsWith(pre)||lv(v).startsWith(alt))||null;
+}
 function nextUtter(){
-  const t=S.speakQ.shift();
-  if(!t){S.speaking=false;if(S.streamDone)onSpeechDone();return}
+  const it=S.speakQ.shift();
+  if(!it){S.speaking=false;if(S.streamDone)onSpeechDone();return}
+  const t=it.t,lang=it.lang||'fr-FR',isFr=/^fr/i.test(lang);
   S.speaking=true;setMode('speaking');
   const groups=Prosody.breathGroups(t);
   if(!groups.length)return nextUtter();
-  const v=pickVoice(),ss=speechEngine();let i=0;
+  const v=isFr?pickVoice():voiceFor(lang),ss=speechEngine();let i=0;
   function playNext(){
     if(S.interrupted||!S.speaking)return;
     if(i>=groups.length)return nextUtter();
     const g=groups[i++];const u=new SpeechSynthesisUtterance(g);
-    u.lang='fr-FR';if(v)u.voice=v;
-    u.rate=Prosody.rateFor(g);u.pitch=Prosody.pitchFor(g);
+    u.lang=lang;if(v)u.voice=v;
+    u.rate=isFr?Prosody.rateFor(g):clamp(+S.cfg.rate||1,0.7,1.3);u.pitch=isFr?Prosody.pitchFor(g):1;
     let done=false;
     const fin=()=>{if(done)return;done=true;if(S.interrupted||!S.speaking)return;setTimeout(playNext,Prosody.pauseAfter(g))};
     u.onstart=()=>{S.targetEnergy=0.7};u.onboundary=()=>{S.targetEnergy=Math.min(1,S.targetEnergy+0.4)};
@@ -387,21 +496,23 @@ function listen(){
   if(!SR){sysMsg("La reconnaissance vocale n'existe pas dans ce navigateur. Ouvre la page dans Chrome ou écris ton message.");return}
   if(S.recActive||S.busy)return;
   clearTimeout(S.retry);if(S.speaking)stopSpeaking();
+  if(Amb.on&&!Amb.paused){Amb.paused=true;ambStopMic()}
   const r=new SR();
-  r.lang='fr-FR';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  r.lang=S.trOn?trSpeakerLang():'fr-FR';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let finalT='';
   r.onstart=()=>{setMode('listening');live('')};
   r.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(res.isFinal)finalT+=res[0].transcript;else interim+=res[0].transcript}live(finalT+interim);S.targetEnergy=Math.min(1,S.targetEnergy+0.3)};
   r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){setConvo(false);toast('Micro refusé. Autorise le micro pour cette page.','warn')}};
   r.onend=()=>{
     S.recActive=false;S.rec=null;
+    if(Amb.paused&&Amb.on){Amb.paused=false;ambStartMic().catch(()=>{})}
     const t=finalT.trim();live('');
     if(t){S.silent=0;dispatchUser(t);return}
     setMode('idle');
     if(S.convo&&!S.busy){S.silent++;if(S.silent>=4){setConvo(false);sysMsg("Je me mets en pause. Touche l'orbe quand tu veux reprendre.");S.silent=0}else S.retry=setTimeout(listen,500)}
   };
   S.rec=r;
-  try{r.start();S.recActive=true}catch{S.recActive=false}
+  try{r.start();S.recActive=true}catch{S.recActive=false;if(Amb.paused&&Amb.on){Amb.paused=false;ambStartMic().catch(()=>{})}}
 }
 function stopListening(){if(S.rec){try{S.rec.stop()}catch{}}}
 function interrupt(){stopSpeaking();for(const a of[...S.aborts]){try{a()}catch{}}S.aborts.clear()}
@@ -461,7 +572,7 @@ const Memory=(()=>{
 })();
 
 /* ---------- Mistral : streaming ---------- */
-function providers(){const c=S.cfg;if(!c.billing||!c.billing.zeroConfirmed)return[];if(!c.keys.mistral)return[];return[{id:'Mistral',url:'https://api.mistral.ai/v1/chat/completions',key:c.keys.mistral,model:MODEL}]}
+function providers(){const c=S.cfg;if(!c.billing||!c.billing.zeroConfirmed)return[];if(!c.keys.mistral)return[];return[{id:'Mistral',url:'https://api.mistral.ai/v1/chat/completions',key:c.keys.mistral,model:c.model||DEFAULT_MODEL}]}
 function streamXHR(p,messages,onDelta,opts={}){
   return new Promise((resolve,reject)=>{
     const x=new XMLHttpRequest();
@@ -503,7 +614,8 @@ async function askLLM(messages,onDelta,opts={}){
   if(Date.now()<S.cooldownUntil){const s=Math.ceil((S.cooldownUntil-Date.now())/1000);throw mk(`Mistral m'a limité : pause de sécurité encore ${s} s pour ne pas aggraver la limite.`,'quota',429)}
   const base=list[0];
   const hasImg=messages.some(m=>Array.isArray(m.content)&&m.content.some(c=>c&&c.type==='image_url'));
-  const models=[base.model].concat(S.cfg.fallback&&!opts.noRetry?(hasImg?VISION_FALLBACKS:FALLBACKS):[]);
+  let models=modelChain(hasImg?'vision':(opts.kind||'chat'));
+  if(opts.noRetry)models=models.slice(0,1);
   let e,lastModel=base.model;
   outer:for(let mi=0;mi<models.length;mi++){
     const p=Object.assign({},base,{model:models[mi]});lastModel=p.model;
@@ -512,7 +624,7 @@ async function askLLM(messages,onDelta,opts={}){
       try{
         const r=await streamXHR(p,messages,onDelta,opts);
         S.lastProvider='Mistral '+(MODEL_LABEL[p.model]||p.model)+' · 0 €';
-        if(mi>0&&!opts.noRetry)toast(`Mistral Small saturé : réponse via ${MODEL_LABEL[p.model]||p.model} (gratuit).`,'warn');
+        if(mi>0&&!opts.noRetry)toast(`${MODEL_LABEL[models[0]]||models[0]} indisponible : réponse via ${MODEL_LABEL[p.model]||p.model} (gratuit).`,'warn');
         return r;
       }catch(err){
         e=err;if(S.interrupted||opts.noRetry)break outer;
@@ -555,9 +667,10 @@ async function validateMistralKey(){
     const rows=Array.isArray(j&&j.data)?j.data:[];const ids=[];
     for(const m of rows){if(!m||!m.id||m.archived===true||m.active===false)continue;ids.push(m.id);if(Array.isArray(m.aliases))ids.push(...m.aliases.filter(Boolean))}
     await store.set('cfg',S.cfg);
-    const fb=FALLBACKS.concat(VISION_FALLBACKS).filter(m=>ids.includes(m)).map(m=>MODEL_LABEL[m]).join(', ');
-    if(ids.includes(MODEL))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+MODEL+' » est visible'+(fb?' · secours : '+fb:'')+'.');
-    else setMistralKeyStatus('warn','✓ CLÉ VALIDÉE, mais « '+MODEL+" » n'est pas visible pour ce compte.");
+    const want=S.cfg.model||DEFAULT_MODEL;
+    const fb=['codestral-latest','ministral-8b-latest','open-mistral-nemo','pixtral-12b-latest','voxtral-mini-latest'].filter(m=>m!==want&&ids.includes(m)).map(m=>MODEL_LABEL[m]).join(', ');
+    if(ids.includes(want))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+want+' » est visible'+(fb?' · aussi : '+fb:'')+'.');
+    else setMistralKeyStatus('warn','✓ CLÉ VALIDÉE, mais « '+want+" » n'est pas visible pour ce compte"+(fb?' (visibles : '+fb+')':'')+'.');
     return true;
   }catch(e){
     const net=/Failed to fetch|NetworkError|Load failed|abort|réseau/i.test(String(e&&e.message));
@@ -716,7 +829,7 @@ function systemPrompt(){
   const names=contactList().map(c=>c.name).join(', ')||'vide';
   const memCtx=Memory.contextFor(S.lastQuery||'');
   return `Tu es ${S.cfg.name}, le compagnon vocal de ${who}. Tu parles comme un être humain sage, cultivé et chaleureux, avec des connaissances profondes en philosophie, sciences, médecine, histoire, arts, cinéma, musique, technologie, spiritualités et vie quotidienne.
-Tu t'exprimes à l'oral : phrases naturelles, sans markdown, sans listes, sans émojis. Par défaut deux à cinq phrases. Tu poses parfois une question en retour. Tu es excellent en programmation : quand on demande du code complet, résume oralement puis place le code dans l'action code.
+Tu t'exprimes à l'oral : phrases naturelles, sans markdown, sans listes, sans émojis. Par défaut deux à cinq phrases. Tu poses parfois une question en retour. Tu es excellent en programmation : quand on demande du code, résume oralement en une ou deux phrases puis donne le code COMPLET dans un bloc \`\`\`langage (il s'affiche avec Copier, Enregistrer et Exécuter, il n'est jamais lu à voix haute).
 Honnêteté : tu dis clairement quand tu ne sais pas. Tu ne prétends jamais être conscient ni omniscient. « Supracognition » désigne seulement ton orchestration multi-agent. En cas d'urgence médicale, oriente vers le 15, le 112 ou le 3114.
 Contexte : nous sommes le ${date}, il est ${heure}.${memCtx}
 Répertoire connu : ${names}.
@@ -732,6 +845,10 @@ OUTILS. Pour agir, ajoute à la fin de ta réponse un ou plusieurs blocs <<{"typ
 <<{"type":"share","text":"..."}>>
 <<{"type":"code","language":"javascript","content":"code complet"}>>
 <<{"type":"image","prompt":"description visuelle détaillée"}>> (pour créer une image : décris sujet, style, lumière, cadrage)
+<<{"type":"photo"}>> (ouvre l'appareil photo)
+<<{"type":"ecoute","on":true}>> (écoute et identification des sons ambiants, analyse locale)
+<<{"type":"enregistrer"}>> (démarre ou arrête le dictaphone)
+<<{"type":"traduction","on":true,"from":"fr","to":"de"}>> (interprète vocal en temps réel ; codes de langue ISO)
 <<{"type":"torch","on":true}>>
 <<{"type":"timer","seconds":300,"label":"pâtes"}>>
 <<{"type":"reminder","time":"HH:MM","date":"AAAA-MM-JJ","label":"..."}>>
@@ -753,21 +870,34 @@ ANALYSE SANTÉ D'UNE PHOTO (mode actif). Tu n'es pas un dispositif médical et u
 5. Termine TOUJOURS par un niveau d'orientation clair : appeler le 15 ou le 112 maintenant / consulter aux urgences aujourd'hui / voir un médecin, un dermatologue ou un ophtalmologiste sous 48 h / en parler au médecin lors d'un rendez-vous normal / surveiller et reprendre une photo dans 2 semaines.
 Urgence immédiate pour l'œil : baisse brutale de la vue, douleur intense, produit chimique, choc ou objet planté, halos avec vomissements. Pour la peau : zone qui s'étend vite avec fièvre, peau noire ou violette avec douleur intense, gonflement du visage ou gêne respiratoire.
 Réponse orale, sans liste ni markdown, jusqu'à huit phrases.`;
+const CODE_PROMPT=`
+
+MODE CODE (actif). Tu es un ingénieur logiciel senior. D'abord un résumé oral d'une à trois phrases (il est lu à voix haute). Ensuite le code COMPLET et fonctionnel dans un ou plusieurs blocs \`\`\`langage : aucun pseudo-code, aucun « ... » ni « à compléter ». Pour une page web ou une petite app, un seul fichier HTML autonome (CSS et JS inclus). Commente sobrement les parties non évidentes. Si la demande est ambiguë, fais le choix le plus raisonnable et dis-le en une phrase.`;
 const HEALTH_RE=/\b(peau|bouton|grain de beaute|tache|lesion|plaie|rougeur|eczema|psoriasis|melanome|verrue|brulure|piqure|oeil|yeux|paupiere|pupille|conjonctiv|medical|sante|maladie|symptome|infection|douleur|gonfle)/;
 
 /* ---------- Streamer ---------- */
 function stripTags(s){return String(s||'').replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'').trim()}
+const FENCE_RE=/```([\w+#.\-]*)[^\n]*\n([\s\S]*?)```/g;
+function extractFences(raw){
+  const out=[];let m;FENCE_RE.lastIndex=0;
+  while((m=FENCE_RE.exec(raw)))out.push({lang:m[1]||'',code:m[2].replace(/\n$/,'')});
+  const rest=raw.replace(FENCE_RE,'');const k=rest.indexOf('```');
+  if(k>=0){const mm=rest.slice(k).match(/^```([\w+#.\-]*)[^\n]*\n([\s\S]*)$/);if(mm&&mm[2].trim())out.push({lang:mm[1]||'',code:mm[2],cut:true})}
+  return out;
+}
 function makeStreamer(bubble){
   let raw='',consumed=0;
   function clean(final){
-    let t=raw.replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'');
-    if(final)t=t.replace(/<think>[\s\S]*$/,'').replace(/<<[\s\S]*$/,'');
-    else{let cut=t.length;const a=t.indexOf('<<'),b=t.indexOf('<think>');if(a>=0)cut=Math.min(cut,a);if(b>=0)cut=Math.min(cut,b);t=t.slice(0,cut).replace(/<$/,'')}
+    let t=raw.replace(/<think>[\s\S]*?<\/think>/g,'').replace(TAG_RE,'').replace(FENCE_RE,' ');
+    if(final)t=t.replace(/<think>[\s\S]*$/,'').replace(/<<[\s\S]*$/,'').replace(/```[\s\S]*$/,'');
+    else{let cut=t.length;for(const mk of ['<<','<think>','```']){const a=t.indexOf(mk);if(a>=0)cut=Math.min(cut,a)}t=t.slice(0,cut).replace(/[<`]+$/,'')}
     return t;
   }
   return{
     push(d){raw+=d;const t=clean(false);bubble.textContent=t.trim();scrollLog();const pend=t.slice(consumed);const m=pend.match(/^[\s\S]*?[.!?…](?=\s|$)/);if(m&&m[0].trim().length>1){speak(m[0]);consumed+=m[0].length}},
-    end(){const t=clean(true);bubble.textContent=t.trim();const pend=t.slice(consumed);if(pend.trim())speak(pend);consumed=t.length;return t.trim()}
+    end(){const t=clean(true);bubble.textContent=t.trim();const pend=t.slice(consumed);if(pend.trim())speak(pend);consumed=t.length;
+      for(const f of extractFences(raw.replace(TAG_RE,''))){codeCard(f.lang,f.code);if(f.cut)sysMsg('Le code a été coupé (longueur maximale atteinte). Demande « continue le code ».')}
+      return t.trim()}
   };
 }
 function parseActions(raw){const out=[];const re=/<<\s*(\{[\s\S]*?\})\s*>>/g;let m;while((m=re.exec(raw))){try{out.push(JSON.parse(m[1]))}catch{}}return out}
@@ -775,6 +905,7 @@ function parseActions(raw){const out=[];const re=/<<\s*(\{[\s\S]*?\})\s*>>/g;let
 /* ---------- Boucle de conversation ---------- */
 const FOLLOW_RE=/\b(image|photo|vois|voit|tache|bouton|grain|oeil|yeux|peau|lesion|plaie|rougeur|couleur|dessus|zone|ca|cela|grave|inquiet|urgent)\b/;
 function dispatchUser(text,extra={}){
+  if(S.trOn&&!S.pendingImage)return translateTurn(text);
   let img=S.pendingImage,health=!!extra.health;
   S.pendingImage=null;$('visionBtn').classList.remove('active');$('healthBtn').classList.remove('active');
   if(img){S.lastImage={url:img,ts:Date.now(),health}}
@@ -791,7 +922,10 @@ async function handleUser(text,opts={}){
   setMode('thinking');
   try{
     const imageDataUrl=opts.imageDataUrl||null;
-    const extraSys=opts.health&&imageDataUrl?HEALTH_PROMPT:'';
+    const prof=taskProfile(text,!!imageDataUrl);
+    const codeKind=!imageDataUrl&&(S.codeMode||(prof.score.codeur||0)>=3);
+    const kind=imageDataUrl?'vision':codeKind?'code':'chat';
+    const extraSys=(opts.health&&imageDataUrl?HEALTH_PROMPT:'')+(codeKind?CODE_PROMPT:'');
     if(!imageDataUrl&&IMG_CMD_RE.test(norm(text))){
       live("Création de l'image…");
       const ok=await generateImage(text);
@@ -800,7 +934,7 @@ async function handleUser(text,opts={}){
       S.history.push({role:'assistant',content:said});speak(said);persist();
       return;
     }
-    const memos=await runCouncil(text,imageDataUrl);
+    const memos=(codeKind&&S.cfg.brain.mode!=='supra')?[]:await runCouncil(text,imageDataUrl);
     let round=0;
     while(true){
       if(S.interrupted)break;
@@ -812,10 +946,10 @@ async function handleUser(text,opts={}){
         const before=hist.slice(0,-1);
         msgs=[{role:'system',content:systemPrompt()+extraSys+councilContext(memos)}].concat(before).concat([{role:'user',content:[{type:'text',text},{type:'image_url',image_url:{url:imageDataUrl}}]}]);
       }else{
-        msgs=[{role:'system',content:systemPrompt()+councilContext(round===0?memos:[])}].concat(hist);
+        msgs=[{role:'system',content:systemPrompt()+extraSys+councilContext(round===0?memos:[])}].concat(hist);
       }
       live(memos.length&&round===0?'Synthèse':'');
-      const res=await askLLM(msgs,d=>st.push(d),{maxTokens:extraSys?1200:900,temperature:extraSys?0.3:0.7});
+      const res=await askLLM(msgs,d=>st.push(d),{kind,maxTokens:codeKind?4000:(opts.health?1200:900),temperature:codeKind?0.2:(opts.health?0.3:0.7),timeout:codeKind?180000:90000});
       const said=st.end();live('');
       if(!said)bubble.remove();
       if(res.text)S.history.push({role:'assistant',content:res.text});
@@ -856,9 +990,9 @@ async function compressImage(file){
     return c.toDataURL('image/jpeg',0.82);
   }finally{URL.revokeObjectURL(url)}
 }
-async function loadVision(file){
+async function loadVision(file,intent){
   if(!file)return;
-  const health=S.visionIntent==='health';
+  const health=(intent||S.visionIntent)==='health';
   try{
     S.pendingImage=await compressImage(file);
     const prev=document.createElement('div');prev.className='imgcard';const im=document.createElement('img');im.src=S.pendingImage;im.alt='Photo envoyée';im.onload=scrollLog;prev.appendChild(im);$('log').appendChild(prev);scrollLog();
@@ -915,6 +1049,203 @@ async function generateImage(prompt){
     else cap.textContent='Image : '+e.message;
     return false;
   }
+}
+
+/* ---------- Appareil photo ---------- */
+const Cam={stream:null,facing:'environment',blob:null,url:null};
+async function camOpen(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){const i=$('visionInput');i.setAttribute('capture','environment');S.visionIntent='general';i.click();setTimeout(()=>i.removeAttribute('capture'),1500);return}
+  if(S.recActive)stopListening();
+  $('cam').hidden=false;camShowLive();await camStart();
+}
+async function camStart(){
+  camStop();
+  try{
+    Cam.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:Cam.facing},width:{ideal:1920},height:{ideal:1440}},audio:false});
+    const v=$('camVideo');v.srcObject=Cam.stream;v.classList.toggle('mirror',Cam.facing==='user');try{await v.play()}catch{}
+  }catch(e){toast('Caméra : '+(e&&e.name==='NotAllowedError'?'accès refusé. Autorise la caméra pour cette page.':(e&&e.message||'indisponible')),'warn',6000);camClose()}
+}
+function camStop(){if(Cam.stream){Cam.stream.getTracks().forEach(t=>t.stop());Cam.stream=null}}
+function camShowLive(){$('camVideo').hidden=false;$('camPreview').hidden=true;$('camLive').hidden=false;$('camAfter').hidden=true}
+function camClose(){camStop();$('cam').hidden=true;$('camVideo').srcObject=null;if(Cam.url){URL.revokeObjectURL(Cam.url);Cam.url=null}Cam.blob=null}
+function camSnap(){
+  const v=$('camVideo');const w=v.videoWidth,hh=v.videoHeight;if(!w||!hh){toast('Caméra pas encore prête.','warn');return}
+  const c=document.createElement('canvas');c.width=w;c.height=hh;const x=c.getContext('2d');
+  if(Cam.facing==='user'){x.translate(w,0);x.scale(-1,1)}
+  x.drawImage(v,0,0,w,hh);haptic(25);
+  c.toBlob(b=>{if(!b)return;Cam.blob=b;if(Cam.url)URL.revokeObjectURL(Cam.url);Cam.url=URL.createObjectURL(b);const p=$('camPreview');p.src=Cam.url;p.hidden=false;$('camVideo').hidden=true;$('camLive').hidden=true;$('camAfter').hidden=false;camStop()},'image/jpeg',0.92);
+}
+function camUse(intent){if(!Cam.blob)return;const f=new File([Cam.blob],'photo.jpg',{type:'image/jpeg'});camClose();loadVision(f,intent)}
+
+/* ---------- Dictaphone + transcription (Mistral Voxtral) ---------- */
+const Rec={mr:null,stream:null,chunks:[],t0:0,iv:null};
+const mmss=ms=>{const s=Math.max(0,Math.round(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+async function recToggle(){
+  if(Rec.mr&&Rec.mr.state!=='inactive'){Rec.mr.stop();return}
+  if(!window.MediaRecorder){toast("L'enregistrement audio n'est pas pris en charge ici.",'warn');return}
+  try{Rec.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(e){toast('Micro refusé : '+(e&&e.message||''),'warn');return}
+  const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+  Rec.mr=new MediaRecorder(Rec.stream,mime?{mimeType:mime}:undefined);Rec.chunks=[];
+  Rec.mr.ondataavailable=e=>{if(e.data&&e.data.size)Rec.chunks.push(e.data)};
+  Rec.mr.onstop=()=>{
+    clearInterval(Rec.iv);Rec.stream.getTracks().forEach(t=>t.stop());
+    const type=(Rec.mr&&Rec.mr.mimeType)||mime||'audio/webm';const blob=new Blob(Rec.chunks,{type});const ms=Date.now()-Rec.t0;
+    Rec.mr=null;$('recBtn').classList.remove('active');$('recBtn').textContent='● Dicta';
+    if(blob.size)recCard(blob,ms);
+  };
+  Rec.mr.start(1000);Rec.t0=Date.now();$('recBtn').classList.add('active');$('recBtn').textContent='■ 0:00';haptic(15);
+  Rec.iv=setInterval(()=>{$('recBtn').textContent='■ '+mmss(Date.now()-Rec.t0)},500);
+  toast('Enregistrement en cours. Touche « ■ » pour arrêter.');
+}
+async function transcribe(blob,ext){
+  if(!providers().length)throw new Error('clé Mistral ou confirmation 0 € manquante (⚙).');
+  if(Date.now()<S.cooldownUntil)throw new Error('Mistral en pause de sécurité, réessaie dans une minute.');
+  const fd=new FormData();fd.append('model','voxtral-mini-latest');fd.append('file',blob,'enregistrement.'+ext);
+  let r;
+  try{r=await mistralFetch('https://api.mistral.ai/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+S.cfg.keys.mistral},body:fd})}
+  catch(e){if(e.status===429)S.cooldownUntil=Date.now()+COOLDOWN_MS;if(e.status===402)throw new Error('Mistral demande la facturation (garde 0 €), transcription bloquée.');throw e}
+  const j=await r.json();return String(j.text||'').trim();
+}
+function recCard(blob,ms){
+  const d=document.createElement('div');d.className='imgcard';
+  const au=document.createElement('audio');au.controls=true;au.src=URL.createObjectURL(blob);au.style.width='100%';
+  const cap=document.createElement('div');cap.className='imgcap';cap.textContent='Enregistrement · '+mmss(ms);
+  const ext=/mp4/.test(blob.type)?'m4a':/ogg/.test(blob.type)?'ogg':'webm';
+  const row=document.createElement('div');row.className='imgrow';
+  const sv=mkBtn('Enregistrer',()=>{saveBlob(blob,'sage-enregistrement-'+stamp()+'.'+ext);toast('Enregistrement sauvegardé dans Téléchargements.')});
+  const tr=mkBtn('Transcrire',async()=>{
+    tr.disabled=true;tr.textContent='Transcription…';
+    try{
+      const txt=await transcribe(blob,ext);
+      const out=document.createElement('div');out.className='msg bot';out.style.fontSize='18px';out.textContent=txt||'(aucune parole détectée)';d.appendChild(out);
+      if(txt){const r2=document.createElement('div');r2.className='imgrow';
+        r2.append(mkBtn('Copier',async()=>{try{await navigator.clipboard.writeText(txt);toast('Copié.')}catch{toast('Copie refusée','warn')}}),
+          mkBtn('Sauver le texte',()=>saveBlob(new Blob([txt],{type:'text/plain;charset=utf-8'}),'sage-transcription-'+stamp()+'.txt')),
+          mkBtn('Envoyer à Sage',()=>handleUser(`Voici la transcription d'un enregistrement :\n${txt}\n\nRésume-la et dis-moi ce qu'il faut en retenir.`)));
+        d.appendChild(r2)}
+      tr.remove();
+    }catch(e){tr.disabled=false;tr.textContent='Transcrire';toast('Transcription : '+e.message,'err',7000)}
+    scrollLog();
+  });
+  row.append(sv,tr);d.append(au,cap,row);$('log').appendChild(d);scrollLog();
+}
+
+/* ---------- Écoute de l'environnement (YAMNet, open source, 100 % local) ---------- */
+const AMB_MP='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@1.0.1';
+const AMB_MODEL='https://storage.googleapis.com/mediapipe-models/audio_classifier/yamnet/float32/1/yamnet.tflite';
+const AMB_FR={'Speech':'Parole','Child speech, kid speaking':"Voix d'enfant",'Conversation':'Conversation','Narration, monologue':'Monologue','Laughter':'Rires','Baby cry, infant cry':'Pleurs de bébé','Crying, sobbing':'Pleurs','Whispering':'Chuchotement','Shout':'Cri','Screaming':'Hurlement','Yell':'Cri','Music':'Musique','Singing':'Chant','Musical instrument':'Instrument','Guitar':'Guitare','Piano':'Piano','Drum':'Batterie','Dog':'Chien','Bark':'Aboiement','Cat':'Chat','Meow':'Miaulement','Purr':'Ronronnement','Bird':'Oiseau','Bird vocalization, bird call, bird song':"Chant d'oiseau",'Chirp, tweet':'Gazouillis','Rooster':'Coq','Chicken, rooster':'Poule','Cattle, bovinae':'Vache','Horse':'Cheval','Insect':'Insecte','Vehicle':'Véhicule','Car':'Voiture','Truck':'Camion','Bus':'Bus','Motorcycle':'Moto','Train':'Train','Aircraft':'Avion','Helicopter':'Hélicoptère','Bicycle':'Vélo','Engine':'Moteur','Car passing by':'Voiture qui passe','Traffic noise, roadway noise':'Circulation','Vehicle horn, car horn, honking':'Klaxon','Siren':'Sirène','Civil defense siren':"Sirène d'alerte",'Emergency vehicle':"Véhicule d'urgence",'Police car (siren)':'Sirène de police','Ambulance (siren)':"Sirène d'ambulance",'Fire engine, fire truck (siren)':'Sirène de pompiers','Alarm':'Alarme','Smoke detector, smoke alarm':'Détecteur de fumée','Fire alarm':'Alarme incendie','Alarm clock':'Réveil','Buzzer':'Buzzer','Doorbell':'Sonnette','Ding-dong':'Sonnette','Knock':'On frappe','Door':'Porte','Telephone':'Téléphone','Telephone bell ringing':'Sonnerie de téléphone','Ringtone':'Sonnerie','Water':'Eau','Rain':'Pluie','Raindrop':'Gouttes','Wind':'Vent','Thunder':'Tonnerre','Thunderstorm':'Orage','Stream':'Ruisseau','Ocean':'Mer','Waves, surf':'Vagues','Fire':'Feu','Silence':'Silence','Glass':'Verre','Shatter':'Bris de verre','Breaking':'Casse','Explosion':'Explosion','Gunshot, gunfire':'Coup de feu','Fireworks':"Feux d'artifice",'Television':'Télévision','Radio':'Radio','Typing':'Frappe au clavier','Computer keyboard':'Clavier','Footsteps':'Pas','Walk, footsteps':'Pas','Microwave oven':'Micro-ondes','Vacuum cleaner':'Aspirateur','Hair dryer':'Sèche-cheveux','Toilet flush':"Chasse d'eau",'Water tap, faucet':'Robinet','Dishes, pots, and pans':'Vaisselle','Cutlery, silverware':'Couverts','Cough':'Toux','Sneeze':'Éternuement','Snoring':'Ronflement','Breathing':'Respiration','Applause':'Applaudissements','Crowd':'Foule','Chatter':'Brouhaha','Hubbub, speech noise, speech babble':'Brouhaha','Inside, small room':'Intérieur, petite pièce','Inside, large room or hall':'Intérieur, grande salle','Outside, urban or manmade':'Extérieur urbain','Outside, rural or natural':'Extérieur, nature','White noise':'Bruit blanc','Static':'Grésillement','Clock':'Horloge','Tick':'Tic-tac','Tick-tock':'Tic-tac','Mechanisms':'Mécanisme','Tools':'Outils','Power tool':'Outil électrique','Drill':'Perceuse','Hammer':'Marteau'};
+const AMB_ALERT={'Smoke detector, smoke alarm':'un détecteur de fumée','Fire alarm':'une alarme incendie','Siren':'une sirène','Civil defense siren':"une sirène d'alerte",'Emergency vehicle':"un véhicule d'urgence",'Police car (siren)':'une sirène de police','Ambulance (siren)':"une sirène d'ambulance",'Fire engine, fire truck (siren)':'une sirène de pompiers','Alarm':'une alarme','Baby cry, infant cry':'un bébé qui pleure','Shatter':'un bris de verre','Screaming':'des hurlements','Gunshot, gunfire':'ce qui ressemble à un coup de feu','Explosion':'une explosion','Doorbell':'la sonnette','Ding-dong':'la sonnette','Knock':"quelqu'un qui frappe",'Telephone bell ringing':'un téléphone qui sonne','Ringtone':'une sonnerie','Alarm clock':'un réveil'};
+const ambName=n=>AMB_FR[n]||n;
+const Amb={on:false,paused:false,cls:null,loading:null,stream:null,ctx:null,src:null,node:null,buf:null,pos:0,log:[],last:{},card:null,label:null};
+async function ambLoad(){
+  if(Amb.cls)return Amb.cls;
+  if(!Amb.loading)Amb.loading=(async()=>{
+    const m=await import(AMB_MP+'/audio_bundle.mjs');
+    const fs=await m.FilesetResolver.forAudioTasks(AMB_MP+'/wasm');
+    Amb.cls=await m.AudioClassifier.createFromOptions(fs,{baseOptions:{modelAssetPath:AMB_MODEL},maxResults:5,scoreThreshold:0.08});
+    return Amb.cls;
+  })().catch(e=>{Amb.loading=null;throw e});
+  return Amb.loading;
+}
+async function ambStartMic(){
+  ambStopMic();
+  Amb.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:true}});
+  const AC=window.AudioContext||window.webkitAudioContext;Amb.ctx=new AC();
+  if(Amb.ctx.state==='suspended'){try{await Amb.ctx.resume()}catch{}}
+  Amb.src=Amb.ctx.createMediaStreamSource(Amb.stream);
+  Amb.node=Amb.ctx.createScriptProcessor(4096,1,1);
+  Amb.buf=new Float32Array(Math.round(Amb.ctx.sampleRate));Amb.pos=0;
+  Amb.node.onaudioprocess=e=>{
+    const d=e.inputBuffer.getChannelData(0);let i=0;
+    while(i<d.length){const n=Math.min(d.length-i,Amb.buf.length-Amb.pos);Amb.buf.set(d.subarray(i,i+n),Amb.pos);Amb.pos+=n;i+=n;if(Amb.pos>=Amb.buf.length){ambClassify(Amb.buf.slice());Amb.pos=0}}
+  };
+  Amb.src.connect(Amb.node);Amb.node.connect(Amb.ctx.destination);
+}
+function ambStopMic(){
+  try{if(Amb.node){Amb.node.onaudioprocess=null;Amb.node.disconnect()}}catch{}
+  try{if(Amb.src)Amb.src.disconnect()}catch{}
+  try{if(Amb.ctx)Amb.ctx.close()}catch{}
+  if(Amb.stream)Amb.stream.getTracks().forEach(t=>t.stop());
+  Amb.node=Amb.src=Amb.ctx=Amb.stream=null;
+}
+function ambClassify(data){
+  if(!Amb.cls||!Amb.ctx)return;
+  try{
+    const r=Amb.cls.classify(data,Amb.ctx.sampleRate);
+    const cats=(r&&r[0]&&r[0].classifications&&r[0].classifications[0]&&r[0].classifications[0].categories)||[];
+    const top=cats.filter(c=>c.score>=0.12).slice(0,4).map(c=>({n:c.categoryName||c.displayName,s:c.score}));
+    const now=Date.now();Amb.log.push({t:now,top});Amb.log=Amb.log.filter(x=>now-x.t<90000);
+    if(Amb.label)Amb.label.textContent=top.length?'👂 '+top.map(c=>ambName(c.n)+' '+Math.round(c.s*100)+' %').join(' · '):'👂 Calme, rien de net';
+    for(const c of top){const a=AMB_ALERT[c.n];if(a&&c.s>=0.35&&now-(Amb.last[c.n]||0)>120000){Amb.last[c.n]=now;fire("Attention, j'entends "+a+'.')}}
+  }catch(e){}
+}
+function ambSummary(){
+  const now=Date.now(),agg={};
+  for(const x of Amb.log){if(now-x.t>60000)continue;for(const c of x.top){const g=agg[c.n]||(agg[c.n]={n:0,max:0,sum:0});g.n++;g.sum+=c.s;g.max=Math.max(g.max,c.s)}}
+  return Object.entries(agg).sort((a,b)=>b[1].sum-a[1].sum).slice(0,8).map(([k,g])=>`${ambName(k)} (${g.n} s, jusqu'à ${Math.round(g.max*100)} %)`);
+}
+async function ambSet(on){
+  if(on===Amb.on)return;
+  if(on){
+    $('ambientBtn').classList.add('active');$('ambientBtn').textContent='👂 …';
+    try{
+      if(!Amb.cls)toast("Chargement du modèle d'écoute YAMNet (≈ 4 Mo, une seule fois)…");
+      await ambLoad();await ambStartMic();Amb.on=true;Amb.log=[];
+      const d=card('👂 Écoute en cours…','Décrire',()=>{const s=ambSummary();if(!s.length){toast("Rien de net entendu depuis une minute.",'warn');return}handleUser(`[Écoute de l'environnement : 60 dernières secondes, classification locale YAMNet] Sons détectés : ${s.join(' ; ')}.\nDécris-moi ce qui se passe probablement autour de moi et signale ce qui mérite mon attention.`)});
+      d.classList.add('ambcard');Amb.card=d;Amb.label=d.querySelector('span');
+      const stop=mkBtn('Arrêter',()=>ambSet(false));d.appendChild(stop);
+      $('ambientBtn').textContent='👂 Actif';
+      toast("Écoute active. Tout reste sur ton téléphone ; alerte si alarme, sirène, sonnette, bébé qui pleure, bris de verre…");
+    }catch(e){$('ambientBtn').classList.remove('active');$('ambientBtn').textContent='👂 Écoute';toast("Écoute impossible : "+(e&&e.name==='NotAllowedError'?'micro refusé.':(e&&e.message||e)),'err',7000)}
+  }else{
+    Amb.on=false;Amb.paused=false;ambStopMic();
+    $('ambientBtn').classList.remove('active');$('ambientBtn').textContent='👂 Écoute';
+    if(Amb.label)Amb.label.textContent='👂 Écoute arrêtée';
+    if(Amb.card)Amb.card.querySelectorAll('button').forEach(b=>b.remove());
+    Amb.card=Amb.label=null;
+  }
+}
+
+/* ---------- Traduction en temps réel ---------- */
+const LANGS=[['fr-FR','Français','🇫🇷'],['en-GB','Anglais','🇬🇧'],['de-DE','Allemand','🇩🇪'],['es-ES','Espagnol','🇪🇸'],['it-IT','Italien','🇮🇹'],['pt-PT','Portugais','🇵🇹'],['nl-NL','Néerlandais','🇳🇱'],['pl-PL','Polonais','🇵🇱'],['ro-RO','Roumain','🇷🇴'],['el-GR','Grec','🇬🇷'],['cs-CZ','Tchèque','🇨🇿'],['sk-SK','Slovaque','🇸🇰'],['hu-HU','Hongrois','🇭🇺'],['sv-SE','Suédois','🇸🇪'],['da-DK','Danois','🇩🇰'],['fi-FI','Finnois','🇫🇮'],['bg-BG','Bulgare','🇧🇬'],['hr-HR','Croate','🇭🇷'],['sl-SI','Slovène','🇸🇮'],['et-EE','Estonien','🇪🇪'],['lv-LV','Letton','🇱🇻'],['lt-LT','Lituanien','🇱🇹'],['mt-MT','Maltais','🇲🇹'],['ga-IE','Irlandais','🇮🇪'],['lb-LU','Luxembourgeois','🇱🇺'],['nb-NO','Norvégien','🇳🇴'],['is-IS','Islandais','🇮🇸'],['uk-UA','Ukrainien','🇺🇦'],['ru-RU','Russe','🇷🇺'],['be-BY','Biélorusse','🇧🇾'],['sr-RS','Serbe','🇷🇸'],['bs-BA','Bosnien','🇧🇦'],['mk-MK','Macédonien','🇲🇰'],['sq-AL','Albanais','🇦🇱'],['ca-ES','Catalan',''],['eu-ES','Basque',''],['gl-ES','Galicien',''],['cy-GB','Gallois',''],['tr-TR','Turc','🇹🇷']];
+const langName=c=>(LANGS.find(l=>l[0]===c)||[c,c])[1];
+const langFlag=c=>(LANGS.find(l=>l[0]===c)||['','',''])[2];
+function resolveLang(x){const n=norm(x);if(!n)return null;const l=LANGS.find(l=>norm(l[0])===n)||LANGS.find(l=>norm(l[0]).split('-')[0]===n.split('-')[0]&&n.length<=3)||LANGS.find(l=>norm(l[1])===n)||(n==='no'||n==='norvegien'?LANGS.find(l=>l[0]==='nb-NO'):null)||(n==='en'||n==='english'?LANGS.find(l=>l[0]==='en-GB'):null);return l?l[0]:null}
+function fillLangs(){for(const id of ['trFrom','trTo']){const s=$(id);if(s.options.length)continue;for(const [c,n,f] of LANGS){const o=document.createElement('option');o.value=c;o.textContent=(f?f+' ':'')+n;s.appendChild(o)}}$('trFrom').value=S.cfg.tr.from;$('trTo').value=S.cfg.tr.to;$('trDuo').checked=!!S.cfg.tr.duo}
+function trSpeakerLang(){return S.trTurn===0?S.cfg.tr.from:S.cfg.tr.to}
+function trUpdate(){
+  $('trBar').hidden=!S.trOn;$('trBtn').classList.toggle('active',S.trOn);$('trBtn').textContent=S.trOn?'🌐 Actif':'🌐 Traduire';
+  if(!S.trOn)return;const l=trSpeakerLang();
+  $('trTurn').textContent=`🎙 ${S.cfg.tr.duo&&S.trTurn===1?"À l'autre personne":'À toi'} de parler — ${langFlag(l)} ${langName(l)}`;
+}
+function trSet(on,from,to){
+  S.trOn=!!on;S.trTurn=0;
+  const f=from&&resolveLang(from),t=to&&resolveLang(to);if(f)S.cfg.tr.from=f;if(t)S.cfg.tr.to=t;
+  if(S.cfg.tr.from===S.cfg.tr.to)S.cfg.tr.to=S.cfg.tr.from==='en-GB'?'fr-FR':'en-GB';
+  if(S.trOn){fillLangs();toast(`Interprète ${langName(S.cfg.tr.from)} ⇄ ${langName(S.cfg.tr.to)}. Parle ou écris : Sage traduit et le dit à voix haute. Active « Conversation continue » pour un échange mains libres.`,'info',6500)}
+  trUpdate();persist();
+}
+async function translateTurn(text){
+  if(S.busy)return;
+  S.busy=true;S.streamDone=false;S.interrupted=false;
+  const src=trSpeakerLang(),dst=src===S.cfg.tr.from?S.cfg.tr.to:S.cfg.tr.from;
+  const box=document.createElement('div');box.className='trcard';
+  const lb=document.createElement('div');lb.className='l';lb.textContent=`${langFlag(src)} ${langName(src)} → ${langFlag(dst)} ${langName(dst)}`;
+  const o=document.createElement('div');o.className='o';o.textContent=text;
+  const t=document.createElement('div');t.className='t';t.textContent='…';
+  box.append(lb,o,t);$('log').appendChild(box);scrollLog();setMode('thinking');
+  try{
+    let out='';
+    const res=await askLLM([
+      {role:'system',content:`Tu es un interprète professionnel. Traduis fidèlement de ${langName(src)} vers ${langName(dst)} le texte fourni par l'utilisateur, qui est une parole prononcée (souvent issue d'une reconnaissance vocale : corrige les petites erreurs évidentes). Garde le ton, le registre, les noms propres et les nombres. Si le texte est manifestement déjà en ${langName(dst)}, traduis-le vers ${langName(src)}. Réponds UNIQUEMENT par la traduction, sans guillemets, sans note ni commentaire.`},
+      {role:'user',content:text}],d=>{out+=d;t.textContent=out;scrollLog()},{kind:'translate',temperature:0.15,maxTokens:700,timeout:45000});
+    const tr=stripTags(res.text).replace(/^["«»“”\s]+|["«»“”\s]+$/g,'').trim();
+    t.textContent=tr||'(traduction vide)';
+    if(tr){const v=voiceFor(dst);if(!v&&!/^fr/i.test(dst))lb.textContent+=' · pas de voix installée pour cette langue, lecture approximative';speak(tr,dst)}
+    if(S.cfg.tr.duo)S.trTurn=1-S.trTurn;trUpdate();
+  }catch(e){t.textContent='✗ '+e.message;toast(e.message,'err',6000)}
+  finally{S.busy=false;S.streamDone=true;if(!S.speaking&&!S.speakQ.length)onSpeechDone()}
 }
 
 /* ---------- Réseau & outils ---------- */
@@ -1021,6 +1352,10 @@ async function runAction(a,opts={}){
     case 'remember':if(a.note){Memory.addFact(String(a.note).slice(0,300),'explicit');await Memory.save();if(!silent)sysMsg('Retenu : '+a.note)}return null;
     case 'code':if(!silent)codeCard(a.language,a.content);return null;
     case 'image':if(silent||!a.prompt)return null;await generateImage(a.prompt);return null;
+    case 'photo':if(silent)return null;camOpen();return null;
+    case 'ecoute':case 'ambient':if(silent)return null;ambSet(a.on!==false);return null;
+    case 'enregistrer':case 'record':if(silent)return null;recToggle();return null;
+    case 'traduction':case 'translate':if(silent)return null;trSet(a.on!==false,a.from,a.to);return null;
     case 'call':if(silent)return null;resolveNumber(a,(num,name)=>{card('Appeler '+name,'Appeler',()=>{location.href='tel:'+num})});return null;
     case 'sms':if(silent)return null;resolveNumber(a,(num,name)=>{const u=smsURL(num,a.body);card(`SMS à ${name}${a.body?' : « '+a.body+' »':''}`,'Envoyer',()=>{location.href=u})});return null;
     case 'email':if(silent)return null;{const u='mailto:'+encodeURIComponent(a.to||'')+'?subject='+encodeURIComponent(a.subject||'')+'&body='+encodeURIComponent(a.body||'');card(`E-mail${a.to?' à '+a.to:''} : ${a.subject||''}`,'Ouvrir',()=>{location.href=u})}return null;
@@ -1052,6 +1387,7 @@ function readSettings(){
   S.cfg.brain.maxAgents=+$('setMaxAgents').value;
   S.cfg.billing.zeroConfirmed=$('zeroBillingConfirm').checked;
   S.cfg.fallback=$('setFallback').checked;
+  S.cfg.model=$('setModel').value||DEFAULT_MODEL;
   S.cfg.contacts=$('setContacts').value;
 }
 function refreshBadge(){
@@ -1070,6 +1406,7 @@ function fillSettings(){
   $('setMaxAgents').value=S.cfg.brain.maxAgents;
   $('zeroBillingConfirm').checked=S.cfg.billing.zeroConfirmed;
   $('setFallback').checked=S.cfg.fallback!==false;
+  $('setModel').value=S.cfg.model||DEFAULT_MODEL;
   $('setContacts').value=S.cfg.contacts;
   updateRangeLabels();updateBillingGuardStatus();fillVoices();refreshBadge();
   $('compName').textContent=S.cfg.name;
@@ -1091,6 +1428,25 @@ $('btnSave').addEventListener('click',async()=>{readSettings();await persist();f
 $('convo').addEventListener('change',e=>setConvo(e.target.checked));
 $('visionBtn').addEventListener('click',()=>{S.visionIntent='general';$('visionInput').click()});
 $('healthBtn').addEventListener('click',()=>{S.visionIntent='health';$('visionInput').click()});
+$('photoBtn').addEventListener('click',camOpen);
+$('camSnap').addEventListener('click',camSnap);
+$('camFlip').addEventListener('click',()=>{Cam.facing=Cam.facing==='environment'?'user':'environment';camStart()});
+$('camClose').addEventListener('click',camClose);
+$('camCancel').addEventListener('click',camClose);
+$('camRetake').addEventListener('click',()=>{camShowLive();camStart()});
+$('camSave').addEventListener('click',()=>{if(Cam.blob){saveBlob(Cam.blob,'sage-photo-'+stamp()+'.jpg');toast('Photo enregistrée dans Téléchargements.')}});
+$('camAnalyse').addEventListener('click',()=>camUse('general'));
+$('camHealth').addEventListener('click',()=>camUse('health'));
+$('pvClose').addEventListener('click',()=>{$('preview').hidden=true;$('pvFrame').srcdoc=''});
+$('codeBtn').addEventListener('click',()=>{S.codeMode=!S.codeMode;$('codeBtn').classList.toggle('active',S.codeMode);toast(S.codeMode?'Mode code : Codestral, code complet avec Copier, Enregistrer et Exécuter.':'Mode code désactivé.')});
+$('ambientBtn').addEventListener('click',()=>ambSet(!Amb.on));
+$('recBtn').addEventListener('click',recToggle);
+$('trBtn').addEventListener('click',()=>trSet(!S.trOn));
+$('trFrom').addEventListener('change',()=>{S.cfg.tr.from=$('trFrom').value;S.trTurn=0;trUpdate();persist()});
+$('trTo').addEventListener('change',()=>{S.cfg.tr.to=$('trTo').value;S.trTurn=0;trUpdate();persist()});
+$('trSwap').addEventListener('click',()=>{const f=S.cfg.tr.from;S.cfg.tr.from=S.cfg.tr.to;S.cfg.tr.to=f;$('trFrom').value=S.cfg.tr.from;$('trTo').value=S.cfg.tr.to;S.trTurn=0;trUpdate();persist()});
+$('trDuo').addEventListener('change',()=>{S.cfg.tr.duo=$('trDuo').checked;S.trTurn=0;trUpdate();persist()});
+$('setModel').addEventListener('change',()=>{S.cfg.model=$('setModel').value;persist()});
 $('imageBtn').addEventListener('click',()=>{const t=$('txt');if(!t.value.trim())t.value='Génère une image de ';t.focus();try{t.setSelectionRange(t.value.length,t.value.length)}catch{}});
 $('visionInput').addEventListener('change',e=>loadVision(e.target.files[0]));
 $('brainMode').addEventListener('click',()=>{const order=['auto','supra','flash'];const cur=order.indexOf(S.cfg.brain.mode);const next=order[(cur+1)%3];S.cfg.brain.mode=next;fillSettings();persist()});
@@ -1120,6 +1476,9 @@ $('settings').addEventListener('click',e=>{if(e.target===$('settings'))closeSett
 document.addEventListener('keydown',e=>{
   const tag=(e.target.tagName||'').toLowerCase();
   const inField=tag==='input'||tag==='textarea'||tag==='select';
+  if(e.key==='Escape'&&!$('cam').hidden){camClose();return}
+  if(e.key==='Escape'&&!$('preview').hidden){$('preview').hidden=true;$('pvFrame').srcdoc='';return}
+  if(!$('cam').hidden||!$('preview').hidden)return;
   if(e.key==='Escape'){if($('settings').classList.contains('open'))closeSettings();else{interrupt();if(!S.busy&&!S.recActive)setMode('idle')}return}
   if(inField)return;
   if(e.target===$('orb'))return;
@@ -1134,12 +1493,14 @@ document.addEventListener('keydown',e=>{
   const legacy=await openKV('sage');
   if(!savedCfg||!(savedCfg.keys&&savedCfg.keys.mistral)){const lc=await readKV(legacy,'cfg');if(lc&&lc.keys&&lc.keys.mistral){savedCfg=lc;await store.set('cfg',lc)}}
   if(savedCfg&&savedCfg.keys)savedCfg.keys.mistral=sanitizeKey(savedCfg.keys.mistral);
-  if(savedCfg){S.cfg=Object.assign(clone(DEF),savedCfg);S.cfg.keys=Object.assign(clone(DEF.keys),savedCfg.keys||{});S.cfg.brain=Object.assign(clone(DEF.brain),savedCfg.brain||{});S.cfg.billing=Object.assign(clone(DEF.billing),savedCfg.billing||{})}
+  if(savedCfg&&(!savedCfg.model||/small/i.test(savedCfg.model)))savedCfg.model=DEFAULT_MODEL;
+  if(savedCfg){S.cfg=Object.assign(clone(DEF),savedCfg);S.cfg.keys=Object.assign(clone(DEF.keys),savedCfg.keys||{});S.cfg.brain=Object.assign(clone(DEF.brain),savedCfg.brain||{});S.cfg.billing=Object.assign(clone(DEF.billing),savedCfg.billing||{});S.cfg.tr=Object.assign(clone(DEF.tr),savedCfg.tr||{})}
   const savedHist=await store.get('history',[]);
   if(Array.isArray(savedHist)){S.history=savedHist;
     for(const h of savedHist.slice(-8)){if(typeof h.content!=='string')continue;if(h.role==='user'&&!h.content.startsWith('[Résultats des outils'))addMsg('user',h.content);else if(h.role==='assistant')addMsg('bot',stripTags(h.content))}
   }
   await Memory.load();
+  fillLangs();trUpdate();
   const oldNotes=await store.get('notes',null);
   if(Array.isArray(oldNotes)&&oldNotes.length&&!(await store.get('notesMigrated',false))){for(const n of oldNotes)Memory.addFact(String(n),'explicit');await Memory.save();await store.set('notesMigrated',true)}
   fillSettings();
