@@ -141,7 +141,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 <div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
     <h2>Réglages</h2>
-    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v5</span></p>
+    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v6</span></p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -161,13 +161,14 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
     </div>
 
     <h3>Cerveau Mistral — 0 €</h3>
-    <p class="hint">Sage n'utilise que <code>mistral-small-latest</code>. Si Mistral renvoie une erreur de paiement, Sage s'arrête et ne bascule vers aucun autre modèle.</p>
+    <p class="hint">Modèle principal <code>mistral-small-latest</code>, secours optionnel sur des modèles Mistral gratuits. Si Mistral renvoie une erreur de paiement, Sage s'arrête.</p>
     <div class="field"><label for="keyMistral">Clé API Mistral</label><input id="keyMistral" type="password" autocomplete="new-password" spellcheck="false" placeholder="Colle ta clé ici"></div>
     <div class="actions">
       <button class="btn" id="btnValidateMistral" type="button">Valider la clé</button>
       <button class="btn ghost" id="openMistral" type="button">Ouvrir la console Mistral</button>
     </div>
     <div class="api-validation" id="mistralKeyStatus" data-state="idle" aria-live="polite">Clé non vérifiée.</div>
+    <label class="toggle"><input type="checkbox" id="setFallback"> Si Mistral Small est saturé, basculer sur Ministral 8B puis Nemo (gratuits, 0 €)</label>
     <label class="toggle"><input type="checkbox" id="zeroBillingConfirm"> Je confirme : compte Mistral en mode Gratuit, paiement à l'usage désactivé.</label>
     <div class="api-validation" id="billingGuardStatus" data-state="warn" aria-live="polite"></div>
 
@@ -230,8 +231,12 @@ const store=(()=>{
 /* ---------- État ---------- */
 const MODEL='mistral-small-latest';
 const COUNCIL_GAP_MS=1100;
-const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},contacts:''};
-const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastQuery:''};
+/* Modèles Mistral de secours, gratuits eux aussi (même clé, même garde 0 €) */
+const FALLBACKS=['ministral-8b-latest','open-mistral-nemo'];
+const MODEL_LABEL={'mistral-small-latest':'Small','ministral-8b-latest':'Ministral 8B','open-mistral-nemo':'Nemo'};
+const COOLDOWN_MS=60000;
+const DEF={name:'Sage',user:'',voice:'',rate:1,pitch:1,keys:{mistral:''},brain:{mode:'auto',maxAgents:3},billing:{zeroConfirmed:false},fallback:true,contacts:''};
+const S={cfg:clone(DEF),history:[],mode:'idle',convo:false,busy:false,rec:null,recActive:false,speakQ:[],speaking:false,streamDone:true,interrupted:false,aborts:new Set(),energy:0,targetEnergy:0,wake:null,silent:0,retry:null,torchTrack:null,audio:null,lastProvider:'',pendingImage:null,lastQuery:'',cooldownUntil:0};
 
 /* ---------- UI helpers ---------- */
 const scrollLog=(()=>{let q=false;return()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;const l=$('log');l.scrollTop=l.scrollHeight})}})();
@@ -485,35 +490,44 @@ function streamXHR(p,messages,onDelta,opts={}){
 async function askLLM(messages,onDelta,opts={}){
   const list=providers();
   if(!list.length){const er=new Error(!S.cfg.keys.mistral?"Aucune clé Mistral enregistrée. Ouvre ⚙, colle ta clé, valide-la puis coche la confirmation 0 €.":"Confirmation 0 € non cochée. Ouvre ⚙ et coche la case du mode Gratuit.");er.kind='config';throw er}
-  const p=list[0];
-  let e;
-  const waits=[3000,8000];
-  for(let attempt=0;attempt<=waits.length;attempt++){
-    try{const r=await streamXHR(p,messages,onDelta,opts);S.lastProvider=p.id+' · 0 €';return r}
-    catch(err){
-      e=err;if(S.interrupted||opts.noRetry)break;
-      const limited=err&&(err.status===429||err.status===503);
-      if(!(limited||(err&&!err.status&&attempt===0))||attempt>=waits.length)break;
-      const w=err.retryAfter>0?Math.min(20000,err.retryAfter*1000):waits[attempt];
-      live(`Mistral saturé, nouvel essai dans ${Math.round(w/1000)} s…`);
-      await sleep(w);live('');
+  const mk=(m,k,st)=>{const er=new Error(m);er.status=st;er.kind=k;return er};
+  if(Date.now()<S.cooldownUntil){const s=Math.ceil((S.cooldownUntil-Date.now())/1000);throw mk(`Mistral m'a limité : pause de sécurité encore ${s} s pour ne pas aggraver la limite.`,'quota',429)}
+  const base=list[0];
+  const models=[base.model].concat(S.cfg.fallback&&!opts.noRetry?FALLBACKS:[]);
+  let e,lastModel=base.model;
+  outer:for(let mi=0;mi<models.length;mi++){
+    const p=Object.assign({},base,{model:models[mi]});lastModel=p.model;
+    const waits=mi===0?[3000]:[2000];
+    for(let attempt=0;attempt<=waits.length;attempt++){
+      try{
+        const r=await streamXHR(p,messages,onDelta,opts);
+        S.lastProvider='Mistral '+(MODEL_LABEL[p.model]||p.model)+' · 0 €';
+        if(mi>0&&!opts.noRetry)toast(`Mistral Small saturé : réponse via ${MODEL_LABEL[p.model]||p.model} (gratuit).`,'warn');
+        return r;
+      }catch(err){
+        e=err;if(S.interrupted||opts.noRetry)break outer;
+        if(err.status===400||err.status===403||err.status===404)continue outer;
+        const limited=err.status===429||err.status===503;
+        if(!limited){if(!err.status&&attempt===0){await sleep(2000);continue}break outer}
+        if(attempt<waits.length){live(`Mistral saturé, nouvel essai dans ${Math.round(waits[attempt]/1000)} s…`);await sleep(waits[attempt]);live('');continue}
+        if(mi<models.length-1)live(`Bascule sur ${MODEL_LABEL[models[mi+1]]||models[mi+1]}…`);
+        continue outer;
+      }
     }
   }
-  {
-    const mk=(m,k)=>{const er=new Error(m);er.status=e&&e.status;er.kind=k;return er};
-    if(e&&e.status===401)throw mk("Clé Mistral refusée (401) : invalide ou révoquée. Recolle-la dans ⚙.",'auth');
-    if(e&&e.status===402)throw mk("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.",'billing');
-    if(e&&e.status===429)throw mk("Mistral refuse pour limite (429)"+(e.detail?' : « '+e.detail+' »':'')+". Attends une minute ; si ça dure, vérifie ton quota sur console.mistral.ai.",'quota');
-    if(e&&e.status===403)throw mk("Mistral refuse ce modèle ou ce niveau d'accès (403).",'auth');
-    if(e&&!e.status)throw mk("Mistral injoignable (réseau). Vérifie la connexion.",'network');
-    throw e;
-  }
+  live('');
+  if(e&&e.status===401)throw mk("Clé Mistral refusée (401) : invalide ou révoquée. Recolle-la dans ⚙.",'auth',401);
+  if(e&&e.status===402)throw mk("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.",'billing',402);
+  if(e&&e.status===429){if(!opts.noRetry)S.cooldownUntil=Date.now()+COOLDOWN_MS;throw mk("Mistral refuse pour limite (429)"+(e.detail?' : « '+e.detail+' »':'')+(S.cfg.fallback?", y compris les modèles de secours":"")+". Pause de 60 s. Si ça dure, ton compte gratuit est limité : vérifie console.mistral.ai → Limits.",'quota',429)}
+  if(e&&e.status===403)throw mk("Mistral refuse ce modèle ou ce niveau d'accès (403).",'auth',403);
+  if(e&&!e.status)throw mk("Mistral injoignable (réseau). Vérifie la connexion.",'network');
+  throw e||mk('Erreur Mistral inconnue ('+lastModel+').','network');
 }
 
 /* ---------- Validation Mistral ---------- */
 function shortApiError(j,fb){const e=j&&j.error;let code=e&&(e.error_code??e.code??e.status);let m=j&&j.message;if(!m&&e){if(typeof e==='string')m=e;else m=e.error_message||e.message||e.detail||e.error||e.type}if(m&&typeof m==='object'){try{m=JSON.stringify(m)}catch{m=String(m)}}const pre=(code!==undefined&&code!==null)?'#'+code+' — ':'';return(pre+String(m||fb||'échec')).replace(/\s+/g,' ').slice(0,220)}
 function setMistralKeyStatus(state,message){const el=$('mistralKeyStatus');if(!el)return;el.dataset.state=state||'idle';el.textContent=message||'';const b=$('brainBadge');if(b){if(state==='valid'){b.className='badge';b.textContent='Cerveau · Mistral · 0 €'}else if(state==='invalid'){b.className='badge err';b.textContent='Cerveau · Clé invalide'}else if(state==='warn'){b.className='badge warn';b.textContent='Cerveau · Vérifier'}}}
-function updateBillingGuardStatus(){const el=$('billingGuardStatus');if(!el)return;const ok=!!(S.cfg.billing&&S.cfg.billing.zeroConfirmed);el.dataset.state=ok?'valid':'warn';el.textContent=ok?"✓ Garde 0 € confirmée. Sage n'utilise que Mistral Small.":"⚠ Aucune génération API tant que tu n'as pas confirmé le mode Gratuit."}
+function updateBillingGuardStatus(){const el=$('billingGuardStatus');if(!el)return;const ok=!!(S.cfg.billing&&S.cfg.billing.zeroConfirmed);el.dataset.state=ok?'valid':'warn';el.textContent=ok?"✓ Garde 0 € confirmée. Sage n'utilise que des modèles Mistral gratuits.":"⚠ Aucune génération API tant que tu n'as pas confirmé le mode Gratuit."}
 async function validateMistralKey(){
   readSettings();
   const key=S.cfg.keys.mistral;
@@ -531,7 +545,8 @@ async function validateMistralKey(){
     const rows=Array.isArray(j&&j.data)?j.data:[];const ids=[];
     for(const m of rows){if(!m||!m.id||m.archived===true||m.active===false)continue;ids.push(m.id);if(Array.isArray(m.aliases))ids.push(...m.aliases.filter(Boolean))}
     await store.set('cfg',S.cfg);
-    if(ids.includes(MODEL))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+MODEL+' » est visible.');
+    const fb=FALLBACKS.filter(m=>ids.includes(m)).map(m=>MODEL_LABEL[m]).join(', ');
+    if(ids.includes(MODEL))setMistralKeyStatus('valid','✓ CLÉ VALIDÉE. « '+MODEL+' » est visible'+(fb?' · secours : '+fb:'')+'.');
     else setMistralKeyStatus('warn','✓ CLÉ VALIDÉE, mais « '+MODEL+" » n'est pas visible pour ce compte.");
     return true;
   }catch(e){
@@ -944,6 +959,7 @@ function readSettings(){
   S.cfg.brain.mode=$('setBrainMode').value;
   S.cfg.brain.maxAgents=+$('setMaxAgents').value;
   S.cfg.billing.zeroConfirmed=$('zeroBillingConfirm').checked;
+  S.cfg.fallback=$('setFallback').checked;
   S.cfg.contacts=$('setContacts').value;
 }
 function refreshBadge(){
@@ -961,6 +977,7 @@ function fillSettings(){
   $('setBrainMode').value=S.cfg.brain.mode;
   $('setMaxAgents').value=S.cfg.brain.maxAgents;
   $('zeroBillingConfirm').checked=S.cfg.billing.zeroConfirmed;
+  $('setFallback').checked=S.cfg.fallback!==false;
   $('setContacts').value=S.cfg.contacts;
   updateRangeLabels();updateBillingGuardStatus();fillVoices();refreshBadge();
   $('compName').textContent=S.cfg.name;
@@ -989,6 +1006,7 @@ $('testVoice').addEventListener('click',()=>{readSettings();stopSpeaking();S.int
 $('velvetVoice').addEventListener('click',applyVelvetVoice);
 $('btnValidateMistral').addEventListener('click',validateMistralKey);
 $('openMistral').addEventListener('click',()=>openURL('https://console.mistral.ai/'));
+$('setFallback').addEventListener('change',()=>{S.cfg.fallback=$('setFallback').checked;persist()});
 $('zeroBillingConfirm').addEventListener('change',()=>{readSettings();updateBillingGuardStatus();refreshBadge()});
 $('setRate').addEventListener('input',()=>{S.cfg.rate=+$('setRate').value;updateRangeLabels()});
 $('setPitch').addEventListener('input',()=>{S.cfg.pitch=+$('setPitch').value;updateRangeLabels()});
