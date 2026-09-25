@@ -213,15 +213,15 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const haptic=(p=12)=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
 /* Bloc d'action complet : << { ... } >> — ancré sur la fin du JSON pour ne pas couper sur un ">>" dans du code */
 const TAG_RE=/<<\s*\{[\s\S]*?\}\s*>>/g;
+const sanitizeKey=k=>String(k||'').replace(/[\s"'`<>]/g,'').replace(/[^\x21-\x7E]/g,'');
 
 /* ---------- Stockage ---------- */
+/* Base historique 'sage-compagnon' (celle des versions précédentes) : la clé Mistral et la confirmation 0 € y sont déjà */
+const openKV=name=>new Promise(res=>{try{const r=indexedDB.open(name,1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch{res(null)}});
+const readKV=(db,k)=>new Promise(res=>{if(!db)return res(undefined);try{const q=db.transaction('kv','readonly').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(undefined)}catch{res(undefined)}});
 const store=(()=>{
   const mem=new Map();let dbp=null;
-  const open=()=>{
-    if(dbp)return dbp;
-    dbp=new Promise(res=>{try{const r=indexedDB.open('sage',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch{res(null)}});
-    return dbp;
-  };
+  const open=()=>{if(!dbp)dbp=openKV('sage-compagnon');return dbp};
   async function get(k,d){const fb=mem.has(k)?mem.get(k):d;const db=await open();if(!db)return fb;return new Promise(res=>{try{const q=db.transaction('kv','readonly').objectStore('kv').get(k);q.onsuccess=()=>res(q.result===undefined?fb:q.result);q.onerror=()=>res(fb)}catch{res(fb)}})}
   async function set(k,v){mem.set(k,v);const db=await open();if(!db)return;return new Promise(res=>{try{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res();t.onerror=()=>res()}catch{res()}})}
   return{get,set};
@@ -483,13 +483,20 @@ function streamXHR(p,messages,onDelta,opts={}){
 }
 async function askLLM(messages,onDelta,opts={}){
   const list=providers();
-  if(!list.length)throw new Error("Mode 0 € verrouillé. Ouvre ⚙, colle ta clé Mistral, valide-la puis confirme.");
+  if(!list.length){const er=new Error(!S.cfg.keys.mistral?"Aucune clé Mistral enregistrée. Ouvre ⚙, colle ta clé, valide-la puis coche la confirmation 0 €.":"Confirmation 0 € non cochée. Ouvre ⚙ et coche la case du mode Gratuit.");er.kind='config';throw er}
   const p=list[0];
-  try{const r=await streamXHR(p,messages,onDelta,opts);S.lastProvider=p.id+' · 0 €';return r}
-  catch(e){
-    if(e&&e.status===402)throw new Error("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.");
-    if(e&&e.status===429){const er=new Error("Mode 0 € : limite/quota atteint.");er.status=429;throw er}
-    if(e&&e.status===403)throw new Error("Mistral refuse ce modèle ou ce niveau d'accès.");
+  let e;
+  for(let attempt=0;attempt<2;attempt++){
+    try{const r=await streamXHR(p,messages,onDelta,opts);S.lastProvider=p.id+' · 0 €';return r}
+    catch(err){e=err;const retry=err&&(err.status===429||err.status===503||!err.status)&&attempt===0&&!S.interrupted;if(!retry)break;await sleep(2500)}
+  }
+  {
+    const mk=(m,k)=>{const er=new Error(m);er.status=e&&e.status;er.kind=k;return er};
+    if(e&&e.status===401)throw mk("Clé Mistral refusée (401) : invalide ou révoquée. Recolle-la dans ⚙.",'auth');
+    if(e&&e.status===402)throw mk("Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête.",'billing');
+    if(e&&e.status===429)throw mk("Quota gratuit Mistral atteint (429). Attends une minute ou passe en mode Fulgurant.",'quota');
+    if(e&&e.status===403)throw mk("Mistral refuse ce modèle ou ce niveau d'accès (403).",'auth');
+    if(e&&!e.status)throw mk("Mistral injoignable (réseau). Vérifie la connexion.",'network');
     throw e;
   }
 }
@@ -767,7 +774,8 @@ async function handleUser(text,opts={}){
   }catch(e){
     sysMsg(e.message);toast(e.message,'err',6000);
     S.interrupted=false;
-    speak("Je n'arrive pas à joindre Mistral pour l'instant.");
+    const k=e&&e.kind;
+    speak(k==='config'?"Ma clé Mistral n'est pas configurée. Ouvre les réglages.":k==='auth'?"Mistral refuse ma clé. Vérifie-la dans les réglages.":k==='quota'?"J'ai atteint la limite gratuite de Mistral. Réessaie dans une minute.":k==='billing'?"Mistral demande la facturation, je bloque la requête.":"Je n'arrive pas à joindre Mistral pour l'instant.");
   }finally{
     live('');
     S.busy=false;S.streamDone=true;
@@ -922,7 +930,7 @@ function readSettings(){
   if($('setVoice').value)S.cfg.voice=$('setVoice').value;
   S.cfg.rate=+$('setRate').value;
   S.cfg.pitch=+$('setPitch').value;
-  S.cfg.keys.mistral=$('keyMistral').value.replace(/\s/g,'');
+  S.cfg.keys.mistral=sanitizeKey($('keyMistral').value);
   S.cfg.brain.mode=$('setBrainMode').value;
   S.cfg.brain.maxAgents=+$('setMaxAgents').value;
   S.cfg.billing.zeroConfirmed=$('zeroBillingConfirm').checked;
@@ -1001,13 +1009,18 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- Init ---------- */
 (async function init(){
-  const savedCfg=await store.get('cfg',null);
+  let savedCfg=await store.get('cfg',null);
+  const legacy=await openKV('sage');
+  if(!savedCfg||!(savedCfg.keys&&savedCfg.keys.mistral)){const lc=await readKV(legacy,'cfg');if(lc&&lc.keys&&lc.keys.mistral){savedCfg=lc;await store.set('cfg',lc)}}
+  if(savedCfg&&savedCfg.keys)savedCfg.keys.mistral=sanitizeKey(savedCfg.keys.mistral);
   if(savedCfg){S.cfg=Object.assign(clone(DEF),savedCfg);S.cfg.keys=Object.assign(clone(DEF.keys),savedCfg.keys||{});S.cfg.brain=Object.assign(clone(DEF.brain),savedCfg.brain||{});S.cfg.billing=Object.assign(clone(DEF.billing),savedCfg.billing||{})}
   const savedHist=await store.get('history',[]);
   if(Array.isArray(savedHist)){S.history=savedHist;
     for(const h of savedHist.slice(-8)){if(typeof h.content!=='string')continue;if(h.role==='user'&&!h.content.startsWith('[Résultats des outils'))addMsg('user',h.content);else if(h.role==='assistant')addMsg('bot',stripTags(h.content))}
   }
   await Memory.load();
+  const oldNotes=await store.get('notes',null);
+  if(Array.isArray(oldNotes)&&oldNotes.length&&!(await store.get('notesMigrated',false))){for(const n of oldNotes)Memory.addFact(String(n),'explicit');await Memory.save();await store.set('notesMigrated',true)}
   fillSettings();
   Orb.start();
   if(speechEngine()){
