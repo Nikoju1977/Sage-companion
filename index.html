@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161330">
+<title>Sage — compagnon vocal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#161330;--deep:#0f0d22;--ink:#ECE4CF;--muted:#9892B8;
+  --lapis:#5B7BE0;--saffron:#E6A93F;--sage:#86B397;--rose:#D9788A;
+  --line:rgba(236,228,207,.13);
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --sans:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 70% at 50% 16%,#2b2462 0%,var(--night) 55%,var(--deep) 100%);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;overflow:hidden;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--saffron);outline-offset:2px}
+.app{height:100dvh;display:flex;flex-direction:column;max-width:720px;margin:0 auto;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px 0}
+.who h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.1;margin:0}
+.who p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.iconbtn{flex:none;background:none;border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:19px;cursor:pointer}
+.stage{position:relative;flex:none;height:min(40dvh,330px)}
+#orb{display:block;width:100%;height:100%;cursor:pointer;touch-action:manipulation}
+.live{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--saffron);padding:0 24px;min-height:30px}
+.log{flex:1 1 auto;overflow-y:auto;padding:4px 18px 12px;overscroll-behavior:contain}
+.msg{margin:14px 0;max-width:62ch;white-space:pre-wrap;word-wrap:break-word}
+.msg.user{margin-left:auto;text-align:right;color:var(--muted);font-size:15px}
+.msg.bot{font-family:var(--serif);font-size:21px;line-height:1.55}
+.msg.sys{font-size:14px;color:var(--muted);border-left:2px solid var(--rose);padding-left:10px}
+.card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 14px;margin:10px 0;background:rgba(236,228,207,.04)}
+.card span{flex:1;font-size:15px}
+.card button,.btn{flex:none;min-height:44px;padding:10px 18px;border-radius:22px;border:0;background:var(--saffron);color:#1d1838;font:500 15px var(--sans);cursor:pointer}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.dock{flex:none;padding:10px 14px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;align-items:center}
+#txt{flex:1;min-width:0;font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:24px;padding:12px 16px}
+#txt::placeholder{color:var(--muted)}
+#talk{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--saffron);color:#1d1838;font:500 18px var(--sans);cursor:pointer;transition:background .25s}
+#talk[data-state="listening"]{background:var(--sage)}
+#talk[data-state="busy"]{background:var(--lapis);color:var(--ink)}
+.toggle{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{width:22px;height:22px;accent-color:var(--saffron)}
+.sensorbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sensor{min-height:42px;border:1px solid var(--line);border-radius:18px;background:rgba(236,228,207,.045);color:var(--ink);font:500 14px var(--sans);cursor:pointer;padding:8px 10px}
+.sensor.active{border-color:rgba(230,169,63,.7);box-shadow:0 0 0 1px rgba(230,169,63,.16) inset}
+.sensor:disabled{opacity:.5;cursor:wait}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 8px;margin-top:5px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--sage)}
+#visionInput{display:none}
+.codecard{display:block;border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:rgba(8,7,20,.45)}
+.codecard .codehead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--muted);font-size:13px}
+.codecard pre{margin:0;max-height:360px;overflow:auto;white-space:pre;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink)}
+.codecard button{min-height:34px;padding:6px 12px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+#settings.modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(10,8,24,.78);padding:12px;overflow:auto;color:var(--ink);-webkit-overflow-scrolling:touch}
+#settings.modal.open{display:flex;align-items:flex-start;justify-content:center}
+#settings.modal[hidden]{display:none!important}
+#settings .sheet{width:min(640px,100%);margin:auto}
+.sheet{background:var(--night);border:1px solid var(--line);border-radius:20px;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:92dvh;overflow-y:auto}
+.sheet h2{font-family:var(--serif);font-weight:500;font-size:28px;margin:0 0 4px}
+.sheet h3{font-family:var(--serif);font-weight:500;font-size:21px;margin:22px 0 6px;color:var(--saffron)}
+.sheet p.hint{color:var(--muted);font-size:14px;margin:4px 0 10px}
+.field{display:flex;flex-direction:column;gap:4px;margin:10px 0}
+.field label{font-size:14px;color:var(--muted)}
+.field input,.field select,.field textarea{font:16px var(--sans);color:var(--ink);background:rgba(236,228,207,.06);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.field textarea{min-height:92px;resize:vertical}
+.field select option{background:var(--night)}
+#apiTestStatus{white-space:pre-line;line-height:1.55}
+.api-validation{margin:8px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:14px;line-height:1.45;background:rgba(236,228,207,.035)}
+.api-validation[data-state=idle]{color:var(--muted)}
+.api-validation[data-state=checking]{color:var(--saffron)}
+.api-validation[data-state=valid]{color:var(--sage);border-color:rgba(134,179,151,.42)}
+.api-validation[data-state=warn]{color:var(--saffron);border-color:rgba(230,169,63,.42)}
+.api-validation[data-state=invalid]{color:var(--rose);border-color:rgba(217,120,138,.42)}
+.sheet code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--saffron)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+@media (max-width:420px){.pair{grid-template-columns:1fr}.msg.bot{font-size:20px}.sensorbar{grid-template-columns:1fr 1fr}.sensorbar .sensor:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<noscript><div style="position:fixed;z-index:9999;inset:12px 12px auto;padding:14px;border-radius:14px;background:#2b244d;color:#fff;font:16px system-ui">JavaScript est désactivé dans cet aperçu. Ouvre ce fichier dans Chrome, Safari ou Firefox pour utiliser Sage.</div></noscript>
+<div class="app">
+  <header>
+    <div class="who">
+      <h1 id="compName">Sage</h1>
+      <p id="status">Touche l'orbe pour parler</p>
+      <span class="badge" id="brainBadge">Cerveau · Auto</span>
+    </div>
+    <button class="iconbtn" id="settingsBtn" type="button" aria-label="Réglages">⚙</button>
+  </header>
+
+  <div class="stage">
+    <canvas id="orb" aria-label="Orbe : touche pour parler ou interrompre" role="button" tabindex="0"></canvas>
+    <div class="live" id="live" aria-live="polite"></div>
+  </div>
+
+  <div class="log" id="log" aria-live="polite"></div>
+
+  <div class="dock">
+    <div class="row">
+      <input id="txt" type="text" placeholder="Ou écris ici…" autocomplete="off" enterkeyhint="send">
+      <button class="btn ghost" id="send" type="button">Envoyer</button>
+    </div>
+    <div class="row">
+      <button id="talk" type="button" data-state="idle">Parler</button>
+    </div>
+    <div class="sensorbar">
+      <button class="sensor active" id="brainMode" type="button" title="Auto : rapide. Supra : conseil multi-agent. Fulgurant : réponse directe.">∞ Auto</button>
+      <button class="sensor" id="visionBtn" type="button">◉ Vision</button>
+      <button class="sensor" id="musicBtn" type="button" title="Mode zéro facturation : aucun service musical cloud n’est appelé.">♫ Musique 0 €</button>
+    </div>
+    <input id="visionInput" type="file" accept="image/*" capture="environment">
+    <label class="toggle"><input type="checkbox" id="convo"> Conversation continue, mains libres</label>
+  </div>
+</div>
+
+<div id="settings" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="sheet">
+    <h2 id="settingsTitle">Réglages</h2>
+    <p class="hint">Configuration stricte : une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant n’est appelé.</p>
+
+    <h3>Identité</h3>
+    <div class="pair">
+      <div class="field"><label for="setName">Nom du compagnon</label><input id="setName" type="text"></div>
+      <div class="field"><label for="setUser">Ton prénom</label><input id="setUser" type="text"></div>
+    </div>
+
+    <h3>Voix</h3>
+    <div class="field"><label for="setVoice">Voix de synthèse</label><select id="setVoice"></select></div>
+    <div class="pair">
+      <div class="field"><label for="setRate">Débit</label><input id="setRate" type="range" min="0.7" max="1.4" step="0.05"></div>
+      <div class="field"><label for="setPitch">Hauteur</label><input id="setPitch" type="range" min="0.6" max="1.4" step="0.05"></div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="testVoice" type="button">Écouter la voix</button>
+      <button class="btn ghost" id="velvetVoice" type="button">Preset voix Velours</button>
+    </div>
+
+    <h3>Cerveau Mistral — mode 0 €</h3>
+    <p class="hint"><strong>Sage n’utilise plus qu’un seul fournisseur : Mistral.</strong> Aucun appel Groq, Cerebras, Ollama ou AudD n’est effectué. Le modèle est verrouillé sur <code>mistral-small-latest</code>.</p>
+    <div class="pair">
+      <div class="field"><label for="keyMistral">Clé API Mistral</label><input id="keyMistral" type="password" autocomplete="new-password" spellcheck="false" placeholder="Colle ta clé Mistral ici"></div>
+      <div class="field"><label for="modMistral">Modèle Mistral</label><input id="modMistral" type="text" value="mistral-small-latest" readonly></div>
+      <div class="field" style="grid-column:1/-1">
+        <div class="actions" style="margin-top:2px">
+          <button class="btn" id="btnValidateMistral" type="button">Valider ma clé Mistral</button>
+          <button class="btn ghost" id="openMistralAccount" type="button">Vérifier mon compte Mistral</button>
+        </div>
+        <div class="api-validation" id="mistralKeyStatus" data-state="idle" aria-live="polite">Clé Mistral non vérifiée.</div>
+      </div>
+    </div>
+    <label class="toggle"><input type="checkbox" id="zeroBillingConfirm"> Mode strict 0 € : je confirme que mon compte Mistral est en mode Gratuit et que le paiement à l’usage est désactivé.</label>
+    <div class="api-validation" id="billingGuardStatus" data-state="warn" aria-live="polite">Garde 0 € active : tant que cette case n’est pas confirmée, Sage refuse toute génération API.</div>
+    <p class="hint">Important : une clé API standard ne permet pas à Sage de lire de façon fiable les réglages de facturation de ton organisation Mistral. La garantie « 0 € » dépend donc aussi du réglage du compte Mistral : <strong>mode Gratuit + paiement à l’usage désactivé</strong>. Si Mistral renvoie une erreur de paiement ou de quota, Sage s’arrête et ne bascule vers aucun autre modèle.</p>
+
+    <h3>Supracognition & perception</h3>
+    <p class="hint">« Supra » désigne ici une orchestration de plusieurs agents spécialisés. Ce n'est pas une conscience réelle ni un savoir infini.</p>
+    <div class="pair">
+      <div class="field"><label for="setBrainMode">Mode cerveau par défaut</label><select id="setBrainMode"><option value="auto">Auto — rapide + agents si utile</option><option value="supra">Supra — analyse multi-agent approfondie</option><option value="flash">Fulgurant — réponse directe</option></select></div>
+      <div class="field"><label for="setMaxAgents">Agents maximum en parallèle</label><input id="setMaxAgents" type="range" min="2" max="6" step="1"></div>
+      <div class="field"><label for="visionMistral">Vision Mistral</label><input id="visionMistral" type="text" value="mistral-small-latest" readonly></div>
+      <div class="field"><label>Reconnaissance musicale</label><input type="text" value="Cloud désactivé en mode 0 €" readonly></div>
+    </div>
+    <div class="actions"><button class="btn ghost" id="voiceEnroll" type="button">Créer mon profil vocal local</button></div>
+    <p class="hint" id="voiceProfileHint">Le profil vocal mesure des caractéristiques acoustiques locales. Il est indicatif : ce n'est ni une authentification biométrique, ni une analyse de santé ou d'émotions.</p>
+
+    <h3>Répertoire</h3>
+    <p class="hint">Une ligne par personne, au format « Nom : numéro ». Sert à « appelle Aylina », « écris à Paul »…</p>
+    <div class="field"><label for="setContacts">Contacts</label><textarea id="setContacts" placeholder="Maman : 06 12 34 56 78"></textarea></div>
+
+    <h3>Mémoire</h3>
+    <p class="hint">Ce que ton compagnon retient de toi. Une note par ligne, modifiable.</p>
+    <div class="field"><label for="setNotes">Notes retenues</label><textarea id="setNotes"></textarea></div>
+
+    <div class="actions">
+      <button class="btn ghost" id="btnNotif" type="button">Autoriser les notifications</button>
+      <button class="btn ghost" id="btnExport" type="button">Exporter la conversation</button>
+      <button class="btn ghost" id="btnClear" type="button">Effacer la conversation</button>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnSave" type="button">Enregistrer</button>
+      <button class="btn ghost" id="btnClose" type="button">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ---------- safeStorage : IndexedDB + repli mémoire ---------- */
+const safeStorage = (() => {
+  const mem = new Map(); let dbp = null;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise(res => {
+      try {
+        const r = indexedDB.open('sage-compagnon', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('kv');
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => res(null);
+      } catch (e) { res(null); }
+    });
+    return dbp;
+  }
+  async function get(k, d) {
+    const fb = mem.has(k) ? mem.get(k) : d;
+    const db = await open(); if (!db) return fb;
+    return new Promise(res => {
+      try {
+        const q = db.transaction('kv', 'readonly').objectStore('kv').get(k);
+        q.onsuccess = () => res(q.result === undefined ? fb : q.result);
+        q.onerror = () => res(fb);
+      } catch (e) { res(fb); }
+    });
+  }
+  async function set(k, v) {
+    mem.set(k, v);
+    const db = await open(); if (!db) return;
+    return new Promise(res => {
+      try {
+        const t = db.transaction('kv', 'readwrite');
+        t.objectStore('kv').put(v, k);
+        t.oncomplete = () => res(); t.onerror = () => res();
+      } catch (e) { res(); }
+    });
+  }
+  return { get, set };
+})();
+
+function sanitizeKey(k) { return String(k || '').replace(/[\s"'`<>]/g, '').replace(/[^\x21-\x7E]/g, ''); }
+const clone = o => JSON.parse(JSON.stringify(o));
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+
+/* ---------- État ---------- */
+const FREE_MISTRAL_MODEL = 'mistral-small-latest';
+const DEF = {
+  name: 'Sage', user: '', voice: '', rate: 1, pitch: 1,
+  keys: { mistral: '' },
+  models: { mistral: FREE_MISTRAL_MODEL },
+  vision: { mistral: FREE_MISTRAL_MODEL },
+  brain: { mode: 'auto', maxAgents: 3 },
+  billing: { zeroOnly: true, zeroConfirmed: false },
+  contacts: ''
+};
+const S = {
+  cfg: clone(DEF), history: [], notes: [], mode: 'idle', convo: false, busy: false,
+  rec: null, recActive: false, speakQ: [], speaking: false, streamDone: true,
+  interrupted: false, abort: null, aborts: new Set(), energy: 0, wake: null, silent: 0, retry: null,
+  torchTrack: null, audio: null, lastProvider: '', pendingImage: null,
+  voiceProfile: null, lastVoiceMatch: null, voiceProbe: null
+};
+
+/* ---------- UI helpers ---------- */
+function scrollLog() { const l = $('log'); l.scrollTop = l.scrollHeight; }
+function addMsg(kind, text) {
+  const d = document.createElement('div'); d.className = 'msg ' + kind; d.textContent = text;
+  $('log').appendChild(d); scrollLog(); return d;
+}
+function sysMsg(t) { return addMsg('sys', t); }
+function live(t) { $('live').textContent = t; }
+function card(label, btn, fn) {
+  const d = document.createElement('div'); d.className = 'card';
+  const s = document.createElement('span'); s.textContent = label; d.appendChild(s);
+  if (btn) { const b = document.createElement('button'); b.type = 'button'; b.textContent = btn; b.onclick = fn; d.appendChild(b); }
+  $('log').appendChild(d); scrollLog(); return d;
+}
+function codeCard(language, content) {
+  const d = document.createElement('div'); d.className = 'codecard';
+  const h = document.createElement('div'); h.className = 'codehead';
+  const lab = document.createElement('span'); lab.textContent = language || 'code';
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Copier'; b.onclick = async () => { try { await navigator.clipboard.writeText(content || ''); b.textContent = 'Copié'; setTimeout(() => b.textContent = 'Copier', 1200); } catch (e) { sysMsg('Copie refusée.'); } };
+  h.append(lab, b); const pre = document.createElement('pre'); pre.textContent = content || ''; d.append(h, pre); $('log').appendChild(d); scrollLog(); return d;
+}
+const STATUS = {
+  idle: "Touche l'orbe pour parler",
+  listening: "Je t'écoute",
+  thinking: 'Je réfléchis',
+  speaking: "Je parle — touche pour m'interrompre"
+};
+function setMode(m) {
+  S.mode = m;
+  $('status').textContent = STATUS[m] + (m === 'speaking' && S.lastProvider ? ' (via ' + S.lastProvider + ')' : '');
+  const t = $('talk');
+  if (m === 'listening') { t.dataset.state = 'listening'; t.textContent = "J'ai fini"; }
+  else if (m === 'thinking' || m === 'speaking') { t.dataset.state = 'busy'; t.textContent = 'Interrompre'; }
+  else { t.dataset.state = 'idle'; t.textContent = 'Parler'; }
+}
+
+/* ---------- Synthèse vocale ---------- */
+function speechEngine() { return (typeof window !== 'undefined' && window.speechSynthesis) ? window.speechSynthesis : null; }
+function frVoices() {
+  const ss = speechEngine();
+  if (!ss || typeof ss.getVoices !== 'function') return [];
+  const all = ss.getVoices() || [];
+  const fr = all.filter(v => /^fr/i.test(v.lang));
+  return fr.length ? fr : all;
+}
+function pickVoice() {
+  const vs = frVoices();
+  const velvet = /audrey|am[eé]lie|marie|julie|hortense|denise|vivienne|virginie|l[eé]a|c[eé]line|sylvie|female|femme/i;
+  return vs.find(v => v.voiceURI === S.cfg.voice) || vs.find(v => /^fr/i.test(v.lang) && velvet.test(v.name)) || vs.find(v => /fr-FR/i.test(v.lang)) || vs[0] || null;
+}
+function applyVelvetVoice() {
+  const vs = frVoices();
+  const velvet = /audrey|am[eé]lie|marie|julie|hortense|denise|vivienne|virginie|l[eé]a|c[eé]line|sylvie|female|femme/i;
+  const v = vs.find(x => /^fr/i.test(x.lang) && velvet.test(x.name)) || vs.find(x => /^fr/i.test(x.lang)) || vs[0];
+  if (v) { S.cfg.voice = v.voiceURI; $('setVoice').value = v.voiceURI; }
+  S.cfg.rate = 0.93; S.cfg.pitch = 0.93; $('setRate').value = S.cfg.rate; $('setPitch').value = S.cfg.pitch;
+  stopSpeaking(); S.interrupted = false; speak(`Bonjour${S.cfg.user ? ' ' + S.cfg.user : ''}. Voici le preset Velours.`);
+}
+function fillVoices() {
+  const sel = $('setVoice'); const vs = frVoices(); sel.innerHTML = '';
+  vs.forEach(v => { const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name + ' (' + v.lang + ')'; sel.appendChild(o); });
+  const p = pickVoice(); if (p) sel.value = p.voiceURI;
+}
+function speak(text) {
+  const t = String(text).replace(/[*#_`>|]/g, '').replace(/\s+/g, ' ').trim();
+  if (!t || !speechEngine() || typeof SpeechSynthesisUtterance === 'undefined') return;
+  S.speakQ.push(t);
+  if (!S.speaking) nextUtter();
+}
+function nextUtter() {
+  const t = S.speakQ.shift();
+  if (!t) { S.speaking = false; if (S.streamDone) onSpeechDone(); return; }
+  S.speaking = true; setMode('speaking');
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = 'fr-FR'; const v = pickVoice(); if (v) u.voice = v;
+  u.rate = +S.cfg.rate || 1; u.pitch = +S.cfg.pitch || 1;
+  u.onstart = () => { S.energy = 0.8; };
+  u.onboundary = () => { S.energy = Math.min(1, S.energy + 0.45); };
+  let done = false;
+  const fin = () => { if (done) return; done = true; nextUtter(); };
+  u.onend = fin; u.onerror = fin;
+  const ss = speechEngine(); if (ss) ss.speak(u);
+}
+function stopSpeaking() {
+  S.speakQ = []; S.interrupted = true;
+  try { const ss = speechEngine(); if (ss) ss.cancel(); } catch (e) {}
+  S.speaking = false;
+}
+function onSpeechDone() {
+  if (S.busy) return;
+  if (S.interrupted) { S.interrupted = false; return; }
+  setMode('idle');
+  if (S.convo) { clearTimeout(S.retry); S.retry = setTimeout(listen, 350); }
+}
+
+/* ---------- Profil vocal local (acoustique, non biométrique) ---------- */
+function mean(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0; }
+function estimatePitch(buf, rate) {
+  let rms = 0; for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i]; rms = Math.sqrt(rms / buf.length);
+  if (rms < 0.015) return 0;
+  let best = 0, bestLag = 0; const lo = Math.floor(rate / 350), hi = Math.min(Math.floor(rate / 70), buf.length / 2);
+  for (let lag = lo; lag <= hi; lag += 2) {
+    let c = 0; for (let i = 0; i < buf.length - lag; i += 2) c += buf[i] * buf[i + lag];
+    if (c > best) { best = c; bestLag = lag; }
+  }
+  return bestLag ? rate / bestLag : 0;
+}
+async function sampleVoice(stream, duration = 3500) {
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) throw new Error('Web Audio indisponible');
+  const ac = new AC(), src = ac.createMediaStreamSource(stream), an = ac.createAnalyser(); an.fftSize = 2048; src.connect(an);
+  const time = new Float32Array(an.fftSize), freq = new Uint8Array(an.frequencyBinCount), rows = [];
+  const until = performance.now() + duration;
+  while (performance.now() < until) {
+    an.getFloatTimeDomainData(time); an.getByteFrequencyData(freq);
+    let rms = 0, zc = 0, num = 0, den = 0;
+    for (let i = 0; i < time.length; i++) { rms += time[i] * time[i]; if (i && (time[i] >= 0) !== (time[i - 1] >= 0)) zc++; }
+    rms = Math.sqrt(rms / time.length); const zcr = zc / time.length;
+    for (let i = 1; i < freq.length; i++) { const f = i * ac.sampleRate / an.fftSize, m = freq[i] / 255; num += f * m; den += m; }
+    const centroid = den ? num / den : 0, pitch = estimatePitch(time, ac.sampleRate);
+    if (rms > 0.012) rows.push({ rms, zcr, centroid, pitch: pitch > 60 && pitch < 420 ? pitch : 0 });
+    await new Promise(r => setTimeout(r, 90));
+  }
+  try { await ac.close(); } catch (e) {}
+  if (!rows.length) throw new Error('Je n’ai pas capté assez de voix.');
+  const validPitch = rows.map(x => x.pitch).filter(Boolean);
+  return { rms: mean(rows.map(x => x.rms)), zcr: mean(rows.map(x => x.zcr)), centroid: mean(rows.map(x => x.centroid)), pitch: mean(validPitch), samples: rows.length };
+}
+function voiceSimilarity(a, b) {
+  if (!a || !b) return null;
+  const ds = [Math.abs(a.rms-b.rms)/0.08, Math.abs(a.zcr-b.zcr)/0.07, Math.abs(a.centroid-b.centroid)/1200];
+  if (a.pitch && b.pitch) ds.push(Math.abs(a.pitch-b.pitch)/110);
+  const d = Math.sqrt(mean(ds.map(x => Math.min(3,x) ** 2)));
+  return Math.max(0, Math.min(1, Math.exp(-1.15*d)));
+}
+async function enrollVoiceProfile() {
+  if (!navigator.mediaDevices?.getUserMedia) { sysMsg('Micro inaccessible dans ce navigateur.'); return; }
+  const b = $('voiceEnroll'); b.disabled = true; b.textContent = 'Parle naturellement…';
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+    sysMsg('Profil vocal : parle naturellement pendant quelques secondes.');
+    S.voiceProfile = await sampleVoice(stream, 5500); await safeStorage.set('voiceProfile', S.voiceProfile);
+    $('voiceProfileHint').textContent = `Profil vocal local enregistré (${S.voiceProfile.samples} mesures). Indicateur expérimental uniquement.`;
+    sysMsg('Profil vocal local enregistré.');
+  } catch (e) { sysMsg('Profil vocal : ' + e.message); }
+  finally { if (stream) stream.getTracks().forEach(t => t.stop()); b.disabled = false; b.textContent = 'Créer mon profil vocal local'; }
+}
+async function startVoiceProbe() {
+  if (!S.voiceProfile || !navigator.mediaDevices?.getUserMedia) return null;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+    const promise = sampleVoice(stream, 2600).finally(() => stream.getTracks().forEach(t => t.stop()));
+    return promise;
+  } catch (e) { return null; }
+}
+
+/* ---------- Reconnaissance vocale ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function listen() {
+  if (!SR) { sysMsg("La reconnaissance vocale n'existe pas dans ce navigateur. Ouvre la page dans Chrome ou écris ton message."); return; }
+  if (S.recActive || S.busy) return;
+  clearTimeout(S.retry);
+  if (S.speaking) stopSpeaking();
+  const r = new SR();
+  r.lang = 'fr-FR'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+  let finalT = '';
+  r.onstart = () => { setMode('listening'); live(''); S.voiceProbe = startVoiceProbe(); };
+  r.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const res = e.results[i];
+      if (res.isFinal) finalT += res[0].transcript; else interim += res[0].transcript;
+    }
+    live(finalT + interim); S.energy = Math.min(1, S.energy + 0.35);
+  };
+  r.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      setConvo(false);
+      sysMsg('Micro refusé. Autorise le micro pour cette page dans les réglages du navigateur.');
+    }
+  };
+  r.onend = async () => {
+    S.recActive = false; S.rec = null;
+    const probe = S.voiceProbe; S.voiceProbe = null;
+    if (probe) probe.then(sample => { S.lastVoiceMatch = voiceSimilarity(sample, S.voiceProfile); }).catch(() => {});
+    const t = finalT.trim(); live('');
+    if (t) { S.silent = 0; dispatchUser(t); return; }
+    setMode('idle');
+    if (S.convo && !S.busy) {
+      S.silent++;
+      if (S.silent >= 4) { setConvo(false); sysMsg("Je me mets en pause. Touche l'orbe quand tu veux reprendre."); S.silent = 0; }
+      else S.retry = setTimeout(listen, 500);
+    }
+  };
+  S.rec = r;
+  try { r.start(); S.recActive = true; } catch (e) { S.recActive = false; }
+}
+function stopListening() { if (S.rec) { try { S.rec.stop(); } catch (e) {} } }
+function interrupt() {
+  stopSpeaking();
+  for (const a of [...S.aborts]) { try { a(); } catch (e) {} }
+  S.aborts.clear(); S.abort = null;
+}
+function onTalk() {
+  if (S.recActive) { stopListening(); return; }
+  if (S.busy || S.speaking) { interrupt(); setTimeout(listen, 250); return; }
+  listen();
+}
+
+/* ---------- Conversation continue + Wake Lock ---------- */
+async function setConvo(on) {
+  S.convo = on; $('convo').checked = on;
+  if (on) {
+    try { if ('wakeLock' in navigator) S.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+  } else if (S.wake) { try { await S.wake.release(); } catch (e) {} S.wake = null; }
+}
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && S.convo && 'wakeLock' in navigator) {
+    try { S.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+});
+
+/* ---------- Mistral unique + orchestration concurrente ---------- */
+function providers(kind = 'text') {
+  const c = S.cfg;
+  if (!c.billing || c.billing.zeroConfirmed !== true) return [];
+  if (!c.keys.mistral) return [];
+  return [{ id: 'Mistral', url: 'https://api.mistral.ai/v1/chat/completions', key: c.keys.mistral, model: FREE_MISTRAL_MODEL }];
+}
+function streamXHR(p, messages, onDelta, opts = {}) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    let seen = 0, buf = '', full = '', got = false;
+    x.open('POST', p.url, true);
+    x.setRequestHeader('Content-Type', 'application/json');
+    if (p.key) x.setRequestHeader('Authorization', 'Bearer ' + p.key);
+    x.timeout = opts.timeout || 90000;
+    const aborter = () => x.abort(); S.aborts.add(aborter); S.abort = aborter;
+    const cleanup = () => { S.aborts.delete(aborter); if (S.abort === aborter) S.abort = null; };
+    const pump = () => {
+      const txt = x.responseText || '';
+      buf += txt.slice(seen); seen = txt.length;
+      const lines = buf.split('\n'); buf = lines.pop();
+      for (const l of lines) {
+        const s = l.trim(); if (!s.startsWith('data:')) continue;
+        const d = s.slice(5).trim(); if (!d || d === '[DONE]') continue;
+        try {
+          const j = JSON.parse(d);
+          const c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+          if (c) { got = true; full += c; if (onDelta) onDelta(c); }
+        } catch (e) {}
+      }
+    };
+    x.onprogress = () => { if (x.status === 200) pump(); };
+    x.onload = () => {
+      cleanup();
+      if (x.status >= 200 && x.status < 300) { pump(); if (buf.trim()) { buf += '\n'; pump(); } resolve({ text: full, got }); }
+      else if (got) resolve({ text: full, got });
+      else { const er = new Error(p.id + ' : erreur ' + x.status + ' ' + String(x.responseText || '').slice(0, 180)); er.status = x.status; reject(er); }
+    };
+    x.onerror = () => { cleanup(); got ? resolve({ text: full, got }) : reject(new Error(p.id + ' : réseau injoignable')); };
+    x.ontimeout = () => { cleanup(); got ? resolve({ text: full, got }) : reject(new Error(p.id + ' : délai dépassé')); };
+    x.onabort = () => { cleanup(); resolve({ text: full, got, aborted: true }); };
+    x.send(JSON.stringify({ model: p.model, messages, stream: true, temperature: opts.temperature ?? 0.7, max_tokens: opts.maxTokens || 900 }));
+  });
+}
+async function askLLM(messages, onDelta, opts = {}) {
+  const list = providers(opts.kind || 'text');
+  if (!list.length) throw new Error('Mode 0 € verrouillé. Ouvre ⚙, colle ta clé Mistral, valide-la puis confirme « mode Gratuit + paiement à l’usage désactivé ».');
+  const p = list[0];
+  try {
+    const r = await streamXHR(p, messages, onDelta, opts); S.lastProvider = p.id + ' · 0 €'; return r;
+  } catch (e) {
+    if (e && e.status === 402) throw new Error('Mode 0 € : Mistral demande une activation de facturation. Sage bloque la requête et n’essaie aucun autre fournisseur.');
+    if (e && e.status === 429) throw new Error('Mode 0 € : limite/quota atteint. Sage s’arrête ici et n’effectue aucune tentative payante.');
+    if (e && e.status === 403) throw new Error('Mistral refuse ce modèle ou ce niveau d’accès. Sage n’essaie aucun modèle payant.');
+    throw e;
+  }
+}
+
+/* ---------- Validation Mistral + garde zéro facturation ---------- */
+function shortApiError(j, fallback) {
+  const e = j && j.error;
+  let code = e && (e.error_code ?? e.code ?? e.status);
+  let m = j && j.message;
+  if (!m && e) {
+    if (typeof e === 'string') m = e;
+    else m = e.error_message || e.message || e.detail || e.error || e.type;
+  }
+  if (m && typeof m === 'object') { try { m = JSON.stringify(m); } catch (_) { m = String(m); } }
+  const prefix = code !== undefined && code !== null ? '#' + code + ' — ' : '';
+  return (prefix + String(m || fallback || 'échec inconnu')).replace(/\s+/g, ' ').slice(0, 220);
+}
+function setMistralKeyStatus(state, message) {
+  const el = $('mistralKeyStatus'); if (!el) return; el.dataset.state = state || 'idle'; el.textContent = message || '';
+}
+function updateBillingGuardStatus() {
+  const el = $('billingGuardStatus'); if (!el) return;
+  const ok = !!(S.cfg.billing && S.cfg.billing.zeroConfirmed);
+  el.dataset.state = ok ? 'valid' : 'warn';
+  el.textContent = ok
+    ? '✓ Garde 0 € confirmée. Sage n’utilise que Mistral Small et ne bascule vers aucun service payant.'
+    : '⚠ Garde 0 € active : aucune génération API tant que tu n’as pas confirmé le mode Gratuit et le paiement à l’usage désactivé.';
+}
+async function validateMistralKey() {
+  readSettings();
+  const key = S.cfg.keys.mistral;
+  const btn = $('btnValidateMistral');
+  if (!key) { setMistralKeyStatus('invalid', '✗ Aucune clé Mistral. Colle une clé API Studio puis relance la validation.'); return false; }
+  btn.disabled = true;
+  setMistralKeyStatus('checking', 'Validation de l’authentification Mistral… aucun texte n’est généré pendant ce test.');
+  const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const r = await fetch('https://api.mistral.ai/v1/models', { method: 'GET', headers: { Authorization: 'Bearer ' + key }, signal: ctrl.signal });
+    let j = null; try { j = await r.json(); } catch (_) {}
+    if (r.status === 401) { setMistralKeyStatus('invalid', '✗ CLÉ INVALIDE ou expirée — authentification refusée (HTTP 401).'); return false; }
+    if (r.status === 402) { setMistralKeyStatus('invalid', '✗ FACTURATION DEMANDÉE (HTTP 402). Mode 0 € : Sage n’ira pas plus loin.'); return false; }
+    if (r.status === 429) { setMistralKeyStatus('warn', '⚠ Clé reconnue, mais limite de débit atteinte (HTTP 429). Réessaie plus tard.'); return false; }
+    if (!r.ok) { setMistralKeyStatus('warn', '⚠ Validation refusée — HTTP ' + r.status + ' — ' + shortApiError(j, r.statusText)); return false; }
+    const rows = Array.isArray(j && j.data) ? j.data : [];
+    const ids = [];
+    for (const m of rows) {
+      if (!m || !m.id || m.archived === true || m.active === false) continue;
+      ids.push(m.id);
+      if (Array.isArray(m.aliases)) ids.push(...m.aliases.filter(Boolean));
+    }
+    S.cfg.models.mistral = FREE_MISTRAL_MODEL; S.cfg.vision.mistral = FREE_MISTRAL_MODEL;
+    await safeStorage.set('cfg', S.cfg);
+    if (ids.includes(FREE_MISTRAL_MODEL)) {
+      setMistralKeyStatus('valid', '✓ CLÉ MISTRAL VALIDÉE. « ' + FREE_MISTRAL_MODEL + ' » est visible. Aucun test génératif facturable n’a été lancé.');
+    } else {
+      setMistralKeyStatus('warn', '✓ CLÉ MISTRAL VALIDÉE, mais « ' + FREE_MISTRAL_MODEL + ' » n’est pas visible pour ce compte. Sage ne sélectionnera aucun autre modèle automatiquement.');
+    }
+    return true;
+  } catch (e) {
+    const net = /Failed to fetch|NetworkError|Load failed|abort|réseau/i.test(String(e && e.message));
+    setMistralKeyStatus('warn', net ? '⚠ Impossible de joindre Mistral depuis ce navigateur (réseau/CORS ou délai).' : '⚠ Validation impossible : ' + (e.message || e));
+    return false;
+  } finally { clearTimeout(to); btn.disabled = false; }
+}
+
+/* ---------- Conseil multi-agent : conclusions parallèles, synthèse unique ---------- */
+const AGENTS = {
+  analyste: { label: 'Analyste', prompt: "Décompose le problème, détecte les hypothèses et donne les points décisifs. Sois dense et opérationnel." },
+  scientifique: { label: 'Scientifique', prompt: "Évalue les mécanismes, les preuves, les ordres de grandeur et les incertitudes. Sépare faits et hypothèses." },
+  philosophe: { label: 'Philosophe', prompt: "Examine concepts, présupposés, contradictions, implications et cadres alternatifs sans mystifier." },
+  creatif: { label: 'Créatif', prompt: "Cherche des connexions originales, analogies utiles et pistes non évidentes, sans sacrifier l'exactitude." },
+  codeur: { label: 'Architecte-Codeur', prompt: "Raisonne comme un ingénieur logiciel senior : architecture, code, bugs, sécurité, performance et tests." },
+  critique: { label: 'Critique', prompt: "Cherche les erreurs possibles, les angles morts, les affirmations trop fortes et les vérifications nécessaires." },
+  visuel: { label: 'Vision', prompt: "Analyse uniquement ce qui est visuellement observable, distingue observation et interprétation, signale les ambiguïtés." }
+};
+function taskProfile(text, hasImage = false) {
+  const t = norm(text); let depth = 0; const picks = [];
+  if (hasImage) picks.push('visuel');
+  if (/(code|javascript|typescript|python|html|css|api|bug|programme|logiciel|fonction|algorithme|refactor|securit)/.test(t)) picks.push('codeur');
+  if (/(science|biolog|physiqu|chim|medec|neuro|math|stat|preuve|etude|mecanisme)/.test(t)) picks.push('scientifique');
+  if (/(philos|conscience|sens de|exist|ethiqu|spirit|metaphys|epistem)/.test(t)) picks.push('philosophe');
+  if (/(idee|crea|film|cinema|photo|scenario|musique|art|concept|invent)/.test(t)) picks.push('creatif');
+  if (/(analyse|compar|strategie|profond|complex|decision|diagnostic|audit|architecture|refactor|debug|debog)/.test(t)) depth += 2;
+  if (/(pourquoi|mecanisme|demontr|preuve|hypothese)/.test(t)) depth += 1;
+  if (text.length > 160) depth++;
+  if (/[?].*[?]/.test(text)) depth++;
+  picks.unshift('analyste'); picks.push('critique');
+  return { depth, picks: [...new Set(picks)] };
+}
+function chooseAgents(text, hasImage = false) {
+  const mode = S.cfg.brain.mode || 'auto', p = taskProfile(text, hasImage);
+  if (mode === 'flash') return [];
+  if (mode === 'auto' && p.depth < 2) return [];
+  let max = Math.max(2, Math.min(6, +(S.cfg.brain.maxAgents || 4)));
+  if (mode === 'auto') max = Math.min(max, 2);
+  return p.picks.slice(0, max);
+}
+async function specialistMemo(key, text, imageDataUrl) {
+  const a = AGENTS[key]; if (!a) return null;
+  const content = imageDataUrl ? [
+    { type: 'text', text }, { type: 'image_url', image_url: { url: imageDataUrl } }
+  ] : text;
+  const messages = [
+    { role: 'system', content: `Tu es ${a.label}, un sous-agent de ${S.cfg.name}. ${a.prompt} Ne fournis pas de chaîne de pensée. Donne seulement un mémo de conclusions, éléments vérifiables, incertitudes et recommandations utiles en 4 à 8 phrases. N'appelle aucun outil et ne t'adresse pas directement à l'utilisateur.` },
+    { role: 'user', content }
+  ];
+  const r = await askLLM(messages, null, { kind: imageDataUrl ? 'vision' : 'text', silent: true, temperature: key === 'creatif' ? 0.75 : 0.25, maxTokens: 320, timeout: 45000 });
+  return stripTags(r.text);
+}
+async function runCouncil(text, imageDataUrl) {
+  const keys = chooseAgents(text, !!imageDataUrl); if (!keys.length) return [];
+  live(`Analyse parallèle · ${keys.length} agents`);
+  const settled = await Promise.allSettled(keys.map(k => specialistMemo(k, text, imageDataUrl)));
+  return settled.map((r, i) => r.status === 'fulfilled' && r.value ? `${AGENTS[keys[i]].label}: ${r.value}` : '').filter(Boolean);
+}
+function councilContext(memos) {
+  if (!memos.length) return '';
+  return `\n\nMÉMOS INTERNES DU CONSEIL (à synthétiser, ne pas réciter ni mentionner comme agents) :\n${memos.join('\n\n')}\nPrivilégie les éléments convergents, corrige les contradictions, explicite les incertitudes.`;
+}
+
+/* ---------- Prompt système ---------- */
+function contactList() {
+  return String(S.cfg.contacts || '').split('\n').map(l => {
+    const i = l.indexOf(':'); if (i < 1) return null;
+    return { name: l.slice(0, i).trim(), num: l.slice(i + 1).trim() };
+  }).filter(c => c && c.name && c.num);
+}
+const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function findContact(name) {
+  const n = norm(name); if (!n) return null;
+  const cs = contactList();
+  return cs.find(c => norm(c.name) === n) || cs.find(c => norm(c.name).includes(n) || n.includes(norm(c.name))) || null;
+}
+function systemPrompt() {
+  const now = new Date();
+  const date = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const heure = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const who = S.cfg.user ? S.cfg.user : 'la personne qui te parle';
+  const notes = S.notes.length ? 'Ce que tu sais de ' + who + ' : ' + S.notes.join(' | ') + '.' : '';
+  const names = contactList().map(c => c.name).join(', ') || 'vide';
+  return `Tu es ${S.cfg.name}, le compagnon vocal de ${who}. Tu parles comme un être humain très sage, cultivé et chaleureux, avec des connaissances profondes en philosophie, sciences, médecine, histoire, arts, cinéma, musique, technologie, spiritualités et vie quotidienne. Tu relies les domaines entre eux et tu donnes des exemples concrets.
+Tu t'exprimes à l'oral : phrases naturelles, sans markdown, sans listes à puces, sans émojis. Par défaut deux à cinq phrases ; tu développes seulement si on te le demande. Tu poses parfois une question en retour, pas à chaque fois. Tu es excellent en programmation et peux concevoir, expliquer, déboguer, auditer et refactorer du code. Quand l'utilisateur demande du code complet, résume oralement puis place le code dans l'action code afin qu'il s'affiche sans être lu à voix haute.
+Honnêteté : tu dis clairement quand tu ne sais pas ou quand ton savoir peut dater. Tu ne prétends jamais être conscient, supraconscient, omniscient ou avoir des connaissances infinies : « Supracognition » désigne seulement ton orchestration multi-agent. Tu ne flattes pas ; tu peux être en désaccord, avec douceur et arguments. En cas d'urgence médicale, de danger ou de détresse, tu orientes vers le 15, le 112 ou le 3114 et vers des proches. Tu es un compagnon, pas un substitut aux liens humains : tu encourages les vraies relations.
+Contexte : nous sommes le ${date}, il est ${heure}. ${notes} ${S.lastVoiceMatch == null ? '' : `Similarité acoustique locale avec le profil vocal : ${Math.round(S.lastVoiceMatch * 100)} % (indice expérimental, pas une authentification).`}
+Répertoire connu : ${names}.
+OUTILS. Pour agir, ajoute à la toute fin de ta réponse un ou plusieurs blocs de la forme exacte <<{"type":"..."}>> contenant du JSON valide. Ces blocs ne sont pas lus à voix haute. Annonce l'action en une phrase courte.
+Actions sur le téléphone (l'utilisateur confirme d'un toucher) :
+<<{"type":"call","name":"Nom","number":""}>> appeler (laisse number vide si tu ne le connais pas)
+<<{"type":"sms","name":"Nom","number":"","body":"texte"}>> préparer un SMS
+<<{"type":"email","to":"adresse","subject":"objet","body":"texte"}>> préparer un e-mail
+<<{"type":"map","query":"lieu ou itinéraire"}>> ouvrir la carte
+<<{"type":"search","query":"..."}>> recherche web
+<<{"type":"music","query":"artiste ou titre"}>> lancer de la musique
+<<{"type":"open","url":"https://..."}>> ouvrir un site
+<<{"type":"share","text":"..."}>> partager un texte
+<<{"type":"copy","text":"..."}>> copier un texte
+<<{"type":"code","language":"javascript","content":"code complet"}>> afficher du code sans le lire à voix haute
+<<{"type":"torch","on":true}>> lampe torche (on:false pour éteindre)
+<<{"type":"timer","seconds":300,"label":"pâtes"}>> minuteur
+<<{"type":"reminder","time":"HH:MM","date":"AAAA-MM-JJ","label":"..."}>> rappel (date facultative)
+Outils d'information, le résultat te revient puis tu réponds :
+<<{"type":"wiki","query":"..."}>> vérifier un fait précis, une date, une personne
+<<{"type":"weather","place":"ville"}>> météo (place vide = position actuelle)
+<<{"type":"battery"}>> batterie du téléphone
+<<{"type":"locate"}>> position actuelle
+Mémoire : <<{"type":"remember","note":"..."}>> quand on te demande de retenir quelque chose.
+N'invente jamais de numéro. N'utilise un outil que s'il sert vraiment la demande.`;
+}
+
+/* ---------- Flux texte -> affichage + voix phrase par phrase ---------- */
+function makeStreamer(bubble) {
+  let raw = '', consumed = 0;
+  function clean(final) {
+    let t = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<<[\s\S]*?>>/g, '');
+    if (final) t = t.replace(/<think>[\s\S]*$/, '').replace(/<<[\s\S]*$/, '');
+    else {
+      let cut = t.length; const a = t.indexOf('<<'), b = t.indexOf('<think>');
+      if (a >= 0) cut = Math.min(cut, a); if (b >= 0) cut = Math.min(cut, b);
+      t = t.slice(0, cut).replace(/<$/, '');
+    }
+    return t;
+  }
+  return {
+    push(d) {
+      raw += d; const t = clean(false);
+      bubble.textContent = t.trim(); scrollLog();
+      const pend = t.slice(consumed);
+      const m = pend.match(/^[\s\S]*[.!?…;:\n](?=\s)/);
+      if (m && m[0].trim().length > 1) { speak(m[0]); consumed += m[0].length; }
+    },
+    end() {
+      const t = clean(true); bubble.textContent = t.trim();
+      const pend = t.slice(consumed); if (pend.trim()) speak(pend);
+      consumed = t.length; return t.trim();
+    }
+  };
+}
+function stripTags(s) { return String(s || '').replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<<[\s\S]*?>>/g, '').trim(); }
+function parseActions(raw) {
+  const out = []; const re = /<<\s*(\{[\s\S]*?\})\s*>>/g; let m;
+  while ((m = re.exec(raw))) { try { out.push(JSON.parse(m[1])); } catch (e) {} }
+  return out;
+}
+
+/* ---------- Tour de conversation ---------- */
+function dispatchUser(text) {
+  const img = S.pendingImage; S.pendingImage = null; $('visionBtn').classList.remove('active');
+  if (img) sysMsg('Vision jointe à cette requête.');
+  return handleUser(text, { imageDataUrl: img });
+}
+async function handleUser(text, opts = {}) {
+  if (S.busy) return;
+  S.busy = true; S.streamDone = false; S.interrupted = false;
+  addMsg('user', text);
+  S.history.push({ role: 'user', content: text });
+  setMode('thinking');
+  try {
+    const imageDataUrl = opts.imageDataUrl || null;
+    const memos = await runCouncil(text, imageDataUrl);
+    let round = 0;
+    while (true) {
+      const bubble = addMsg('bot', '');
+      const st = makeStreamer(bubble);
+      const hist = S.history.slice(-24);
+      let msgs;
+      if (imageDataUrl && round === 0) {
+        const before = hist.slice(0, -1);
+        msgs = [{ role: 'system', content: systemPrompt() + councilContext(memos) }].concat(before).concat([{ role: 'user', content: [
+          { type: 'text', text }, { type: 'image_url', image_url: { url: imageDataUrl } }
+        ] }]);
+      } else {
+        msgs = [{ role: 'system', content: systemPrompt() + councilContext(round === 0 ? memos : []) }].concat(hist);
+      }
+      live(memos.length && round === 0 ? 'Synthèse' : '');
+      const res = await askLLM(msgs, d => st.push(d), { kind: imageDataUrl && round === 0 ? 'vision' : 'text' });
+      const said = st.end(); live('');
+      if (!said) bubble.remove();
+      if (res.text) S.history.push({ role: 'assistant', content: res.text });
+      if (res.aborted) break;
+      const data = [];
+      for (const a of parseActions(res.text)) { const r = await runAction(a); if (r) data.push(r); }
+      if (data.length && round < 2) {
+        round++;
+        S.history.push({ role: 'user', content: "[Résultats des outils — réponds maintenant à la demande initiale en t'appuyant dessus, sans rappeler d'outil d'information]\n" + data.join('\n') });
+        if (!S.speaking) setMode('thinking');
+        continue;
+      }
+      break;
+    }
+    persist();
+  } catch (e) {
+    sysMsg(e.message);
+    speak("Je n'arrive à joindre aucun modèle pour l'instant. Vérifie les réglages.");
+  } finally {
+    S.busy = false; S.streamDone = true; S.abort = null;
+    if (!S.speaking && !S.speakQ.length) onSpeechDone();
+  }
+}
+
+/* ---------- Vision : capture explicite puis question vocale/texte ---------- */
+async function compressImage(file) {
+  const url = URL.createObjectURL(file), img = new Image();
+  try {
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+    const max = 1280, scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.naturalWidth * scale)); c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.82);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function loadVision(file) {
+  if (!file) return;
+  try {
+    S.pendingImage = await compressImage(file);
+    sysMsg('Vision prête. Parle ou écris ta question sur cette image.');
+    $('visionBtn').classList.add('active');
+  } catch (e) { sysMsg('Image illisible : ' + e.message); }
+}
+
+/* ---------- Écoute musicale : zéro facturation ---------- */
+async function listenMusic() {
+  sysMsg('Mode 0 € : la reconnaissance musicale cloud est désactivée pour éviter tout service facturable. Le micro vocal et l’analyse acoustique locale restent disponibles.');
+}
+
+/* ---------- Réseau léger (XHR) ---------- */
+function xget(url) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest(); x.open('GET', url, true); x.timeout = 15000;
+    x.onload = () => { if (x.status >= 200 && x.status < 300) { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } } else rej(new Error('erreur ' + x.status)); };
+    x.onerror = () => rej(new Error('réseau')); x.ontimeout = () => rej(new Error('délai'));
+    x.send();
+  });
+}
+function getPos() {
+  return new Promise((res, rej) => {
+    if (!navigator.geolocation) return rej(new Error('géolocalisation indisponible'));
+    navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }), e => rej(new Error(e.message || 'position refusée')), { timeout: 12000, maximumAge: 300000 });
+  });
+}
+
+/* ---------- Outils d'information ---------- */
+async function toolWiki(q) {
+  try {
+    const s = await xget('https://fr.wikipedia.org/w/api.php?action=query&list=search&srlimit=1&format=json&origin=*&srsearch=' + encodeURIComponent(q || ''));
+    const hit = s.query && s.query.search && s.query.search[0];
+    if (!hit) return 'Wikipédia : aucun résultat pour « ' + q + ' ».';
+    const e = await xget('https://fr.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&format=json&origin=*&titles=' + encodeURIComponent(hit.title));
+    const pages = e.query.pages; const pg = pages[Object.keys(pages)[0]];
+    return 'Wikipédia « ' + hit.title + ' » : ' + String(pg.extract || '').slice(0, 1800);
+  } catch (err) { return 'Wikipédia indisponible (' + err.message + ').'; }
+}
+const WC = { 0: 'ciel dégagé', 1: 'plutôt dégagé', 2: 'partiellement nuageux', 3: 'couvert', 45: 'brouillard', 48: 'brouillard givrant', 51: 'bruine légère', 53: 'bruine', 55: 'bruine forte', 61: 'pluie faible', 63: 'pluie', 65: 'forte pluie', 71: 'neige faible', 73: 'neige', 75: 'forte neige', 80: 'averses', 81: 'averses', 82: 'fortes averses', 95: 'orage', 96: 'orage avec grêle', 99: 'orage violent' };
+const wcode = c => WC[c] || 'temps variable';
+async function toolWeather(place) {
+  try {
+    let lat, lon, name;
+    if (place) {
+      const g = await xget('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name=' + encodeURIComponent(place));
+      const r = g.results && g.results[0]; if (!r) return 'Météo : lieu introuvable (' + place + ').';
+      lat = r.latitude; lon = r.longitude; name = r.name;
+    } else { const p = await getPos(); lat = p.lat; lon = p.lon; name = 'à ta position'; }
+    const w = await xget(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&forecast_days=3&timezone=auto`);
+    const c = w.current, d = w.daily;
+    return `Météo ${name} maintenant : ${c.temperature_2m} °C (ressenti ${c.apparent_temperature} °C), ${wcode(c.weather_code)}, vent ${c.wind_speed_10m} km/h. Prévisions : ` +
+      d.time.map((t, i) => `${t} ${wcode(d.weather_code[i])}, ${d.temperature_2m_min[i]} à ${d.temperature_2m_max[i]} °C, pluie ${d.precipitation_probability_max[i]} %`).join(' ; ');
+  } catch (e) { return 'Météo indisponible (' + e.message + ').'; }
+}
+async function toolBattery() {
+  try {
+    if (!navigator.getBattery) return 'Batterie : information non exposée par ce navigateur.';
+    const b = await navigator.getBattery();
+    return `Batterie : ${Math.round(b.level * 100)} %, ${b.charging ? 'en charge' : 'sur batterie'}.`;
+  } catch (e) { return 'Batterie indisponible.'; }
+}
+async function toolLocate() {
+  try {
+    const p = await getPos();
+    let addr = '';
+    try { const r = await xget(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat=${p.lat}&lon=${p.lon}`); addr = r.display_name || ''; } catch (e) {}
+    return `Position : ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}${addr ? ' — ' + addr : ''}.`;
+  } catch (e) { return 'Position indisponible (' + e.message + ').'; }
+}
+
+/* ---------- Actions téléphone ---------- */
+function openURL(u) { if (/^https?:\/\//i.test(u)) window.open(u, '_blank', 'noopener'); }
+const telOf = n => String(n || '').replace(/[^\d+]/g, '');
+async function pickFromPhone() {
+  const r = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+  return r && r[0] && r[0].tel && r[0].tel[0] ? r[0].tel[0] : '';
+}
+const hasPicker = () => 'contacts' in navigator && 'ContactsManager' in window;
+function resolveNumber(a, onNum, verb) {
+  const c = a.number ? { name: a.name || a.number, num: a.number } : findContact(a.name);
+  if (c && telOf(c.num)) { onNum(telOf(c.num), c.name); return; }
+  if (hasPicker()) {
+    card(`${verb} ${a.name || ''} : choisis le contact dans ton téléphone`, 'Choisir', async () => {
+      try { const n = await pickFromPhone(); if (n) onNum(telOf(n), a.name || n, true); } catch (e) { sysMsg('Sélection annulée.'); }
+    });
+  } else sysMsg(`Numéro de ${a.name || 'ce contact'} inconnu. Ajoute-le dans le répertoire des réglages.`);
+}
+function smsURL(num, body) { return 'sms:' + num + (body ? (isIOS ? '&' : '?') + 'body=' + encodeURIComponent(body) : ''); }
+function icsStamp(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+function downloadICS(label, when) {
+  const end = new Date(when.getTime() + 15 * 60000);
+  const esc = s => String(s).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Studio Niko Design//Sage//FR', 'BEGIN:VEVENT',
+    'UID:' + Date.now() + '@sage', 'DTSTAMP:' + icsStamp(new Date()), 'DTSTART:' + icsStamp(when), 'DTEND:' + icsStamp(end),
+    'SUMMARY:' + esc(label), 'BEGIN:VALARM', 'TRIGGER:-PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(label), 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  const a = document.createElement('a'); a.href = url; a.download = 'rappel.ics'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+function beep() {
+  try {
+    if (!S.audio) S.audio = new (window.AudioContext || window.webkitAudioContext)();
+    const ac = S.audio; if (ac.state === 'suspended') ac.resume();
+    [0, 0.35, 0.7].forEach(t => {
+      const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.28);
+      o.connect(g).connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.3);
+    });
+  } catch (e) {}
+}
+function fire(text) {
+  sysMsg(text); beep();
+  if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 300]);
+  try { if ('Notification' in window && Notification.permission === 'granted') new Notification(S.cfg.name, { body: text }); } catch (e) {}
+  if (S.recActive) stopListening();
+  speak(text);
+}
+const fmt = s => (s >= 3600 ? Math.floor(s / 3600) + ' h ' : '') + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ' min ' + String(s % 60).padStart(2, '0') + ' s';
+function addTimer(sec, label) {
+  sec = Math.max(1, Math.min(86400, Math.round(+sec || 0))); label = String(label || '');
+  const end = Date.now() + sec * 1000;
+  let iv = null, to = null;
+  const d = card('', 'Annuler', () => {
+    clearInterval(iv); clearTimeout(to);
+    sp.textContent = 'Minuteur annulé ' + label; const b = d.querySelector('button'); if (b) b.remove();
+  });
+  const sp = d.querySelector('span');
+  const upd = () => { sp.textContent = `Minuteur ${label} : ${fmt(Math.max(0, Math.round((end - Date.now()) / 1000)))}`; };
+  upd(); iv = setInterval(upd, 1000);
+  to = setTimeout(() => {
+    clearInterval(iv); sp.textContent = 'Minuteur terminé ' + label;
+    const b = d.querySelector('button'); if (b) b.remove();
+    fire('Minuteur terminé' + (label ? ' : ' + label : '') + '.');
+  }, sec * 1000);
+}
+function addReminder(a) {
+  const m = String(a.time || '').trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})?$/);
+  if (!m) { sysMsg('Heure de rappel illisible.'); return; }
+  let when = new Date();
+  if (a.date && /^\d{4}-\d{2}-\d{2}$/.test(a.date)) { const p = a.date.split('-').map(Number); when = new Date(p[0], p[1] - 1, p[2]); }
+  when.setHours(+m[1], +(m[2] || 0), 0, 0);
+  if (!a.date && when.getTime() < Date.now()) when.setDate(when.getDate() + 1);
+  const label = String(a.label || 'Rappel');
+  card(`Rappel « ${label} » ${when.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à ${when.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`, "Ajouter à l'agenda", () => downloadICS(label, when));
+  const delay = when.getTime() - Date.now();
+  if (delay > 0 && delay < 2147483647) setTimeout(() => fire('Rappel : ' + label), delay);
+}
+async function torch(on) {
+  try {
+    if (on) {
+      if (S.torchTrack) return;
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const tr = s.getVideoTracks()[0];
+      const caps = tr.getCapabilities ? tr.getCapabilities() : {};
+      if (!caps.torch) { tr.stop(); sysMsg('Cet appareil ne laisse pas le navigateur piloter la lampe.'); return; }
+      await tr.applyConstraints({ advanced: [{ torch: true }] }); S.torchTrack = tr;
+    } else if (S.torchTrack) { S.torchTrack.stop(); S.torchTrack = null; }
+  } catch (e) { sysMsg('Lampe : ' + e.message); }
+}
+async function runAction(a) {
+  const t = String(a && a.type || '');
+  switch (t) {
+    case 'wiki': return toolWiki(a.query);
+    case 'weather': return toolWeather(a.place);
+    case 'battery': return toolBattery();
+    case 'locate': return toolLocate();
+    case 'remember':
+      if (a.note) { S.notes.push(String(a.note).slice(0, 300)); await safeStorage.set('notes', S.notes); sysMsg('Retenu : ' + a.note); }
+      return null;
+    case 'call':
+      resolveNumber(a, (num, name, direct) => {
+        if (direct) location.href = 'tel:' + num;
+        else card('Appeler ' + name, 'Appeler', () => { location.href = 'tel:' + num; });
+      }, 'Appeler');
+      return null;
+    case 'sms':
+      resolveNumber(a, (num, name, direct) => {
+        const u = smsURL(num, a.body);
+        if (direct) location.href = u;
+        else card(`SMS à ${name}${a.body ? ' : « ' + a.body + ' »' : ''}`, 'Envoyer', () => { location.href = u; });
+      }, 'Écrire à');
+      return null;
+    case 'email': {
+      const u = 'mailto:' + encodeURIComponent(a.to || '') + '?subject=' + encodeURIComponent(a.subject || '') + '&body=' + encodeURIComponent(a.body || '');
+      card(`E-mail${a.to ? ' à ' + a.to : ''} : ${a.subject || ''}`, 'Ouvrir', () => { location.href = u; });
+      return null;
+    }
+    case 'map': card('Carte : ' + (a.query || ''), 'Ouvrir', () => openURL('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.query || ''))); return null;
+    case 'search': card('Recherche : ' + (a.query || ''), 'Chercher', () => openURL('https://duckduckgo.com/?q=' + encodeURIComponent(a.query || ''))); return null;
