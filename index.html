@@ -141,7 +141,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:12p
 <div id="settings" class="modal" hidden role="dialog" aria-modal="true">
   <div class="sheet">
     <h2>Réglages</h2>
-    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v4</span></p>
+    <p class="hint">Une seule clé Mistral. Aucun autre fournisseur IA ni service musical payant. <span style="opacity:.6">· version v5</span></p>
 
     <h3>Identité</h3>
     <div class="pair">
@@ -1038,7 +1038,11 @@ document.addEventListener('keydown',e=>{
     speechEngine().onvoiceschanged=fillVoices;
     setTimeout(fillVoices,500);
   }
-  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
+    const hadCtrl=!!navigator.serviceWorker.controller;let reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadCtrl&&!reloaded&&!S.busy){reloaded=true;location.reload()}});
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  }
   if(!S.cfg.keys.mistral){
     sysMsg('Bienvenue. Ouvre ⚙ pour coller ta clé Mistral et activer Sage.');
   }else if(!S.cfg.billing.zeroConfirmed){
