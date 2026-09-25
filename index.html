@@ -7,6 +7,9 @@
 <title>Sage — compagnon vocal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -528,6 +531,7 @@ async function askLLM(messages, onDelta, opts = {}) {
   const list = providers(opts.kind || 'text');
   if (!list.length) throw new Error('Mode 0 € verrouillé. Ouvre ⚙, colle ta clé Mistral, valide-la puis confirme « mode Gratuit + paiement à l’usage désactivé ».');
   const p = list[0];
+  await rateGate();
   try {
     const r = await streamXHR(p, messages, onDelta, opts); S.lastProvider = p.id + ' · 0 €'; return r;
   } catch (e) {
@@ -569,10 +573,10 @@ async function validateMistralKey() {
   if (!key) { setMistralKeyStatus('invalid', '✗ Aucune clé Mistral. Colle une clé API Studio puis relance la validation.'); return false; }
   btn.disabled = true;
   setMistralKeyStatus('checking', 'Validation de l’authentification Mistral… aucun texte n’est généré pendant ce test.');
-  const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 15000);
+  const to = null;
   try {
-    const r = await fetch('https://api.mistral.ai/v1/models', { method: 'GET', headers: { Authorization: 'Bearer ' + key }, signal: ctrl.signal });
-    let j = null; try { j = await r.json(); } catch (_) {}
+    const r = await xhrJSON('GET', 'https://api.mistral.ai/v1/models', { Authorization: 'Bearer ' + key }, 15000);
+    const j = r.json;
     if (r.status === 401) { setMistralKeyStatus('invalid', '✗ CLÉ INVALIDE ou expirée — authentification refusée (HTTP 401).'); return false; }
     if (r.status === 402) { setMistralKeyStatus('invalid', '✗ FACTURATION DEMANDÉE (HTTP 402). Mode 0 € : Sage n’ira pas plus loin.'); return false; }
     if (r.status === 429) { setMistralKeyStatus('warn', '⚠ Clé reconnue, mais limite de débit atteinte (HTTP 429). Réessaie plus tard.'); return false; }
@@ -998,3 +1002,231 @@ async function runAction(a) {
     }
     case 'map': card('Carte : ' + (a.query || ''), 'Ouvrir', () => openURL('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.query || ''))); return null;
     case 'search': card('Recherche : ' + (a.query || ''), 'Chercher', () => openURL('https://duckduckgo.com/?q=' + encodeURIComponent(a.query || ''))); return null;
+    case 'music': card('Musique : ' + (a.query || ''), 'Écouter', () => openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(a.query || ''))); return null;
+    case 'open': if (/^https?:\/\//i.test(a.url || '')) card('Ouvrir ' + a.url, 'Ouvrir', () => openURL(a.url)); return null;
+    case 'share': {
+      const txt = String(a.text || '');
+      if (navigator.share) card('Partager : ' + txt.slice(0, 90), 'Partager', async () => { try { await navigator.share({ text: txt }); } catch (e) {} });
+      else card('Partage indisponible ici : ' + txt.slice(0, 90), 'Copier', () => copyText(txt));
+      return null;
+    }
+    case 'copy': card('Copier : ' + String(a.text || '').slice(0, 90), 'Copier', () => copyText(a.text)); return null;
+    case 'code': codeCard(a.language, a.content); return null;
+    case 'torch': await torch(a.on !== false); return null;
+    case 'timer': addTimer(a.seconds, a.label); return null;
+    case 'reminder': addReminder(a); return null;
+    default: return null;
+  }
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(String(t || '')); sysMsg('Copié.'); }
+  catch (e) { sysMsg('Copie refusée par le navigateur.'); }
+}
+
+/* ---------- XHR JSON (convention : jamais fetch) ---------- */
+function xhrJSON(method, url, headers, timeout) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest(); x.open(method, url, true); x.timeout = timeout || 15000;
+    for (const k in (headers || {})) x.setRequestHeader(k, headers[k]);
+    x.onload = () => { let j = null; try { j = JSON.parse(x.responseText); } catch (e) {} res({ status: x.status, ok: x.status >= 200 && x.status < 300, statusText: x.statusText, json: j }); };
+    x.onerror = () => rej(new Error('réseau injoignable')); x.ontimeout = () => rej(new Error('délai dépassé'));
+    x.send();
+  });
+}
+
+/* ---------- Garde de débit : offre gratuite Mistral ≈ 1 requête/s ---------- */
+let lastCallAt = 0; const MIN_GAP = 1100;
+function rateGate() {
+  const now = Date.now(), wait = Math.max(0, lastCallAt + MIN_GAP - now);
+  lastCallAt = now + wait;
+  return wait ? new Promise(r => setTimeout(r, wait)) : Promise.resolve();
+}
+
+/* ---------- Orbe ---------- */
+const orb = $('orb'), octx = orb.getContext('2d');
+let OW = 0, OH = 0, col = [230, 169, 63];
+const MODE_COL = { idle: [230, 169, 63], listening: [134, 179, 151], thinking: [91, 123, 224], speaking: [230, 169, 63] };
+const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+function resize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), r = orb.getBoundingClientRect();
+  OW = r.width; OH = r.height; orb.width = Math.max(1, Math.round(OW * dpr)); orb.height = Math.max(1, Math.round(OH * dpr));
+  octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function frame(t) {
+  requestAnimationFrame(frame);
+  if (!OW || document.hidden) return;
+  const target = MODE_COL[S.mode] || MODE_COL.idle;
+  col = col.map((c, i) => c + (target[i] - c) * 0.06);
+  S.energy *= 0.93;
+  if (S.mode === 'thinking') S.energy = Math.max(S.energy, 0.25 + 0.15 * Math.sin(t / 260));
+  if (S.mode === 'listening') S.energy = Math.max(S.energy, 0.15);
+  const e = reduceMotion ? 0.2 : S.energy, tt = reduceMotion ? 0 : t / 1000;
+  const cx = OW / 2, cy = OH / 2, R = Math.min(OW, OH) * 0.28, [r, g, b] = col.map(Math.round);
+  octx.clearRect(0, 0, OW, OH);
+  const halo = R * (1.9 + e * 0.6), glow = octx.createRadialGradient(cx, cy, R * 0.2, cx, cy, halo);
+  glow.addColorStop(0, `rgba(${r},${g},${b},${0.32 + e * 0.3})`); glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  octx.fillStyle = glow; octx.beginPath(); octx.arc(cx, cy, halo, 0, Math.PI * 2); octx.fill();
+  for (let k = 0; k < 3; k++) {
+    octx.beginPath();
+    for (let i = 0; i <= 96; i++) {
+      const a = i / 96 * Math.PI * 2;
+      const w = Math.sin(a * (3 + k) + tt * (1.2 + k * 0.5)) * R * (0.04 + e * 0.12) + Math.sin(a * 7 - tt * 2) * R * e * 0.05;
+      const rr = R * (1 - k * 0.12) + w, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      i ? octx.lineTo(x, y) : octx.moveTo(x, y);
+    }
+    octx.closePath(); octx.strokeStyle = `rgba(${r},${g},${b},${0.9 - k * 0.25})`; octx.lineWidth = k ? 1 : 2; octx.stroke();
+  }
+  const core = octx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.05, cx, cy, R * 0.9);
+  core.addColorStop(0, 'rgba(236,228,207,0.5)'); core.addColorStop(1, `rgba(${r},${g},${b},0.07)`);
+  octx.fillStyle = core; octx.beginPath(); octx.arc(cx, cy, R * 0.86, 0, Math.PI * 2); octx.fill();
+}
+
+/* ---------- Mode cerveau ---------- */
+const BRAIN = { auto: ['∞ Auto', 'Cerveau · Auto'], supra: ['✦ Supra', 'Cerveau · Supra'], flash: ['⚡ Fulgurant', 'Cerveau · Fulgurant'] };
+function renderBrain() {
+  const m = BRAIN[S.cfg.brain.mode] ? S.cfg.brain.mode : 'auto';
+  $('brainMode').textContent = BRAIN[m][0]; $('brainBadge').textContent = BRAIN[m][1];
+  $('brainMode').classList.toggle('active', m !== 'flash');
+}
+async function cycleBrain() {
+  const order = ['auto', 'supra', 'flash'];
+  S.cfg.brain.mode = order[(order.indexOf(S.cfg.brain.mode) + 1) % order.length];
+  renderBrain(); await safeStorage.set('cfg', S.cfg);
+  sysMsg(S.cfg.brain.mode === 'supra' ? 'Mode Supra : plusieurs agents analysent avant la synthèse. Plus lent, et chaque agent consomme une requête.' : S.cfg.brain.mode === 'flash' ? 'Mode Fulgurant : réponse directe, une seule requête.' : 'Mode Auto : agents seulement pour les questions complexes.');
+}
+
+/* ---------- Historique + persistance ---------- */
+async function persist() { S.history = S.history.slice(-80); await safeStorage.set('history', S.history); }
+function renderHistory() {
+  $('log').innerHTML = '';
+  for (const m of S.history.slice(-40)) {
+    const c = typeof m.content === 'string' ? m.content : '';
+    if (m.role === 'user' && !c.startsWith('[Résultats des outils')) addMsg('user', c);
+    else if (m.role === 'assistant') { const t = stripTags(c); if (t) addMsg('bot', t); }
+  }
+}
+function exportConversation() {
+  const who = S.cfg.user || 'Moi';
+  const lines = S.history.filter(m => typeof m.content === 'string' && !m.content.startsWith('[Résultats des outils'))
+    .map(m => (m.role === 'user' ? who : S.cfg.name) + ' : ' + (m.role === 'assistant' ? stripTags(m.content) : m.content));
+  if (!lines.length) { sysMsg('Rien à exporter pour l’instant.'); return; }
+  const url = URL.createObjectURL(new Blob([lines.join('\n\n')], { type: 'text/plain;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = 'conversation-' + S.cfg.name.toLowerCase() + '-' + new Date().toISOString().slice(0, 10) + '.txt';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+async function clearConversation() {
+  if (!confirm('Effacer toute la conversation ? Les notes retenues sont conservées.')) return;
+  S.history = []; await safeStorage.set('history', []); $('log').innerHTML = ''; sysMsg('Conversation effacée.');
+}
+
+/* ---------- Réglages ---------- */
+function applyIdentity() { $('compName').textContent = S.cfg.name; document.title = S.cfg.name + ' — compagnon vocal'; }
+function fillSettings() {
+  const c = S.cfg;
+  $('setName').value = c.name; $('setUser').value = c.user; fillVoices();
+  $('setRate').value = c.rate; $('setPitch').value = c.pitch;
+  $('keyMistral').value = c.keys.mistral || ''; $('modMistral').value = FREE_MISTRAL_MODEL; $('visionMistral').value = FREE_MISTRAL_MODEL;
+  $('setBrainMode').value = c.brain.mode; $('setMaxAgents').value = c.brain.maxAgents;
+  $('setContacts').value = c.contacts || ''; $('setNotes').value = S.notes.join('\n');
+  $('zeroBillingConfirm').checked = !!c.billing.zeroConfirmed; updateBillingGuardStatus();
+}
+function readSettings() {
+  const c = S.cfg;
+  c.name = $('setName').value.trim().slice(0, 40) || 'Sage'; c.user = $('setUser').value.trim().slice(0, 40);
+  if ($('setVoice').value) c.voice = $('setVoice').value;
+  c.rate = +$('setRate').value || 1; c.pitch = +$('setPitch').value || 1;
+  c.keys = { mistral: sanitizeKey($('keyMistral').value) };
+  c.models = { mistral: FREE_MISTRAL_MODEL }; c.vision = { mistral: FREE_MISTRAL_MODEL };
+  c.brain = { mode: BRAIN[$('setBrainMode').value] ? $('setBrainMode').value : 'auto', maxAgents: Math.max(2, Math.min(6, +$('setMaxAgents').value || 3)) };
+  c.billing = { zeroOnly: true, zeroConfirmed: $('zeroBillingConfirm').checked };
+  c.contacts = $('setContacts').value;
+  S.notes = $('setNotes').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 200);
+}
+let lastFocus = null;
+function openSettings() {
+  lastFocus = document.activeElement; fillSettings();
+  const m = $('settings'); m.hidden = false; m.classList.add('open'); $('setName').focus();
+}
+function closeSettings() {
+  const m = $('settings'); m.classList.remove('open'); m.hidden = true;
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+async function saveSettings() {
+  readSettings();
+  await safeStorage.set('cfg', S.cfg); await safeStorage.set('notes', S.notes);
+  applyIdentity(); renderBrain(); closeSettings();
+  sysMsg(providers().length ? 'Réglages enregistrés. Sage est prêt.' : 'Réglages enregistrés. Il manque encore la clé Mistral ou la confirmation du mode 0 €.');
+}
+
+/* ---------- Saisie texte ---------- */
+function sendText() {
+  const t = $('txt').value.trim(); if (!t) return;
+  if (S.busy) { sysMsg('Je termine ma réponse. Touche l’orbe pour m’interrompre.'); return; }
+  $('txt').value = '';
+  if (S.recActive) stopListening();
+  if (S.speaking) stopSpeaking();
+  dispatchUser(t);
+}
+
+/* ---------- Événements ---------- */
+orb.addEventListener('click', onTalk);
+orb.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTalk(); } });
+$('talk').addEventListener('click', onTalk);
+$('send').addEventListener('click', sendText);
+$('txt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); sendText(); } });
+$('convo').addEventListener('change', async e => { await setConvo(e.target.checked); if (e.target.checked && !S.busy && !S.speaking && !S.recActive) listen(); });
+$('brainMode').addEventListener('click', cycleBrain);
+$('visionBtn').addEventListener('click', () => $('visionInput').click());
+$('visionInput').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; loadVision(f); e.target.value = ''; });
+$('musicBtn').addEventListener('click', listenMusic);
+$('settingsBtn').addEventListener('click', openSettings);
+$('btnClose').addEventListener('click', closeSettings);
+$('btnSave').addEventListener('click', saveSettings);
+$('settings').addEventListener('click', e => { if (e.target === $('settings')) closeSettings(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('settings').hidden) closeSettings(); });
+$('btnValidateMistral').addEventListener('click', validateMistralKey);
+$('openMistralAccount').addEventListener('click', () => openURL('https://console.mistral.ai/'));
+$('zeroBillingConfirm').addEventListener('change', e => { S.cfg.billing.zeroConfirmed = e.target.checked; updateBillingGuardStatus(); });
+$('keyMistral').addEventListener('input', () => setMistralKeyStatus('idle', 'Clé Mistral modifiée, non vérifiée.'));
+$('testVoice').addEventListener('click', () => {
+  if ($('setVoice').value) S.cfg.voice = $('setVoice').value;
+  S.cfg.rate = +$('setRate').value || 1; S.cfg.pitch = +$('setPitch').value || 1;
+  stopSpeaking(); S.interrupted = false;
+  speak(`Bonjour${$('setUser').value.trim() ? ' ' + $('setUser').value.trim() : ''}. Voici ma voix.`);
+});
+$('velvetVoice').addEventListener('click', applyVelvetVoice);
+$('voiceEnroll').addEventListener('click', enrollVoiceProfile);
+$('btnNotif').addEventListener('click', async () => {
+  if (!('Notification' in window)) { sysMsg('Notifications non disponibles dans ce navigateur.'); return; }
+  const p = await Notification.requestPermission();
+  sysMsg(p === 'granted' ? 'Notifications autorisées pour les minuteurs et rappels.' : 'Notifications refusées.');
+});
+$('btnExport').addEventListener('click', exportConversation);
+$('btnClear').addEventListener('click', clearConversation);
+window.addEventListener('resize', resize);
+{ const ss = speechEngine(); if (ss && 'onvoiceschanged' in ss) ss.onvoiceschanged = fillVoices; }
+
+/* ---------- Démarrage ---------- */
+(async function init() {
+  const saved = await safeStorage.get('cfg', null);
+  if (saved && typeof saved === 'object') {
+    S.cfg = Object.assign(clone(DEF), saved, {
+      keys: { mistral: sanitizeKey(saved.keys && saved.keys.mistral) },
+      models: { mistral: FREE_MISTRAL_MODEL }, vision: { mistral: FREE_MISTRAL_MODEL },
+      brain: Object.assign({}, DEF.brain, saved.brain),
+      billing: Object.assign({}, DEF.billing, saved.billing, { zeroOnly: true })
+    });
+  }
+  S.history = await safeStorage.get('history', []); if (!Array.isArray(S.history)) S.history = [];
+  S.notes = await safeStorage.get('notes', []); if (!Array.isArray(S.notes)) S.notes = [];
+  S.voiceProfile = await safeStorage.get('voiceProfile', null);
+  if (S.voiceProfile) $('voiceProfileHint').textContent = `Profil vocal local enregistré (${S.voiceProfile.samples} mesures). Indicateur expérimental uniquement.`;
+  applyIdentity(); renderBrain(); renderHistory(); fillVoices(); resize(); requestAnimationFrame(frame); setMode('idle');
+  if (!SR) sysMsg('Reconnaissance vocale absente de ce navigateur : l’écrit reste possible. Chrome sur Android donne la meilleure expérience.');
+  if (!providers().length) sysMsg('Première étape : ouvre ⚙, colle ta clé Mistral, valide-la, puis confirme le mode 0 €.');
+  else if (!S.history.length) addMsg('bot', `Bonjour${S.cfg.user ? ' ' + S.cfg.user : ''}. Je suis ${S.cfg.name}. Touche l'orbe et parle-moi de ce que tu veux.`);
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
