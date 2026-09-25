@@ -1,0 +1,11 @@
+{
+  "name": "Sage — compagnon vocal",
+  "short_name": "Sage",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161330",
+  "theme_color": "#161330",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
